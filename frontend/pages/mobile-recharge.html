@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recarga de Celular - VascoBank</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+  <style>
+    /* mobile-recharge.css */
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #880d1e;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    main {
+      padding: 20px;
+      max-width: 600px;
+      margin: 300px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #880d1e;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #880d1e;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #dd2d4a;
+    }
+
+    #result-message {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 10px;
+      color: #880d1e;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    .social-icons {
+      margin-top: 10px;
+    }
+
+    .social-icons a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 1.125rem;
+      transition: color 0.4s, transform 0.3s;
+    }
+
+    .social-icons a:hover,
+    .social-icons a:focus {
+      color: #dd2d4a;
+      transform: scale(1.1);
+    }
+
+    .social-icons a:focus {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    footer {
+      background-color: #880d1e;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 580px;
+    }
+  </style>
+  <header>
+    <h1>VascoBank</h1>
+  </header>
+
+  <main>
+    <h2>Recarga de Celular</h2>
+    <form id="recharge-form">
+      <div class="form-group">
+        <label for="phone-number">Número de Celular:</label>
+        <input type="tel" id="phone-number" name="phone-number" placeholder="Digite o número" required>
+      </div>
+      <div class="form-group">
+        <label for="amount">Valor da Recarga:</label>
+        <input type="number" id="amount" name="amount" placeholder="Digite o valor" required>
+      </div>
+      <button type="submit">Realizar Recarga</button>
+      <a href="index.html" class="back-button">Voltar</a>
+    </form>
+    <p id="result-message"></p>
+  </main>
+
+  <footer>
+    <p>© 2024 VascoBank. Todos os direitos reservados.</p>
+    <div class="social-icons">
+      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+  </footer>
+
+  <script src="js/mobile-recharge.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - VascoBank</title>
+  <link rel="icon" href="img/vasco-bank.jpeg" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../pages/css/dashboard.css">
+</head>
+
+<body>
+  <header class="navbar navbar-expand-lg navbar-dark bg-dark">
+  </header>
+
+  <main class="container mt-4">
+    <div class="row">
+      <div class="col-md-8">
+        <h2>Bem-vindo, <span id="userName">[Nome do Usuário]</span></h2>
+        <div id="erroUserID" style="color: red;"></div>
+      </div>
+      <div class="col-md-4">
+        <h3>Ações Rápidas</h3>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <h3>Buscar Conta</h3>
+      <form id="searchAccountForm">
+        <div class="form-group">
+          <input type="text" id="accountNumber" class="form-control" placeholder="Número da conta">
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar Conta</button>
+      </form>
+      <div id="message" class="mt-2"></div>
+    </div>
+  </main>
+
+  <a href="index.html" class="back-button">Voltar</a>
+
+  <footer>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+
+</html>

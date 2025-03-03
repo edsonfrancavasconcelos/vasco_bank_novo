@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transferência - VascoBank</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+  <style>
+    /* Estilos gerais para o site */
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #880d1e;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    main {
+      padding: 20px;
+      max-width: 800px;
+      margin: 300px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #880d1e;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #880d1e;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #dd2d4a;
+    }
+
+    .back-button {
+      color: #880d1e;
+      text-decoration: none;
+      font-size: 16px;
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    #message {
+      color: #880d1e;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    .social-icons {
+      margin-top: 10px;
+    }
+
+    .social-icons a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 1.125rem;
+      transition: color 0.4s, transform 0.3s;
+    }
+
+    .social-icons a:hover,
+    .social-icons a:focus {
+      color: #dd2d4a;
+      transform: scale(1.1);
+    }
+
+    .social-icons a:focus {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    footer {
+      background-color: #880d1e;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 480px;
+    }
+  </style>
+  <header>
+    <h1>VascoBank</h1>
+  </header>
+
+  <main>
+    <h2>Realizar Transferência</h2>
+    <form id="transferForm">
+      <label for="accountNumber">Número da Conta Destino:</label>
+      <input type="text" id="accountNumber" name="accountNumber" required><br><br>
+
+      <label for="amount">Valor (R$):</label>
+      <input type="number" id="amount" name="amount" step="0.01" required><br><br>
+
+      <button type="submit">Enviar Transferência</button>
+      <a href="index.html" class="back-button">Voltar</a>
+    </form>
+    <div id="message"></div>
+  </main>
+  <footer>
+    <p>© 2024 VascoBank. Todos os direitos reservados.</p>
+    <div class="social-icons">
+      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+  </footer>
+
+  <script src="js/transfer.js"></script>
+</body>
+
+</html>
