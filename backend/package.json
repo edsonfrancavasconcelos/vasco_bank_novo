@@ -4,7 +4,9 @@
   "description": "Um sistema bancario digital",
   "main": "backend/server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "jest"
   },
   "author": "Edson França Vasconcelos",
   "license": "MIT",
@@ -22,17 +24,19 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
-    "supertest": "^7.0.0",
-    "webpack": "^5.98.0",
-    "webpack-cli": "^6.0.1"
+    "supertest": "^7.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/edsonfrancavasconcelos/vbank.git"
+    "url": "git+https://github.com/edsonfrancavasconcelos/vasco_bank_novo/git"
   },
-  "keywords": [],
+  "keywords": ["banco", "digital", "api", "node.js", "express", "mongodb"],
   "bugs": {
-    "url": "https://github.com/edsonfrancavasconcelos/vbank/issues"
+    "url": "https://github.com/edsonfrancavasconcelos/vasco_bank_novo/issues"
   },
-  "homepage": "https://github.com/edsonfrancavasconcelos/vbank#readme"
+  "homepage": "https://github.com/edsonfrancavasconcelos/vasco_bank_novo#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
 }
