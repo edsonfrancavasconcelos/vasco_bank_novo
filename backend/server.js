@@ -4,14 +4,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const authMiddleware = require("./middlewares/authMiddleware");
-const authController = require("./controllers/authController"); // Novo controlador de autenticação
-
-// Importação das rotas
-const accountRoutes = require("./routes/accountRoutes");
-const cardRoutes = require("./routes/cardRoutes");
-const paymentRoutes = require("./routes/paymentRoutes");
-const pixRoutes = require("./routes/pixRoutes");
-const userRoutes = require("./routes/userRoutes");
+const authController = require("./controllers/authController");
 
 const app = express();
 
@@ -35,19 +28,19 @@ const connectDB = async () => {
       throw new Error("MONGO_URI não definida no .env");
     }
     await mongoose.connect(mongoURI, {});
-    console.log(`✅ MongoDB conectado`);
+    console.log("✅ MongoDB conectado");
   } catch (error) {
-    console.error(`❌ Erro ao conectar ao MongoDB:`, error);
+    console.error("❌ Erro ao conectar ao MongoDB:", error);
     process.exit(1);
   }
 };
 
 connectDB();
 
-// Autenticação (usando authController)
-app.post("/login", authController.login); // Usando o controlador de autenticação
+// Autenticação
+app.post("/login", authController.login);
 
-// Rotas protegidas (usando authMiddleware)
+// Rota protegida
 app.get("/protegido", authMiddleware, (req, res) => {
   res.json({ message: "Rota protegida acessada com sucesso", user: req.user });
 });
@@ -55,6 +48,13 @@ app.get("/protegido", authMiddleware, (req, res) => {
 app.get("/api/users/me", authMiddleware, (req, res) => {
   res.json({ fullName: req.user.usuario, balance: 1000 });
 });
+
+// Importação das rotas
+const accountRoutes = require("./routes/accountRoutes");
+const cardRoutes = require("./routes/cardRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const pixRoutes = require("./routes/pixRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Rotas da API
 app.use("/api/accounts", accountRoutes);
@@ -67,7 +67,7 @@ const PORT = process.env.PORT || 3000;
 
 // Iniciar o servidor
 const server = app.listen(PORT, () => {
-  console.log(` Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
 
 // Tratamento de erros do servidor
@@ -77,7 +77,7 @@ server.on("error", (err) => {
 
 // Tratamento de encerramento do servidor
 process.on("SIGINT", () => {
-  console.log(" Servidor encerrando...");
+  console.log("Servidor encerrando...");
   server.close(() => {
     mongoose.connection.close().then(() => {
       console.log("✅ Conexão com o MongoDB fechada.");

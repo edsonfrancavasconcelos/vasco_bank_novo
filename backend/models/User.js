@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const { v4: uuidv4 } = require("uuid"); // Importa UUID v4
 
 const userSchema = new mongoose.Schema(
   {

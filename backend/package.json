@@ -1,36 +1,30 @@
 {
-  "name": "vasco-bank",
+  "name": "vasco_bank_backend",
   "version": "1.0.0",
-  "description": "Um sistema bancario digital",
-  "main": "backend/server.js",
+  "description": "Backend do Vasco Bank",
+  "main": "server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "nodemon backend/server.js",
-    "test": "jest"
+    "start": "node server.js"
   },
-  "author": "Edson França Vasconcelos",
-  "license": "MIT",
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.8.1",
-    "mongoose": "^8.7.0",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.9",
-    "supertest": "^7.0.0"
+    "mongoose": "^8.0.3",
+    "cors": "^2.8.5"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/edsonfrancavasconcelos/vasco_bank_novo/git"
   },
-  "keywords": ["banco", "digital", "api", "node.js", "express", "mongodb"],
+  "keywords": [
+    "banco",
+    "digital",
+    "api",
+    "node.js",
+    "express",
+    "mongodb"
+  ],
   "bugs": {
     "url": "https://github.com/edsonfrancavasconcelos/vasco_bank_novo/issues"
   },
