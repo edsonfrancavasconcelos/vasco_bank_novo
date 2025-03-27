@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
+const jwt = require("jsonwebtoken"); // Adiciona o JWT
 require("dotenv").config();
 const routes = require("./routes/index");
 
@@ -9,6 +10,20 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../frontend/pages")));
+app.use("/js", express.static(path.join(__dirname, "../frontend/js")));
+// Middleware de autenticação
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Token não fornecido" });
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
+    req.user = user;
+    console.log("Usuário decodificado no middleware:", user); // Adiciona esse log
+    next();
+  });
+};
+
 
 // Conexão com MongoDB
 const mongoURI =
@@ -18,9 +33,9 @@ mongoose
   .then(() => console.log("Conectado ao MongoDB Atlas com sucesso!"))
   .catch((err) => console.error("Erro ao conectar ao MongoDB Atlas:", err));
 
-// Rotas da API primeiro
+// Rotas da API (com autenticação onde necessário)
 app.use("/api/users", routes.userRoutes);
-app.use("/api/transactions", routes.transactionRoutes);
+app.use("/api/transactions", authenticateToken, routes.transactionRoutes); // Aplica o middleware aqui
 console.log(
   "Rotas de transações carregadas:",
   routes.transactionRoutes.stack.map((r) => r.route.path)
