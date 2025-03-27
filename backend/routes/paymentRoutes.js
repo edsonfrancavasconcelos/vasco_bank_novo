@@ -1,9 +1,9 @@
-const express = require('express');
-const { makePayment } = require('../controllers/makePaymentController'); // Certifique-se de que o nome do controlador está correto
-
+const express = require("express");
 const router = express.Router();
 
-// Rota para realizar pagamento
-router.post('/pay', makePayment);
+// Exemplo de rota básica
+router.get("/payment", (req, res) => {
+  res.json({ message: "Rota de pagamento funcionando" });
+});
 
 module.exports = router;

@@ -1,0 +1,327 @@
+/* Data: 26 de Março de 2025, 16:15 - Nome: style.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color1: #f8230f; /* Vermelho mais claro */
+  --color2: #dd1a0b; /* Vermelho médio-claro */
+  --color3: #c31208; /* Vermelho médio */
+  --color4: #a80904; /* Vermelho médio-escuro */
+  --color5: #8d0000; /* Vermelho escuro */
+  --text-dark: #333; /* Cor de texto escura padrão */
+  --text-light: #fff; /* Cor de texto clara padrão */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background-color: var(--color1);
+  color: var(--text-light);
+  text-align: center;
+  padding: 1.5rem;
+}
+
+header h1 {
+  font-size: 2rem;
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  color: var(--text-light);
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1.1rem;
+}
+
+nav a:hover {
+  color: var(--color2);
+}
+
+main {
+  max-width: 1200px;
+  width: 90%;
+  margin: 20px auto;
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2,
+h3 {
+  color: var(--color3);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Formulários (login.html, create-account.html, dashboard.html) */
+form {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-group,
+.field {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.form-group label,
+.field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.form-group input,
+.form-group select,
+.field input,
+.field select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Botões (usado em todas as páginas) */
+button,
+.btn {
+  background-color: var(--color4);
+  color: var(--text-light);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 10px 0;
+  transition: background-color 0.3s;
+}
+
+button:hover,
+.btn:hover {
+  background-color: var(--color2);
+}
+
+.btn-secondary {
+  background-color: #ccc;
+  color: var(--text-dark);
+}
+
+.btn-secondary:hover {
+  background-color: #999;
+}
+
+.back-btn {
+  background-color: #ccc;
+  color: var(--text-dark);
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Links como botões (index.html) */
+main ul {
+  list-style: none;
+  width: 100%;
+  max-width: 400px;
+}
+
+main ul li {
+  margin: 10px 0;
+}
+
+main ul li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  background-color: var(--color4);
+  color: var(--text-light);
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+main ul li a i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+main ul li a:hover {
+  background-color: var(--color2);
+}
+
+/* Grade de transações (dashboard.html, transactions.html) */
+.transaction-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px 0;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.transaction-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  width: 120px;
+  background-color: var(--color3);
+  color: var(--text-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.transaction-item:hover {
+  background-color: var(--color2);
+}
+
+.transaction-item i {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.transaction-item span {
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Tabelas (transactions.html, statement.html, dashboard.html) */
+.history-section,
+.statement-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  background-color: var(--color5);
+  color: var(--text-light);
+}
+
+/* Mensagens (usado em várias páginas) */
+#message,
+#transactionMessage,
+#historyMessage {
+  margin: 10px 0;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.success {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+/* Footer (todas as páginas) */
+footer {
+  background-color: var(--color1);
+  color: var(--text-light);
+  text-align: center;
+  padding: 1rem;
+  width: 100%;
+  margin-top: auto;
+}
+
+.social-icons a {
+  color: var(--text-light);
+  margin: 0 10px;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+.social-icons a:hover {
+  color: var(--color2);
+}
+
+/* Responsividade (aplicada a todas as páginas) */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  nav a {
+    margin: 0 10px;
+    font-size: 1rem;
+  }
+
+  .transaction-item {
+    width: 100px;
+  }
+
+  .transaction-item i {
+    font-size: 26px;
+  }
+
+  .transaction-item span {
+    font-size: 12px;
+  }
+
+  form,
+  .form-group,
+  .field,
+  #message,
+  #transactionMessage,
+  #historyMessage {
+    max-width: 100%;
+  }
+
+  button,
+  .btn {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  main {
+    width: 95%;
+    padding: 10px;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+}

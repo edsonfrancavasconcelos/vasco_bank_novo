@@ -1,87 +1,54 @@
-require("dotenv").config();
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const cors = require("cors");
-const authMiddleware = require("./middlewares/authMiddleware");
-const authController = require("./controllers/authController");
+const path = require("path");
+require("dotenv").config();
+const routes = require("./routes/index");
 
 const app = express();
 
-// Configuração de CORS
-app.use(
-  cors({
-    origin: "http://127.0.0.1:5500",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "../frontend/pages")));
+
+// Conexão com MongoDB
+const mongoURI =
+  process.env.MONGO_URI || "mongodb://localhost:27017/vasco_bank";
+mongoose
+  .connect(mongoURI, {})
+  .then(() => console.log("Conectado ao MongoDB Atlas com sucesso!"))
+  .catch((err) => console.error("Erro ao conectar ao MongoDB Atlas:", err));
+
+// Rotas da API primeiro
+app.use("/api/users", routes.userRoutes);
+app.use("/api/transactions", routes.transactionRoutes);
+console.log(
+  "Rotas de transações carregadas:",
+  routes.transactionRoutes.stack.map((r) => r.route.path)
+);
+app.use("/api/login", routes.loginRoutes);
+
+// Rotas de páginas estáticas depois
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "../frontend/pages/index.html"))
+);
+app.get("/login", (req, res) =>
+  res.sendFile(path.join(__dirname, "../frontend/pages/login.html"))
+);
+app.get("/dashboard", (req, res) =>
+  res.sendFile(path.join(__dirname, "../frontend/pages/dashboard.html"))
+);
+app.get("/create-account", (req, res) =>
+  res.sendFile(path.join(__dirname, "../frontend/pages/create-account.html"))
 );
 
-app.use(express.json());
+// Middleware para rotas não encontradas
+app.use((req, res) => res.status(404).json({ error: "Rota não encontrada" }));
 
-// Conectar ao banco de dados
-const connectDB = async () => {
-  try {
-    const mongoURI = process.env.MONGO_URI;
-    if (!mongoURI) {
-      throw new Error("MONGO_URI não definida no .env");
-    }
-    await mongoose.connect(mongoURI, {});
-    console.log("✅ MongoDB conectado");
-  } catch (error) {
-    console.error("❌ Erro ao conectar ao MongoDB:", error);
-    process.exit(1);
-  }
-};
-
-connectDB();
-
-// Autenticação
-app.post("/login", authController.login);
-
-// Rota protegida
-app.get("/protegido", authMiddleware, (req, res) => {
-  res.json({ message: "Rota protegida acessada com sucesso", user: req.user });
+// Middleware para erros internos
+app.use((err, req, res, next) => {
+  console.error("Erro no servidor:", err.stack);
+  res.status(500).json({ error: "Erro interno do servidor" });
 });
-
-app.get("/api/users/me", authMiddleware, (req, res) => {
-  res.json({ fullName: req.user.usuario, balance: 1000 });
-});
-
-// Importação das rotas
-const accountRoutes = require("./routes/accountRoutes");
-const cardRoutes = require("./routes/cardRoutes");
-const paymentRoutes = require("./routes/paymentRoutes");
-const pixRoutes = require("./routes/pixRoutes");
-const userRoutes = require("./routes/userRoutes");
-
-// Rotas da API
-app.use("/api/accounts", accountRoutes);
-app.use("/api/cards", cardRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/pix", pixRoutes);
-app.use("/api/users", userRoutes);
 
 const PORT = process.env.PORT || 3000;
-
-// Iniciar o servidor
-const server = app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
-
-// Tratamento de erros do servidor
-server.on("error", (err) => {
-  console.error("❌ Erro ao iniciar o servidor:", err);
-});
-
-// Tratamento de encerramento do servidor
-process.on("SIGINT", () => {
-  console.log("Servidor encerrando...");
-  server.close(() => {
-    mongoose.connection.close().then(() => {
-      console.log("✅ Conexão com o MongoDB fechada.");
-      process.exit(0);
-    });
-  });
-});
+app.listen(PORT, () => console.log(`Servidor Vasconcelos na porta ${PORT}`));

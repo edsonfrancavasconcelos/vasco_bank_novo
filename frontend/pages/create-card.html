@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Cartão - VascoBank</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header>
+    <h1>VascoBank</h1>
+  </header>
+  <main>
+    <h2>Criar Cartão</h2>
+    <form id="createCardForm">
+      <div class="form-group">
+        <label for="fullName">Nome Completo:</label>
+        <input type="text" id="fullName" name="fullName" class="form-control" required placeholder="Digite seu nome completo">
+      </div>
+      <div class="form-group">
+        <label for="rg">RG:</label>
+        <input type="text" id="rg" name="rg" class="form-control" required placeholder="Digite seu RG">
+      </div>
+      <div class="form-group">
+        <label for="cpf">CPF:</label>
+        <input type="text" id="cpf" name="cpf" class="form-control" required placeholder="Digite seu CPF">
+      </div>
+      <div class="form-group">
+        <label for="address">Endereço:</label>
+        <input type="text" id="address" name="address" class="form-control" required placeholder="Digite seu endereço completo">
+      </div>
+      <div class="form-group">
+        <label for="cardPassword">Senha do Cartão:</label>
+        <input type="password" id="cardPassword" name="cardPassword" class="form-control" required placeholder="Crie uma senha para o cartão">
+      </div>
+      <button type="submit" class="btn">Criar Cartão</button>
+      <a href="index.html" class="back-button">Voltar</a>
+    </form>
+    <div id="message"></div>
+  </main>
+  <footer>
+    <p>© 2024 VascoBank. Todos os direitos reservados.</p>
+    <div class="social-icons">
+      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+  </footer>
+  <script src="../js/create-card.js"></script>
+</body>
+</html>

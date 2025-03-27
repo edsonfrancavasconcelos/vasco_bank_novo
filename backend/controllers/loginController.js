@@ -1,26 +1,31 @@
-const User = require('../models/User');
+// backend/controllers/loginController.js
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-// Login de usuário
-exports.loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
-    
-    // Verifica se os campos foram preenchidos
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Por favor, forneça email e senha.' });
-    }
-
-    // Busca o usuário pelo email
     const user = await User.findOne({ email });
-
-    // Verifica se o usuário existe e se a senha está correta
-    if (user && (await user.matchPassword(password))) {
-      res.status(200).json({ message: 'Login bem-sucedido', user });
-    } else {
-      res.status(401).json({ error: 'Credenciais inválidas' });
+    if (!user) {
+      return res.status(400).json({ error: "E-mail ou senha inválidos" });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "E-mail ou senha inválidos" });
+    }
+
+    const token = jwt.sign(
+      { _id: user._id },
+      process.env.JWT_SECRET || "sua-chave-secreta-aqui"
+    );
+    res.status(200).json({ token });
   } catch (error) {
-    console.error('Erro ao efetuar login:', error);
-    res.status(500).json({ error: 'Erro ao efetuar login' });
+    console.error("Erro ao fazer login:", error);
+    res.status(500).json({ error: "Erro interno no servidor" });
   }
 };
+
+module.exports = { loginUser }; // Exporta explicitamente

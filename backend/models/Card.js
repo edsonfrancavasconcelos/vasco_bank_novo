@@ -1,27 +1,37 @@
-// models/Card.js
-
 const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
-  accountId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Account',
-    required: true
+    ref: 'User',
+    required: true,
   },
   cardNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   cardType: {
     type: String,
-    enum: ['debit', 'credit'],
-    required: true
+    enum: ['credit', 'debit'],
+    required: true,
+  },
+  holderName: {
+    type: String,
+    required: true,
+  },
+  expirationDate: {
+    type: String, // Formato MM/AA
+    required: true,
+  },
+  cvv: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model('Card', cardSchema);

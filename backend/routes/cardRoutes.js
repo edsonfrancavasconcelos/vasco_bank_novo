@@ -1,12 +1,7 @@
-// routes/cardRoutes.js
-const express = require('express');
-const { createCard, getCards } = require('../controllers/cardController');
-const router = express.Router();
+const router = require("express").Router();
+const { createCard } = require("../controllers/cardController");
+const authMiddleware = require("../middleware/auth"); // Middleware de autenticação
 
-// Rota para criar um novo cartão
-router.post('/create', createCard);
-
-// Rota para obter cartões de uma conta
-router.get('/:accountId', getCards);
+router.post("/create", authMiddleware, createCard); // POST com autenticação
 
 module.exports = router;

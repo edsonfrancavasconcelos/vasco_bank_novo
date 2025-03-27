@@ -1,133 +1,91 @@
-const bcrypt = require("bcrypt");
-const Account = require("./models/Accounts"); // Certifique-se de que o caminho está correto
-const express = require("express");
-const router = express.Router();
 const Account = require("../models/Account");
-const User = require("../models/User");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-router.post("/create", async (req, res) => {
-  try {
-    const { userId } = req.body;
-
-    // Verifica se o usuário existe
-    const usuario = await User.findById(userId);
-    if (!usuario) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
-    }
-
-    const numeroConta = Math.floor(100000 + Math.random() * 900000).toString(); // Gera um número de conta aleatório
-
-    const novaConta = new Account({ numeroConta, saldo: 0, userId });
-    await novaConta.save();
-
-    res
-      .status(201)
-      .json({ message: "Conta criada com sucesso", conta: novaConta });
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao criar conta", error });
-  }
-});
-
-module.exports = router;
-
-// Função para validar CPF
-function validateCPF(cpf) {
-  cpf = cpf.replace(/[^\d]+/g, ""); // Remove caracteres não numéricos
-  if (cpf.length !== 11) return false; // Verifica se tem 11 dígitos
-  if (/^(\d)\1{10}$/.test(cpf)) return false; // Verifica se todos os números são iguais
-
-  // Função para calcular os dígitos verificadores
-  function calculateCheckDigit(cpf, factor) {
-    let total = 0;
-    for (let i = 0; i < factor - 1; i++) {
-      total += parseInt(cpf.charAt(i)) * (factor - i);
-    }
-    let remainder = total % 11;
-    return remainder < 2 ? 0 : 11 - remainder;
-  }
-
-  // Calcula os dois dígitos verificadores
-  const digit1 = calculateCheckDigit(cpf, 10);
-  const digit2 = calculateCheckDigit(cpf, 11);
-
-  // Verifica se os dígitos calculados batem com os dígitos verificadores fornecidos
-  return (
-    digit1 === parseInt(cpf.charAt(9)) && digit2 === parseInt(cpf.charAt(10))
-  );
-}
-
+// Função para criar uma conta
 exports.createAccount = async (req, res) => {
   try {
-    const { fullName, cpf, email, password, phone } = req.body;
+    const { cpf, email, password } = req.body;
 
-    // Validação dos dados de entrada
-    if (!fullName || !cpf || !email || !password || !phone) {
-      return res.status(400).json({
-        error: "Nome completo, CPF, email, senha e telefone são obrigatórios.",
-      });
+    // Validação dos campos obrigatórios
+    if (!cpf || !email || !password) {
+      return res
+        .status(400)
+        .json({ error: "Todos os campos são obrigatórios." });
     }
 
-    // Validação de CPF
-    if (!validateCPF(cpf)) {
-      return res.status(400).json({
-        error: "CPF inválido. Por favor, insira um CPF válido.",
-      });
-    }
-
-    // Verificar se o CPF já existe
-    const existingCpf = await Account.findOne({ cpf });
-    if (existingCpf) {
-      return res.status(400).json({
-        error: "Já existe uma conta com esse CPF.",
-      });
-    }
-
-    // Verificar se o número de telefone já existe
-    const existingPhone = await Account.findOne({ phone });
-    if (existingPhone) {
-      return res.status(400).json({
-        error: "Já existe uma conta com esse número de telefone.",
-      });
-    }
-
-    // Verificar se o email já existe
-    const existingEmail = await Account.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({
-        error: "Já existe uma conta com esse email.",
-      });
-    }
-
-    // Criptografar a senha antes de salvar a conta
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Gerar número da conta
-    const accountNumber = Math.floor(100000 + Math.random() * 900000); // Gera número da conta aleatório
-
-    // Criar uma nova instância de conta
-    const newAccount = new Account({
-      fullName,
-      cpf,
-      email,
-      password: hashedPassword, // Armazena a senha criptografada
-      phone,
-      accountNumber,
+    // Verifica se o CPF ou e-mail já estão cadastrados
+    const existingAccount = await Account.findOne({
+      $or: [{ cpf }, { email }],
     });
+    if (existingAccount) {
+      return res.status(400).json({ error: "CPF ou e-mail já cadastrados." });
+    }
 
-    // Salvar a nova conta no banco de dados
-    await newAccount.save();
+    // Hash da senha antes de salvar no banco de dados
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.status(201).json({
-      message: "Conta criada com sucesso.",
-      accountNumber: newAccount.accountNumber,
-    });
+    // Cria a nova conta
+    const account = new Account({ cpf, email, password: hashedPassword });
+    await account.save();
+
+    res.status(201).json({ message: "Conta criada com sucesso", account });
   } catch (error) {
     console.error("Erro ao criar conta:", error);
+    res.status(500).json({ error: "Erro interno ao criar conta." });
+  }
+};
+
+// Função para fazer login
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validação dos campos obrigatórios
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "⚠️ E-mail e senha são obrigatórios!",
+      });
+    }
+
+    // Busca a conta pelo e-mail
+    const account = await Account.findOne({ email });
+    if (!account) {
+      return res.status(401).json({
+        message: "⚠️ E-mail ou senha inválidos!",
+      });
+    }
+
+    // Compara a senha fornecida com a senha hasheada no banco de dados
+    const isPasswordValid = await bcrypt.compare(password, account.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        message: "⚠️ Senha incorreta!",
+      });
+    }
+
+    // Gera o token JWT
+    const token = jwt.sign(
+      { id: account._id, cpf: account.cpf, email: account.email },
+      process.env.JWT_SECRET || "sua-chave-secreta-aqui",
+      { expiresIn: "1h" }
+    );
+
+    // Resposta de sucesso
+    res.status(200).json({
+      success: true,
+      message: "✅ Login realizado com sucesso!",
+      token,
+      account: {
+        email: account.email,
+        cpf: account.cpf,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Erro ao fazer login:", error);
     res.status(500).json({
-      success: false,
-      message: "Erro ao criar conta. Tente novamente.",
-      errorDetails: error.message,
+      message: "❌ Erro interno do servidor",
+      error: error.message,
     });
   }
 };

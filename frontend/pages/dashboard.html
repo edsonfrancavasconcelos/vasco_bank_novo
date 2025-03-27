@@ -5,46 +5,149 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - VascoBank</title>
-  <link rel="icon" href="img/vasco-bank.jpeg" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../pages/css/dashboard.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
-  <header class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <header>
+    <h1 class="text-center">VascoBank</h1>
   </header>
 
   <main class="container mt-4">
     <div class="row">
-      <div class="col-md-8">
-        <h2>Bem-vindo, <span id="userName">[Nome do Usuário]</span></h2>
-        <div id="erroUserID" style="color: red;"></div>
+      <!-- Informações do usuário -->
+      <div class="col-md-6">
+        <h2>Dashboard</h2>
+        <div id="userInfo" class="text-center">
+          <p><strong>Nome:</strong> <span id="userName"></span></p>
+          <p><strong>Número da Conta:</strong> <span id="accountNumber"></span></p>
+          <p><strong>Saldo:</strong> <span id="balance"></span></p>
+        </div>
       </div>
-      <div class="col-md-4">
-        <h3>Ações Rápidas</h3>
+
+      <!-- Formulário de Transações -->
+      <div class="col-md-6">
+        <h3>Realizar Transação</h3>
+        <form id="transactionForm">
+          <div class="form-group">
+            <label for="transactionType">Tipo de Transação</label>
+            <select class="form-control" id="transactionType" required>
+              <option value="" disabled selected>Escolha uma transação</option>
+              <option value="transfer">Transferência</option>
+              <option value="deposit">Depósito</option>
+              <option value="withdrawal">Saque</option>
+              <option value="pix/transfer">PIX Transferência</option>
+              <option value="pix/payment">PIX Pagamento</option>
+              <option value="pix/receive">PIX Recebimento</option>
+              <option value="pix/register">PIX Registro</option>
+              <option value="pix/charge">Cobrança PIX</option>
+              <option value="pix/schedule">Programar PIX</option>
+              <option value="bill/pay">Pagar Boleto</option>
+              <option value="loan">Pegar Empréstimo</option>
+              <option value="recharge">Recarga de Celular</option>
+              <option value="invest">Investir</option>
+            </select>
+          </div>
+
+          <div id="dynamicFields" class="mt-3">
+            <!-- Campos comuns -->
+            <div class="form-group field" id="amountField" style="display: none;">
+              <label for="amount">Valor</label>
+              <input type="number" class="form-control" id="amount" step="0.01" required>
+            </div>
+            <div class="form-group field" id="descriptionField" style="display: none;">
+              <label for="description">Descrição</label>
+              <input type="text" class="form-control" id="description">
+            </div>
+
+            <!-- Campos específicos -->
+            <div class="form-group field transfer-only" style="display: none;">
+              <label for="toAccount">Conta Destino</label>
+              <input type="text" class="form-control" id="toAccount" required>
+            </div>
+            <div class="form-group field pix-only" style="display: none;">
+              <label for="pixKey">Chave PIX</label>
+              <input type="text" class="form-control" id="pixKey" required>
+            </div>
+            <div class="form-group field pix-schedule-only" style="display: none;">
+              <label for="scheduledDate">Data de Agendamento</label>
+              <input type="date" class="form-control" id="scheduledDate" required>
+            </div>
+            <div class="form-group field bill-only" style="display: none;">
+              <label for="billCode">Código do Boleto</label>
+              <input type="text" class="form-control" id="billCode" required>
+            </div>
+            <div class="form-group field recharge-only" style="display: none;">
+              <label for="operator">Operadora</label>
+              <input type="text" class="form-control" id="operator" required>
+              <label for="phoneNumber">Número do Telefone</label>
+              <input type="text" class="form-control" id="phoneNumber" required>
+              <label for="rechargeAmount">Valor da Recarga</label>
+              <input type="number" class="form-control" id="rechargeAmount" step="0.01" required>
+            </div>
+            <div class="form-group field invest-only" style="display: none;">
+              <label for="investmentType">Tipo de Investimento</label>
+              <select class="form-control" id="investmentType" required>
+                <option value="tesouro-selic">Tesouro Selic</option>
+                <option value="tesouro-prefixado">Tesouro Prefixado</option>
+                <option value="tesouro-ipca">Tesouro IPCA+</option>
+                <option value="cdb">CDB</option>
+                <option value="acoes">Ações</option>
+              </select>
+            </div>
+            <div class="form-group field loan-only" style="display: none;">
+              <label for="loanAmount">Valor do Empréstimo</label>
+              <input type="number" class="form-control" id="loanAmount" step="0.01" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary mt-2" id="submitTransaction" disabled>Executar</button>
+        </form>
+        <div id="transactionMessage" class="mt-3"></div>
       </div>
     </div>
 
+    <!-- Histórico de Transações -->
     <div class="mt-4">
-      <h3>Buscar Conta</h3>
-      <form id="searchAccountForm">
-        <div class="form-group">
-          <input type="text" id="accountNumber" class="form-control" placeholder="Número da conta">
-        </div>
-        <button type="submit" class="btn btn-primary">Buscar Conta</button>
-      </form>
-      <div id="message" class="mt-2"></div>
+      <h3>Histórico de Transações</h3>
+      <button id="loadHistory" class="btn btn-primary">Carregar Histórico</button>
+      <a href="/transactions.html" class="btn btn-info ml-2">Ver Histórico Completo</a>
+      <table class="table mt-3" id="historyTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>De</th>
+            <th>Para</th>
+            <th>Descrição</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <!-- Histórico carregado dinamicamente -->
+        </tbody>
+      </table>
+      <div id="historyMessage" class="mt-3"></div>
+    </div>
+
+    <!-- Logout -->
+    <div class="form-group mt-4">
+      <a href="/index.html" class="btn btn-secondary" id="logoutButton">Sair</a>
     </div>
   </main>
 
-  <a href="index.html" class="back-button">Voltar</a>
-
   <footer>
+    <p class="text-center">© 2024 VascoBank. Todos os direitos reservados.</p>
+    <div class="social-icons text-center">
+      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    </div>
   </footer>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <script src="../js/dashboard.js"></script>
 </body>
 

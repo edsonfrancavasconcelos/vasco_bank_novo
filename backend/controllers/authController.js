@@ -1,33 +1,77 @@
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
-  const { usuario, senha } = req.body;
+  try {
+    const { identifier, password } = req.body;
 
-  // Verifica se os campos foram fornecidos
-  if (!usuario || !senha) {
-    console.log("Campos 'usuario' e 'senha' são obrigatórios.");
-    return res
-      .status(400)
-      .json({ message: "Campos 'usuario' e 'senha' são obrigatórios." });
-  }
+    // Verifica se os campos obrigatórios foram enviados
+    if (!identifier || !password) {
+      return res.status(400).json({
+        message: "⚠️ Identificador e senha são obrigatórios!",
+      });
+    }
 
-  // Simulação de banco de dados (em um cenário real, use um banco de dados)
-  const users = {
-    usuario: "senha", // Em um cenário real, use bcrypt para armazenar senhas com hash
-  };
-
-  // Verifica se o usuário existe e se a senha está correta
-  if (users[usuario] && users[usuario] === senha) {
-    // Gera o token JWT
-    const token = jwt.sign({ usuario }, process.env.SEU_SEGREDO_JWT, {
-      expiresIn: "1h", // Token expira em 1 hora
+    // Busca o usuário por CPF, número da conta ou email
+    const user = await User.findOne({
+      $or: [
+        { cpf: identifier },
+        { accountNumber: identifier },
+        { email: identifier },
+      ],
     });
 
-    console.log("Login bem-sucedido para o usuário:", usuario);
-    res.json({ token });
-  } else {
-    console.log("Credenciais inválidas para o usuário:", usuario);
-    res.status(401).json({ message: "Credenciais inválidas" });
+    if (!user) {
+      return res.status(401).json({
+        message: "⚠️ Identificador inválido!",
+      });
+    }
+
+    // Verifica a senha
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "⚠️ Senha incorreta!",
+      });
+    }
+
+    // Verifica se JWT_SECRET está configurado
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET não está configurado no ambiente.");
+    }
+
+    // Gera o token JWT
+    const token = jwt.sign(
+      {
+        id: user._id,
+        cpf: user.cpf,
+        accountNumber: user.accountNumber,
+        email: user.email,
+      },
+      secret,
+      { expiresIn: "1h" }
+    );
+
+    // Responde com sucesso
+    res.status(200).json({
+      success: true,
+      message: "✅ Login realizado com sucesso!",
+      token,
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        cpf: user.cpf,
+        accountNumber: user.accountNumber,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Erro ao fazer login:", error.stack);
+    res.status(500).json({
+      message: "❌ Erro interno do servidor",
+      error: error.message,
+    });
   }
 };
 
