@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/auth");
+const authMiddleware = require("../auth");
 
 router.get("/:accountId", authMiddleware, async (req, res) => {
   // Lógica para buscar extrato no banco de dados

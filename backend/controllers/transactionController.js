@@ -48,6 +48,8 @@ async function transfer(req, res) {
     await sender.save();
     await receiver.save();
 
+    
+
     const transaction = new Transaction({
       type: "transfer",
       amount,

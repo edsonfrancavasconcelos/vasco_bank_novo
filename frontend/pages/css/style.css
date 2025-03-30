@@ -278,6 +278,96 @@ footer {
   color: var(--color2);
 }
 
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+}
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2em;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.pix-circle {
+  background-color: #00c853; /* Verde para PIX */
+  color: white;
+}
+
+.pix-item {
+  position: relative;
+}
+
+.pix-options {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.pix-item:hover .pix-options {
+  display: flex;
+}
+
+.pix-options a {
+  text-decoration: none;
+  color: #333;
+  padding: 5px 0;
+}
+
+.pix-options a:hover {
+  background-color: #f0f0f0;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.social-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
+  color: #333;
+  text-decoration: none;
+  font-size: 1.2em;
+}
+
+.social-icon:hover {
+  background-color: #ddd;
+}
+
 /* Responsividade (aplicada a todas as páginas) */
 @media (max-width: 768px) {
   header h1 {
