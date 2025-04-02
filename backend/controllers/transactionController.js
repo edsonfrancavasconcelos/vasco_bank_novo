@@ -2,6 +2,20 @@
 const User = require("../models/User");
 const Transaction = require("../models/Transaction");
 
+//Historico
+const getTransactionHistory = async (req, res) => {
+  try {
+    const userId = req.user.id; // Supondo que `req.user` tenha sido preenchido pelo middleware de autenticação
+
+    const transactions = await Transaction.find({ userId }).sort({ date: -1 });
+
+    res.json({ transactions });
+  } catch (error) {
+    console.error("Erro ao buscar histórico de transações:", error);
+    res.status(500).json({ error: "Erro ao buscar transações" });
+  }
+};
+
 // Transferência
 async function transfer(req, res) {
   const { toAccount, amount, description } = req.body;
@@ -47,8 +61,6 @@ async function transfer(req, res) {
     receiver.balance += amount;
     await sender.save();
     await receiver.save();
-
-    
 
     const transaction = new Transaction({
       type: "transfer",
@@ -402,6 +414,7 @@ async function recharge(req, res) {
 }
 
 // PIX Registro
+
 async function pixRegister(req, res) {
   const { pixKey } = req.body;
   const userId = req.user?.id;
@@ -409,8 +422,7 @@ async function pixRegister(req, res) {
   console.log("PIX Registro - userId:", userId, "pixKey:", pixKey);
 
   try {
-    if (!userId)
-      return res.status(401).json({ error: "Usuário não autenticado" });
+    if (!userId) return res.status(401).json({ error: "Usuário não autenticado" });
 
     const user = await User.findById(userId);
     if (!user) {
@@ -418,18 +430,18 @@ async function pixRegister(req, res) {
       return res.status(404).json({ error: "Conta não encontrada" });
     }
 
+    // ✅ Agora verifica corretamente se a chave PIX já existe
     const existingKey = await User.findOne({ pixKey });
-    if (existingKey && existingKey._id.toString() !== userId) {
-      console.log(
-        "Chave PIX já registrada por outro usuário - pixKey:",
-        pixKey
-      );
+    if (existingKey) {
+      console.log("Chave PIX já registrada:", pixKey);
       return res.status(400).json({ error: "Chave PIX já registrada" });
     }
 
+    // ✅ Atualiza e salva a chave PIX
     user.pixKey = pixKey;
     await user.save();
 
+    // ✅ Registra a transação do PIX
     const transaction = new Transaction({
       type: "pix/register",
       amount: 0,
@@ -440,12 +452,13 @@ async function pixRegister(req, res) {
     });
     await transaction.save();
 
-    res.json({ message: "Chave PIX registrada", pixKey });
+    res.json({ message: "Chave PIX registrada com sucesso", pixKey });
   } catch (error) {
     console.error("Erro no PIX registro:", error);
     res.status(500).json({ error: "Erro ao registrar chave PIX" });
   }
 }
+
 
 // Pagar Boleto
 async function payBill(req, res) {
@@ -627,4 +640,5 @@ module.exports = {
   payBill,
   getLoan,
   invest,
+  getTransactionHistory,
 };

@@ -10,35 +10,49 @@
 </head>
 <body>
   <header>
-    <h1>VascoBank</h1>
+    <h1>VBank</h1>
+    <nav>
+      <a href="/">Início</a>
+      <a href="/dashboard.html">Transações</a>
+      <a href="/dashboard.html">Pix</a>
+      <a href="/login">Login</a>
+    </nav>
   </header>
-  <main>
+  <main class="container">
     <h2>Criar Cartão</h2>
     <form id="createCardForm">
       <div class="form-group">
-        <label for="fullName">Nome Completo:</label>
-        <input type="text" id="fullName" name="fullName" class="form-control" required placeholder="Digite seu nome completo">
+        <label for="fullName">Nome Completo</label>
+        <input type="text" class="form-control" id="fullName" required placeholder="Digite seu nome completo">
       </div>
       <div class="form-group">
-        <label for="rg">RG:</label>
-        <input type="text" id="rg" name="rg" class="form-control" required placeholder="Digite seu RG">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" required placeholder="Digite seu email"> <!-- Corrigido id -->
       </div>
       <div class="form-group">
-        <label for="cpf">CPF:</label>
-        <input type="text" id="cpf" name="cpf" class="form-control" required placeholder="Digite seu CPF">
+        <label for="cpf">CPF</label>
+        <input type="text" class="form-control" id="cpf" maxlength="11" required placeholder="Digite seu CPF">
       </div>
       <div class="form-group">
-        <label for="address">Endereço:</label>
-        <input type="text" id="address" name="address" class="form-control" required placeholder="Digite seu endereço completo">
+        <label for="rg">RG</label>
+        <input type="text" class="form-control" id="rg" required placeholder="Digite seu RG">
       </div>
       <div class="form-group">
-        <label for="cardPassword">Senha do Cartão:</label>
-        <input type="password" id="cardPassword" name="cardPassword" class="form-control" required placeholder="Crie uma senha para o cartão">
+        <label for="address">Endereço</label>
+        <input type="text" class="form-control" id="address" required placeholder="Digite seu endereço completo">
       </div>
-      <button type="submit" class="btn">Criar Cartão</button>
-      <a href="index.html" class="back-button">Voltar</a>
+      <div class="form-group">
+        <label for="cardPassword">Senha do Cartão</label>
+        <input type="password" class="form-control" id="cardPassword" required placeholder="Crie uma senha para o cartão">
+      </div>
+      <div class="form-group">
+        <label for="confirmCardPassword">Confirmar Senha do Cartão</label>
+        <input type="password" class="form-control" id="confirmCardPassword" required placeholder="Confirme a senha do cartão"> <!-- Corrigido id -->
+      </div>
+      <button type="submit" class="btn btn-primary">Criar Cartão</button>
+      <a href="/dashboard.html" class="btn btn-secondary">Voltar</a>
     </form>
-    <div id="message"></div>
+    <div id="message" class="mt-3"></div>
   </main>
   <footer>
     <p>© 2024 VascoBank. Todos os direitos reservados.</p>
@@ -51,4 +65,33 @@
   </footer>
   <script src="../js/create-card.js"></script>
 </body>
+<style>
+  /* Redes sociais estilizadas */
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .social-icons a {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+    color: white;
+  }
+  .social-icons a.facebook { background-color: #1877F2; }
+  .social-icons a.twitter { background-color: #1DA1F2; }
+  .social-icons a.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+  .social-icons a.linkedin { background-color: #0077B5; }
+  .social-icons a:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+  }
+</style>
 </html>

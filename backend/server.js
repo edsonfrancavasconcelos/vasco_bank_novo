@@ -7,14 +7,16 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const loginRoutes = require("./routes/loginRoutes");
-const authMiddleware = require("./middleware/authMiddleware"); // Usar só esse
+const cardRoutes = require("./routes/cardRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
+const { getTransactionHistory } = require("./controllers/transactionController");
 
-const app = express();
+const app = express(); // Define o app antes de usar
 
 // Middleware para parsing de JSON e URL encoded
 app.use(express.json());
-app.use(cors());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({ origin: "http://localhost:3000", credentials: true })); // Une o CORS aqui e remove duplicata
 
 // Middleware para servir arquivos estáticos
 app.use(express.static(path.join(__dirname, "../frontend/pages")));
@@ -31,15 +33,17 @@ mongoose
 
 // Rotas da API
 app.use("/api/users", userRoutes);
-app.use("/api/transactions", authMiddleware, transactionRoutes); // Usa authMiddleware aqui
+app.use("/api/transactions", authMiddleware, transactionRoutes);
 app.use("/api/login", loginRoutes);
+app.use("/api/cards", cardRoutes);
+
+app.get("/api/transactions/history", authMiddleware, getTransactionHistory);
 
 // Rotas de páginas estáticas
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../frontend/pages/index.html")));
 app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "../frontend/pages/login.html")));
 app.get("/dashboard", (req, res) => res.sendFile(path.join(__dirname, "../frontend/pages/dashboard.html")));
 app.get("/create-account", (req, res) => res.sendFile(path.join(__dirname, "../frontend/pages/create-account.html")));
-app.get("/api/transactions/history", authMiddleware, getTransactionHistory);
 
 // Middleware para rotas não encontradas
 app.use((req, res) => res.status(404).json({ error: "Rota não encontrada" }));
@@ -51,4 +55,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor Vasconcelos na porta ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Servidor Vasconcelos na porta ${PORT}`);
+    console.log("Rotas de cartão registradas em /api/cards");
+});

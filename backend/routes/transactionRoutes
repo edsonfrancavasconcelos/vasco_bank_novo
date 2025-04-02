@@ -1,10 +1,10 @@
 // routes/transactionRoutes.js - Revisão: 2024-05-26 12:00:00
-
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Transaction = require("../models/Transaction");
-
+const { getTransactionHistory } = require("../controllers/transactionController");
+const authenticateToken = require("../middleware/authMiddleware");
 
 // Middleware de autenticação já está configurado em server.js, req.user é populado por authenticateToken
 
@@ -33,7 +33,7 @@ async function transfer(req, res) {
         await receiver.save();
 
         const transaction = new Transaction({
-            userId: req.user.id, // Adiciona o userId aqui
+            userId: req.user.id,
             type: "transfer",
             amount,
             fromAccount,
@@ -44,7 +44,7 @@ async function transfer(req, res) {
 
         res.json({ message: "Transferência realizada com sucesso", balance: sender.balance });
     } catch (error) {
-        console.error("Erro ao transferir:", error.message); // Melhorar o log com error.message
+        console.error("Erro ao transferir:", error.message);
         res.status(500).json({ error: "Erro ao processar transferência" });
     }
 }
@@ -188,225 +188,233 @@ async function pixPayment(req, res) {
     try {
         console.log(`Iniciando PIX pagamento: de ${fromAccount} para ${targetKey}, valor: ${amount}`);
         const sender = await User.findOne({ accountNumber: fromAccount });
-        const receiver = await User.findOne({ pixKey: targetKey });
+        const receiver = await User.findOne({ "pixKeys.key": targetKey });
 
-        if (!sender)
-          return res.status(404).json({ error: "Conta remetente não encontrada" });
-      if (!receiver)
-          return res.status(404).json({ error: "Chave PIX não encontrada" });
-      if (sender.balance < amount)
-          return res.status(400).json({ error: "Saldo insuficiente" });
-      if (amount <= 0)
-          return res.status(400).json({ error: "O valor deve ser maior que zero" });
+        if (!sender) return res.status(404).json({ error: "Conta remetente não encontrada" });
+        if (!receiver) return res.status(404).json({ error: "Chave PIX não encontrada" });
+        if (sender.balance < amount) return res.status(400).json({ error: "Saldo insuficiente" });
+        if (amount <= 0) return res.status(400).json({ error: "O valor deve ser maior que zero" });
 
-      sender.balance -= amount;
-      receiver.balance += amount;
-      await sender.save();
-      await receiver.save();
+        sender.balance -= amount;
+        receiver.balance += amount;
+        await sender.save();
+        await receiver.save();
 
-      const transaction = new Transaction({
-          type: "pix/payment",
-          amount,
-          fromAccount,
-          targetAccount: receiver.accountNumber,
-          description: "PIX Pagamento",
-          userId: req.user.id,
-      });
-      await transaction.save();
+        const transaction = new Transaction({
+            type: "pix/payment",
+            amount,
+            fromAccount,
+            targetAccount: receiver.accountNumber,
+            description: "PIX Pagamento",
+            userId: req.user.id,
+        });
+        await transaction.save();
 
-      res.json({
-          message: "PIX Pagamento realizado com sucesso",
-          balance: sender.balance,
-      });
-  } catch (error) {
-      console.error("Erro no PIX pagamento:", error);
-      res.status(500).json({ error: "Erro ao processar PIX pagamento" });
-  }
+        res.json({
+            message: "PIX Pagamento realizado com sucesso",
+            balance: sender.balance,
+        });
+    } catch (error) {
+        console.error("Erro no PIX pagamento:", error);
+        res.status(500).json({ error: "Erro ao processar PIX pagamento" });
+    }
 }
 
 // PIX Recebimento
 async function pixReceive(req, res) {
-  if (!req.user?.id || !req.user?.accountNumber) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-  }
-  const fromAccount = req.user.accountNumber;
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
 
-  try {
-      console.log(`Consultando chave PIX para recebimento: ${fromAccount}`);
-      const user = await User.findOne({ accountNumber: fromAccount });
-      if (!user) return res.status(404).json({ error: "Conta não encontrada" });
+    try {
+        console.log(`Consultando chave PIX para recebimento: ${fromAccount}`);
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) return res.status(404).json({ error: "Conta não encontrada" });
 
-      const pixKey = user.pixKey || "Chave não registrada";
-      res.json({ message: "Chave PIX para recebimento", pixKey });
-  } catch (error) {
-      console.error("Erro no PIX recebimento:", error);
-      res.status(500).json({ error: "Erro ao consultar chave PIX" });
-  }
+        const pixKeys = user.pixKeys.length > 0 ? user.pixKeys : "Nenhuma chave registrada";
+        res.json({ message: "Chaves PIX para recebimento", pixKeys });
+    } catch (error) {
+        console.error("Erro no PIX recebimento:", error);
+        res.status(500).json({ error: "Erro ao consultar chave PIX" });
+    }
 }
 
 // Recarga de Celular
 async function recharge(req, res) {
-  const { operator, phoneNumber, amount } = req.body;
-  if (!req.user?.id || !req.user?.accountNumber) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-  }
-  const fromAccount = req.user.accountNumber;
+    const { operator, phoneNumber, amount } = req.body;
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
 
-  try {
-      console.log(
-          `Iniciando recarga: de ${fromAccount} para ${phoneNumber}, operadora: ${operator}, valor: ${amount}`
-      );
-      const sender = await User.findOne({ accountNumber: fromAccount });
+    try {
+        console.log(
+            `Iniciando recarga: de ${fromAccount} para ${phoneNumber}, operadora: ${operator}, valor: ${amount}`
+        );
+        const sender = await User.findOne({ accountNumber: fromAccount });
 
-      if (!sender) return res.status(404).json({ error: "Conta não encontrada" });
-      if (sender.balance < amount)
-          return res.status(400).json({ error: "Saldo insuficiente" });
-      if (amount <= 0)
-          return res.status(400).json({ error: "O valor deve ser maior que zero" });
+        if (!sender) return res.status(404).json({ error: "Conta não encontrada" });
+        if (sender.balance < amount) return res.status(400).json({ error: "Saldo insuficiente" });
+        if (amount <= 0) return res.status(400).json({ error: "O valor deve ser maior que zero" });
 
-      sender.balance -= amount;
-      await sender.save();
+        sender.balance -= amount;
+        await sender.save();
 
-      const transaction = new Transaction({
-          type: "recharge",
-          amount,
-          fromAccount,
-          targetAccount: phoneNumber,
-          description: `Recarga ${operator}`,
-          userId: req.user.id,
-      });
-      await transaction.save();
+        const transaction = new Transaction({
+            type: "recharge",
+            amount,
+            fromAccount,
+            targetAccount: phoneNumber,
+            description: `Recarga ${operator}`,
+            userId: req.user.id,
+        });
+        await transaction.save();
 
-      res.json({
-          message: "Recarga realizada com sucesso",
-          balance: sender.balance,
-      });
-  } catch (error) {
-      console.error("Erro na recarga:", error);
-      res.status(500).json({ error: "Erro ao processar recarga" });
-  }
+        res.json({
+            message: "Recarga realizada com sucesso",
+            balance: sender.balance,
+        });
+    } catch (error) {
+        console.error("Erro na recarga:", error);
+        res.status(500).json({ error: "Erro ao processar recarga" });
+    }
 }
 
 // PIX Registro
 async function pixRegister(req, res) {
-  const { pixKey } = req.body;
-  if (!req.user?.id || !req.user?.accountNumber) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-  }
-  const fromAccount = req.user.accountNumber;
+    const { pixKey, keyType = "EMAIL" } = req.body;
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
 
-  try {
-      console.log(`Registrando chave PIX: ${pixKey} para ${fromAccount}`);
-      const user = await User.findOne({ accountNumber: fromAccount });
-      const existingKey = await User.findOne({ pixKey });
+    try {
+        console.log(`Registrando chave PIX: ${pixKey} (tipo: ${keyType}) para ${fromAccount}`);
 
-      if (!user) return res.status(404).json({ error: "Conta não encontrada" });
-      if (existingKey && existingKey.accountNumber !== fromAccount) {
-          return res
-              .status(400)
-              .json({ error: "Chave PIX já registrada por outro usuário" });
-      }
+        // Busca o usuário atual
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) {
+            console.log("Conta não encontrada:", fromAccount);
+            return res.status(404).json({ error: "Conta não encontrada" });
+        }
 
-      user.pixKey = pixKey;
-      await user.save();
+        // Checa se a chave já existe em qualquer usuário
+        const existingKey = await User.findOne({ "pixKeys.key": pixKey });
+        if (existingKey) {
+            console.log("Chave PIX já registrada por outro usuário:", pixKey);
+            return res.status(400).json({ error: `Chave PIX já registrada: ${pixKey}` });
+        }
 
-      const transaction = new Transaction({
-          type: "pix/register",
-          amount: 0,
-          fromAccount,
-          targetAccount: null,
-          description: `Registro de chave PIX: ${pixKey}`,
-          userId: req.user.id,
-      });
-      await transaction.save();
+        // Checa se o usuário atual já tem essa chave
+        if (user.pixKeys.some(pk => pk.key === pixKey)) {
+            console.log("Chave PIX já registrada para este usuário:", pixKey);
+            return res.status(400).json({ error: `Chave PIX já registrada para esta conta: ${pixKey}` });
+        }
 
-      res.json({ message: "Chave PIX registrada com sucesso", pixKey });
-  } catch (error) {
-      console.error("Erro no registro de chave PIX:", error);
-      res.status(500).json({ error: "Erro ao registrar chave PIX" });
-  }
+        // Adiciona a nova chave ao array pixKeys
+        user.pixKeys.push({ keyType, key: pixKey });
+        await user.save();
+
+        const transaction = new Transaction({
+            type: "pix/register",
+            amount: 0,
+            fromAccount,
+            targetAccount: null,
+            description: `Registro de chave PIX: ${pixKey}`,
+            userId: req.user.id,
+        });
+        await transaction.save();
+
+        console.log("Chave PIX registrada com sucesso:", pixKey);
+        res.json({ message: "Chave PIX registrada com sucesso", pixKey });
+    } catch (error) {
+        console.error("Erro no registro de chave PIX:", error.stack);
+        if (error.code === 11000 && error.keyPattern["pixKeys.key"]) {
+            console.log("Erro de duplicata detectado pelo índice:", pixKey);
+            return res.status(400).json({ error: `Chave PIX já cadastrada: ${pixKey}` });
+        }
+        res.status(500).json({ error: "Erro ao registrar chave PIX" });
+    }
 }
 
 // Pagar Boleto
 async function payBill(req, res) {
-  const { billCode, amount } = req.body;
-  if (!req.user?.id || !req.user?.accountNumber) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-  }
-  const fromAccount = req.user.accountNumber;
+    const { billCode, amount } = req.body;
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
 
-  try {
-      console.log(
-          `Iniciando pagamento de boleto: de ${fromAccount}, código: ${billCode}, valor: ${amount}`
-      );
-      const user = await User.findOne({ accountNumber: fromAccount });
-      if (!user) return res.status(404).json({ error: "Conta não encontrada" });
-      if (user.balance < amount)
-          return res.status(400).json({ error: "Saldo insuficiente" });
-      if (amount <= 0)
-          return res.status(400).json({ error: "O valor deve ser maior que zero" });
+    try {
+        console.log(
+            `Iniciando pagamento de boleto: de ${fromAccount}, código: ${billCode}, valor: ${amount}`
+        );
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) return res.status(404).json({ error: "Conta não encontrada" });
+        if (user.balance < amount) return res.status(400).json({ error: "Saldo insuficiente" });
+        if (amount <= 0) return res.status(400).json({ error: "O valor deve ser maior que zero" });
 
-      user.balance -= amount;
-      await user.save();
+        user.balance -= amount;
+        await user.save();
 
-      const transaction = new Transaction({
-          type: "bill/pay",
-          amount,
-          fromAccount,
-          targetAccount: billCode,
-          description: "Pagamento de boleto",
-          userId: req.user.id,
-      });
-      await transaction.save();
+        const transaction = new Transaction({
+            type: "bill/pay",
+            amount,
+            fromAccount,
+            targetAccount: billCode,
+            description: "Pagamento de boleto",
+            userId: req.user.id,
+        });
+        await transaction.save();
 
-      res.json({ message: "Boleto pago com sucesso", balance: user.balance });
-  } catch (error) {
-      console.error("Erro no pagamento de boleto:", error);
-      res.status(500).json({ error: "Erro ao pagar boleto" });
-  }
+        res.json({ message: "Boleto pago com sucesso", balance: user.balance });
+    } catch (error) {
+        console.error("Erro no pagamento de boleto:", error);
+        res.status(500).json({ error: "Erro ao pagar boleto" });
+    }
 }
 
 // Pegar Empréstimo
 async function getLoan(req, res) {
-  const { amount } = req.body;
-  if (!req.user?.id || !req.user?.accountNumber) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-  }
-  const fromAccount = req.user.accountNumber;
+    const { amount } = req.body;
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
 
-  try {
-      console.log(`Iniciando empréstimo: para ${fromAccount}, valor: ${amount}`);
-      const user = await User.findOne({ accountNumber: fromAccount });
-      if (!user) return res.status(404).json({ error: "Conta não encontrada" });
-      if (amount <= 0)
-          return res.status(400).json({ error: "O valor deve ser maior que zero" });
+    try {
+        console.log(`Iniciando empréstimo: para ${fromAccount}, valor: ${amount}`);
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) return res.status(404).json({ error: "Conta não encontrada" });
+        if (amount <= 0) return res.status(400).json({ error: "O valor deve ser maior que zero" });
 
-      user.balance += amount;
-      await user.save();
+        user.balance += amount;
+        await user.save();
 
-      const transaction = new Transaction({
-          type: "loan",
-          amount,
-          fromAccount: "Banco",
-          targetAccount: fromAccount,
-          description: "Empréstimo recebido",
-          userId: req.user.id,
-      });
-      await transaction.save();
+        const transaction = new Transaction({
+            type: "loan",
+            amount,
+            fromAccount: "Banco",
+            targetAccount: fromAccount,
+            description: "Empréstimo recebido",
+            userId: req.user.id,
+        });
+        await transaction.save();
 
-      res.json({
-          message: "Empréstimo recebido com sucesso",
-          balance: user.balance,
-      });
-  } catch (error) {
-      console.error("Erro no empréstimo:", error);
-      res.status(500).json({ error: "Erro ao pegar empréstimo" });
-  }
+        res.json({
+            message: "Empréstimo recebido com sucesso",
+            balance: user.balance,
+        });
+    } catch (error) {
+        console.error("Erro no empréstimo:", error);
+        res.status(500).json({ error: "Erro ao pegar empréstimo" });
+    }
 }
 
 // Investir
 async function invest(req, res) {
-  const { amount, investmentType } = req.body;
+    const { amount, investmentType } = req.body;
     if (!req.user?.id || !req.user?.accountNumber) {
         return res.status(401).json({ error: "Usuário não autenticado" });
     }
@@ -418,10 +426,8 @@ async function invest(req, res) {
         );
         const user = await User.findOne({ accountNumber: fromAccount });
         if (!user) return res.status(404).json({ error: "Conta não encontrada" });
-        if (user.balance < amount)
-            return res.status(400).json({ error: "Saldo insuficiente" });
-        if (amount <= 0)
-            return res.status(400).json({ error: "O valor deve ser maior que zero" });
+        if (user.balance < amount) return res.status(400).json({ error: "Saldo insuficiente" });
+        if (amount <= 0) return res.status(400).json({ error: "O valor deve ser maior que zero" });
 
         user.balance -= amount;
         await user.save();
@@ -458,8 +464,7 @@ async function pixCharge(req, res) {
         console.log(`Iniciando cobrança PIX: de ${fromAccount}, valor: ${amount}`);
         const user = await User.findOne({ accountNumber: fromAccount });
         if (!user) return res.status(404).json({ error: "Conta não encontrada" });
-        if (amount <= 0)
-            return res.status(400).json({ error: "O valor deve ser maior que zero" });
+        if (amount <= 0) return res.status(400).json({ error: "O valor deve ser maior que zero" });
 
         const chargeCode = `PIXCHARGE-${Date.now()}-${fromAccount}`;
         const transaction = new Transaction({
@@ -493,8 +498,7 @@ async function pixSchedule(req, res) {
         );
         const user = await User.findOne({ accountNumber: fromAccount });
         if (!user) return res.status(404).json({ error: "Conta não encontrada" });
-        if (amount <= 0)
-            return res.status(400).json({ error: "O valor deve ser maior que zero" });
+        if (amount <= 0) return res.status(400).json({ error: "O valor deve ser maior que zero" });
 
         const transaction = new Transaction({
             type: "pix/schedule",
@@ -529,5 +533,6 @@ router.post("/loan", getLoan);
 router.post("/invest", invest);
 router.post("/pix/charge", pixCharge);
 router.post("/pix/schedule", pixSchedule);
+router.get("/history", authenticateToken, getTransactionHistory);
 
 module.exports = router;
