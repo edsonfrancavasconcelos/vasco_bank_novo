@@ -36,8 +36,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/transactions", authMiddleware, transactionRoutes);
 app.use("/api/login", loginRoutes);
 app.use("/api/cards", cardRoutes);
-
 app.get("/api/transactions/history", authMiddleware, getTransactionHistory);
+app.get('/api/products', (req, res) => {
+    res.json(products);
+  });
 
 // Rotas de páginas estáticas
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../frontend/pages/index.html")));
@@ -47,6 +49,9 @@ app.get("/create-account", (req, res) => res.sendFile(path.join(__dirname, "../f
 
 // Middleware para rotas não encontradas
 app.use((req, res) => res.status(404).json({ error: "Rota não encontrada" }));
+app.use((req, res) => {
+    res.status(404).json({ error: "Rota não encontrada" });
+  });
 
 // Middleware para erros internos
 app.use((err, req, res, next) => {

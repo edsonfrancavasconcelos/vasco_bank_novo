@@ -292,27 +292,27 @@ async function pixRegister(req, res) {
     try {
         console.log(`Registrando chave PIX: ${pixKey} (tipo: ${keyType}) para ${fromAccount}`);
 
-        // Busca o usuário atual
-        const user = await User.findOne({ accountNumber: fromAccount });
-        if (!user) {
-            console.log("Conta não encontrada:", fromAccount);
-            return res.status(404).json({ error: "Conta não encontrada" });
+        if (!pixKey) {
+            return res.status(400).json({ error: "Chave PIX é obrigatória" });
         }
 
-        // Checa se a chave já existe em qualquer usuário
         const existingKey = await User.findOne({ "pixKeys.key": pixKey });
         if (existingKey) {
             console.log("Chave PIX já registrada por outro usuário:", pixKey);
             return res.status(400).json({ error: `Chave PIX já registrada: ${pixKey}` });
         }
 
-        // Checa se o usuário atual já tem essa chave
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) {
+            console.log("Conta não encontrada:", fromAccount);
+            return res.status(404).json({ error: "Conta não encontrada" });
+        }
+
         if (user.pixKeys.some(pk => pk.key === pixKey)) {
             console.log("Chave PIX já registrada para este usuário:", pixKey);
             return res.status(400).json({ error: `Chave PIX já registrada para esta conta: ${pixKey}` });
         }
 
-        // Adiciona a nova chave ao array pixKeys
         user.pixKeys.push({ keyType, key: pixKey });
         await user.save();
 
@@ -335,6 +335,37 @@ async function pixRegister(req, res) {
             return res.status(400).json({ error: `Chave PIX já cadastrada: ${pixKey}` });
         }
         res.status(500).json({ error: "Erro ao registrar chave PIX" });
+    }
+}
+
+// Nova Rota: Listar Chaves Pix Cadastradas
+async function pixKeys(req, res) {
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
+
+    try {
+        console.log(`Consultando chaves PIX cadastradas para: ${fromAccount}`);
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) {
+            console.log("Conta não encontrada:", fromAccount);
+            return res.status(404).json({ error: "Conta não encontrada" });
+        }
+
+        const pixKeys = user.pixKeys || [];
+        console.log("Chaves PIX encontradas:", pixKeys);
+
+        res.status(200).json({
+            message: pixKeys.length > 0 ? "Chaves PIX cadastradas" : "Nenhuma chave PIX cadastrada",
+            pixKeys: pixKeys.map(pk => ({
+                keyType: pk.keyType,
+                key: pk.key
+            }))
+        });
+    } catch (error) {
+        console.error("Erro ao consultar chaves PIX:", error.stack);
+        res.status(500).json({ error: "Erro ao consultar chaves PIX" });
     }
 }
 
@@ -528,6 +559,7 @@ router.post("/pix/payment", pixPayment);
 router.get("/pix/receive", pixReceive);
 router.post("/recharge", recharge);
 router.post("/pix/register", pixRegister);
+router.get("/pix/keys", pixKeys); // Nova rota adicionada
 router.post("/bill/pay", payBill);
 router.post("/loan", getLoan);
 router.post("/invest", invest);

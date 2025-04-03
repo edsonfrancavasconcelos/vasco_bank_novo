@@ -159,6 +159,70 @@ async function loadUserData() {
     }
 }
 
+// Função pra carregar as chaves Pix só no clique
+async function loadPixKeys() {
+    console.log("Iniciando loadPixKeys...");
+    const pixKeysList = document.getElementById("pixKeysList");
+    const pixKeysMessage = document.getElementById("pixKeysMessage");
+
+    if (!pixKeysList || !pixKeysMessage) {
+        console.error("Elementos de chaves Pix não encontrados:", {
+            pixKeysList: !!pixKeysList,
+            pixKeysMessage: !!pixKeysMessage,
+        });
+        return;
+    }
+
+    if (checkTokenAndRedirect(pixKeysMessage)) return;
+
+    try {
+        const response = await fetch("http://localhost:3000/api/transactions/pix/keys", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.log("Erro retornado pelo servidor:", errorData);
+            if (response.status === 401) {
+                console.error("401 Unauthorized em loadPixKeys - Token inválido ou expirado");
+                localStorage.removeItem("token");
+                pixKeysMessage.textContent = "Sessão expirada, redirecionando...";
+                pixKeysMessage.className = "mt-3 text-danger";
+                setTimeout(() => (window.location.href = "/index.html"), 2000);
+                return;
+            }
+            throw new Error(errorData.error || "Erro ao carregar chaves Pix");
+        }
+
+        const data = await response.json();
+        console.log("Chaves Pix recebidas:", data);
+
+        pixKeysList.innerHTML = "";
+        if (data.pixKeys.length === 0) {
+            pixKeysList.innerHTML = "<li>Nenhuma chave Pix cadastrada</li>";
+            pixKeysMessage.textContent = "Nenhuma chave Pix encontrada.";
+            pixKeysMessage.className = "mt-3 text-info";
+        } else {
+            data.pixKeys.forEach(pk => {
+                const li = document.createElement("li");
+                li.textContent = `${pk.keyType}: ${pk.key}`;
+                pixKeysList.appendChild(li);
+            });
+            pixKeysMessage.textContent ="/" ;
+            pixKeysMessage.className = "mt-3 text-success";
+        }
+    } catch (error) {
+        console.error("Erro ao carregar chaves Pix:", error.message);
+        pixKeysMessage.textContent = `Erro: ${error.message}`;
+        pixKeysMessage.className = "mt-3 text-danger";
+        pixKeysList.innerHTML = "<li>Erro ao carregar chaves</li>";
+    }
+}
+
 function updateDynamicFields() {
     const transactionType = document.getElementById("transactionType")?.value;
     const dynamicFields = document.getElementById("dynamicFields");
@@ -378,6 +442,17 @@ function updateDynamicFields() {
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente carregado, inicializando dashboard...");
+     
+
+    // Botão para carregar chaves Pix
+    
+    const loadPixKeysBtn = document.getElementById("loadPixKeys");
+    
+    if (loadPixKeysBtn) {
+        loadPixKeysBtn.addEventListener("click", loadPixKeys);
+    } else {
+        console.error("Botão 'loadPixKeys' não encontrado no DOM!");
+    }   
 
     // Separar inicialização do histórico pra não depender do formulário
     const loadHistoryBtn = document.getElementById("loadHistory");
@@ -461,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     } else {
-        console.error("Botão 'loadHistory' não encontrado no DOM!");
+        console.warn("Botão 'loadHistory' não encontrado, histórico será carregado em transactions.html.");
     }
 
     // Inicialização do formulário só se os elementos existirem
@@ -631,6 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     form.reset();
                     updateDynamicFields();
                     loadUserData();
+                    // Removido loadPixKeys daqui pra só carregar no clique do botão
                 }, 2000);
             } catch (error) {
                 console.error(`Erro na transação ${transactionType}:`, error.message);
@@ -648,4 +724,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateDynamicFields();
     loadUserData();
+    // Garantido que loadPixKeys NÃO é chamado aqui
 });

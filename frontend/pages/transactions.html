@@ -38,5 +38,96 @@
   </footer>
   <script src="/js/dashboard.js"></script>
 </body>
+<style>
+  /* Estilo global */
+:root {
+  --primary-light: #f8230f;
+  --primary: #c31208;
+  --primary-dark: #8d0000;
+  --text-dark: #333;
+  --text-light: #fff;
+  --gray-light: #f4f4f4;
+  --gray-dark: #555;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--primary-light);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: var(--primary);
+  color: var(--text-light);
+  padding: 15px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  background: var(--primary-dark);
+}
+
+nav a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+main {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+table th, table td {
+  border: 1px solid var(--gray-dark);
+  padding: 10px;
+  text-align: left;
+}
+
+table th {
+  background: var(--primary-dark);
+  color: var(--text-light);
+}
+
+button {
+  background: var(--primary);
+  color: var(--text-light);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--primary-dark);
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  background: var(--primary);
+  color: var(--text-light);
+  margin-top: 20px;
+}
+
+</style>
 
 </html>

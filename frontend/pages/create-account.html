@@ -59,5 +59,137 @@
   </footer>
   <script src="./js/create-account.js"></script>
 </body>
+<style>
+  /* Variáveis globais para cores */
+:root {
+  --primary-light: #f8230f;
+  --primary: #c31208;
+  --primary-dark: #8d0000;
+  --text-dark: #333;
+  --text-light: #fff;
+  --gray-light: #f4f4f4;
+  --gray-dark: #555;
+}
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Corpo */
+body {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: var(--text-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cabeçalho */
+header {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* Container */
+.container {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+/* Títulos */
+h2 {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+/* Botões */
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--primary-light);
+  color: var(--text-light);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  background: var(--primary);
+}
+
+.btn-secondary {
+  background: var(--gray-dark);
+}
+
+.btn-secondary:hover {
+  background: var(--text-dark);
+}
+
+/* Inputs */
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--gray-light);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+input::placeholder {
+  color: var(--gray-light);
+}
+
+/* Mensagem */
+#message {
+  margin-top: 1rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Rodapé */
+footer {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  width: 100%;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 1.5rem;
+  }
+}
+
+</style>
 
 </html>

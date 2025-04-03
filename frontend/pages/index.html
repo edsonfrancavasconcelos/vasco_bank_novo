@@ -92,5 +92,130 @@
     });
   </script>
 </body>
+<style>
+  /* Estilos modernos inspirados no Nubank */
+:root {
+  --primary-light: #f8230f;
+  --primary: #c31208;
+  --primary-dark: #8d0000;
+  --text-dark: #333;
+  --text-light: #fff;
+  --gray-light: #f4f4f4;
+  --gray-dark: #555;
+  --bg-gradient: linear-gradient(135deg, var(--primary-dark), var(--primary));
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: var(--gray-light);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+header {
+  background: var(--bg-gradient);
+  color: var(--text-light);
+  padding: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  color: var(--text-light);
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+nav a:hover {
+  color: var(--primary-light);
+}
+
+.container {
+  margin: 40px auto;
+  max-width: 800px;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.icon-item {
+  background: var(--gray-light);
+  color: var(--primary-light);
+  padding: 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  text-align: center;
+  transition: transform 0.3s ease-in-out, background 0.3s;
+  width: 120px;
+}
+
+.icon-item:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 10px;
+}
+
+.icon-circle i {
+  font-size: 24px;
+}
+
+footer {
+  background: var(--bg-gradient);
+  color: var(--text-light);
+  padding: 15px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.social-icon {
+  color: var(--text-light);
+  font-size: 20px;
+  transition: transform 0.3s;
+}
+
+.social-icon:hover {
+  transform: scale(1.2);
+}
+
+</style>
 
 </html>
