@@ -1,6 +1,8 @@
 // dashboard.js - 30 de março de 2025
 
 const token = localStorage.getItem("token");
+let pixKeysLoaded = false; // Flag pra controlar se as chaves já foram carregadas
+let pixKeysData = null; // Armazenar os dados das chaves Pix
 
 function isTokenExpired(token) {
     if (!token) return true;
@@ -31,6 +33,12 @@ function checkTokenAndRedirect(messageEl = null) {
         return true;
     }
     return false;
+}
+
+function logout() {
+    console.log("Iniciando logout...");
+    localStorage.removeItem("token"); // Remove o token do localStorage
+    window.location.href = "/index.html"; // Redireciona pra tela inicial
 }
 
 async function fetchName(accountNumber) {
@@ -159,67 +167,87 @@ async function loadUserData() {
     }
 }
 
-// Função pra carregar as chaves Pix só no clique
-async function loadPixKeys() {
-    console.log("Iniciando loadPixKeys...");
+// Função ajustada pra toggle de chaves Pix com olho
+async function togglePixKeys() {
+    console.log("Iniciando togglePixKeys...");
     const pixKeysList = document.getElementById("pixKeysList");
     const pixKeysMessage = document.getElementById("pixKeysMessage");
+    const loadPixKeysBtn = document.getElementById("loadPixKeys");
+    const eyeIcon = loadPixKeysBtn.querySelector("i");
 
-    if (!pixKeysList || !pixKeysMessage) {
+    if (!pixKeysList || !pixKeysMessage || !loadPixKeysBtn) {
         console.error("Elementos de chaves Pix não encontrados:", {
             pixKeysList: !!pixKeysList,
             pixKeysMessage: !!pixKeysMessage,
+            loadPixKeysBtn: !!loadPixKeysBtn,
         });
         return;
     }
 
     if (checkTokenAndRedirect(pixKeysMessage)) return;
 
-    try {
-        const response = await fetch("http://localhost:3000/api/transactions/pix/keys", {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        });
+    if (!pixKeysLoaded) {
+        try {
+            const response = await fetch("http://localhost:3000/api/transactions/pix/keys", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.log("Erro retornado pelo servidor:", errorData);
-            if (response.status === 401) {
-                console.error("401 Unauthorized em loadPixKeys - Token inválido ou expirado");
-                localStorage.removeItem("token");
-                pixKeysMessage.textContent = "Sessão expirada, redirecionando...";
-                pixKeysMessage.className = "mt-3 text-danger";
-                setTimeout(() => (window.location.href = "/index.html"), 2000);
-                return;
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.log("Erro retornado pelo servidor:", errorData);
+                if (response.status === 401) {
+                    console.error("401 Unauthorized em togglePixKeys - Token inválido ou expirado");
+                    localStorage.removeItem("token");
+                    pixKeysMessage.textContent = "Sessão expirada, redirecionando...";
+                    pixKeysMessage.className = "mt-3 text-danger";
+                    setTimeout(() => (window.location.href = "/index.html"), 2000);
+                    return;
+                }
+                throw new Error(errorData.error || "Erro ao carregar chaves Pix");
             }
-            throw new Error(errorData.error || "Erro ao carregar chaves Pix");
+
+            pixKeysData = await response.json();
+            console.log("Chaves Pix recebidas:", pixKeysData);
+            pixKeysLoaded = true;
+        } catch (error) {
+            console.error("Erro ao carregar chaves Pix:", error.message);
+            pixKeysMessage.textContent = `Erro: ${error.message}`;
+            pixKeysMessage.className = "mt-3 text-danger";
+            pixKeysList.innerHTML = "<li>Erro ao carregar chaves</li>";
+            return;
         }
+    }
 
-        const data = await response.json();
-        console.log("Chaves Pix recebidas:", data);
-
+    if (pixKeysList.classList.contains("hidden")) {
         pixKeysList.innerHTML = "";
-        if (data.pixKeys.length === 0) {
+        if (pixKeysData.pixKeys.length === 0) {
             pixKeysList.innerHTML = "<li>Nenhuma chave Pix cadastrada</li>";
             pixKeysMessage.textContent = "Nenhuma chave Pix encontrada.";
             pixKeysMessage.className = "mt-3 text-info";
         } else {
-            data.pixKeys.forEach(pk => {
+            pixKeysData.pixKeys.forEach(pk => {
                 const li = document.createElement("li");
                 li.textContent = `${pk.keyType}: ${pk.key}`;
                 pixKeysList.appendChild(li);
             });
-            pixKeysMessage.textContent ="/" ;
+            pixKeysMessage.textContent = "Chaves Pix carregadas com sucesso!";
             pixKeysMessage.className = "mt-3 text-success";
         }
-    } catch (error) {
-        console.error("Erro ao carregar chaves Pix:", error.message);
-        pixKeysMessage.textContent = `Erro: ${error.message}`;
-        pixKeysMessage.className = "mt-3 text-danger";
-        pixKeysList.innerHTML = "<li>Erro ao carregar chaves</li>";
+        pixKeysList.classList.remove("hidden");
+        eyeIcon.classList.remove("fa-eye");
+        eyeIcon.classList.add("fa-eye-slash");
+        loadPixKeysBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Esconder Chaves Pix';
+    } else {
+        pixKeysList.classList.add("hidden");
+        pixKeysMessage.textContent = "";
+        pixKeysMessage.className = "";
+        eyeIcon.classList.remove("fa-eye-slash");
+        eyeIcon.classList.add("fa-eye");
+        loadPixKeysBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar Chaves Pix';
     }
 }
 
@@ -442,19 +470,38 @@ function updateDynamicFields() {
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente carregado, inicializando dashboard...");
-     
 
-    // Botão para carregar chaves Pix
-    
+    // Checa login e mostra mensagem se não estiver logado
+    const notLoggedIn = document.getElementById("notLoggedIn");
+    const dashboardContent = document.getElementById("dashboardContent");
+    if (checkTokenAndRedirect()) {
+        if (notLoggedIn && dashboardContent) {
+            notLoggedIn.classList.remove("hidden");
+            dashboardContent.classList.add("hidden");
+        }
+        return;
+    } else if (notLoggedIn && dashboardContent) {
+        notLoggedIn.classList.add("hidden");
+        dashboardContent.classList.remove("hidden");
+    }
+
+    // Botão de logout
+    const logoutButton = document.getElementById("logoutButton");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logout);
+    } else {
+        console.error("Botão 'logoutButton' não encontrado no DOM!");
+    }
+
+    // Botão para toggle de chaves Pix
     const loadPixKeysBtn = document.getElementById("loadPixKeys");
-    
     if (loadPixKeysBtn) {
-        loadPixKeysBtn.addEventListener("click", loadPixKeys);
+        loadPixKeysBtn.addEventListener("click", togglePixKeys);
     } else {
         console.error("Botão 'loadPixKeys' não encontrado no DOM!");
-    }   
+    }
 
-    // Separar inicialização do histórico pra não depender do formulário
+    // Inicialização do histórico
     const loadHistoryBtn = document.getElementById("loadHistory");
     if (loadHistoryBtn) {
         loadHistoryBtn.addEventListener("click", async () => {
@@ -483,10 +530,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                 });
 
-                console.log("Status da resposta do histórico:", response.status);
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.log("Erro retornado pelo servidor:", errorData);
                     if (response.status === 401) {
                         console.error("401 Unauthorized em histórico - Token inválido ou expirado");
                         localStorage.removeItem("token");
@@ -499,8 +544,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const transactions = await response.json();
-                console.log("Transações recebidas:", transactions);
-
                 historyBody.innerHTML = "";
                 const dataArray = transactions.data || transactions;
                 if (!Array.isArray(dataArray) || dataArray.length === 0) {
@@ -535,11 +578,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 historyTable.style.display = "none";
             }
         });
-    } else {
-        console.warn("Botão 'loadHistory' não encontrado, histórico será carregado em transactions.html.");
     }
 
-    // Inicialização do formulário só se os elementos existirem
+    // Inicialização do formulário
     const transactionTypeEl = document.getElementById("transactionType");
     const form = document.getElementById("transactionForm");
 
@@ -706,7 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     form.reset();
                     updateDynamicFields();
                     loadUserData();
-                    // Removido loadPixKeys daqui pra só carregar no clique do botão
+                    if (transactionType === "pix/register") pixKeysLoaded = false; // Recarregar chaves após registro
                 }, 2000);
             } catch (error) {
                 console.error(`Erro na transação ${transactionType}:`, error.message);
@@ -716,13 +757,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 transactionMessage.className = "mt-3 text-danger";
             }
         });
-    } else {
-        console.warn("Formulário ou select de transação não encontrados, pulando inicialização do formulário.");
     }
-
-    if (checkTokenAndRedirect()) return;
 
     updateDynamicFields();
     loadUserData();
-    // Garantido que loadPixKeys NÃO é chamado aqui
 });
