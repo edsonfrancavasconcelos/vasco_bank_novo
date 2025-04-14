@@ -6,7 +6,9 @@
   <title>Criar Cartão - VascoBank</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="css/theme.css">
+
+
 </head>
 <body>
   <header>
@@ -14,7 +16,6 @@
     <nav>
       <a href="/">Início</a>
       <a href="/dashboard.html">Transações</a>
-      <a href="/dashboard.html">Pix</a>
       <a href="/login">Login</a>
     </nav>
   </header>
@@ -65,165 +66,5 @@
   </footer>
   <script src="../js/create-card.js"></script>
 </body>
-<style>
-  /* Redes sociais estilizadas */
-  .social-icons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-  }
-  .social-icons a {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 1.4rem;
-    text-decoration: none;
-    transition: 0.3s ease-in-out;
-    color: white;
-  }
-  .social-icons a.facebook { background-color: #1877F2; }
-  .social-icons a.twitter { background-color: #1DA1F2; }
-  .social-icons a.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-  .social-icons a.linkedin { background-color: #0077B5; }
-  .social-icons a:hover {
-    transform: scale(1.1);
-    filter: brightness(1.2);
-  }
-</style><style>
-  /* Variáveis globais para cores */
-  :root {
-  --primary-light: #87d1f1;
-  --primary: #1692c9;
-  --primary-dark: #04446c;
-  --text-dark: #333;
-  --text-light: #fff;
-  --gray-light: #f4f4f4;
-  --gray-dark: #555;
-  --bg-gradient: linear-gradient(135deg, var(--primary-dark), var(--primary));
-}
-
-/* Reset básico */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-/* Corpo */
-body {
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  color: var(--text-light);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Cabeçalho */
-header {
-  width: 100%;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  text-align: center;
-  font-size: 1.3rem;
-  font-weight: bold;
-}
-
-/* Container */
-.container {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 500px;
-  backdrop-filter: blur(10px);
-  text-align: center;
-}
-
-/* Títulos */
-h2 {
-  color: var(--text-light);
-  margin-bottom: 1rem;
-}
-
-/* Botões */
-.btn {
-  display: inline-block;
-  width: 100%;
-  padding: 0.8rem;
-  border: none;
-  border-radius: 10px;
-  background: var(--primary-light);
-  color: var(--text-light);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.btn:hover {
-  transform: scale(1.05);
-  background: var(--primary);
-}
-
-.btn-secondary {
-  background: var(--gray-dark);
-}
-
-.btn-secondary:hover {
-  background: var(--text-dark);
-}
-
-/* Inputs */
-.form-group {
-  margin-bottom: 1rem;
-  text-align: left;
-}
-
-input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid var(--gray-light);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--text-light);
-  font-size: 1rem;
-}
-
-input::placeholder {
-  color: var(--gray-light);
-}
-
-/* Mensagem */
-#message {
-  margin-top: 1rem;
-  font-size: 1rem;
-  text-align: center;
-}
-
-/* Rodapé */
-footer {
-  margin-top: 2rem;
-  padding: 1rem;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.3);
-  width: 100%;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .container {
-    width: 95%;
-    padding: 1.5rem;
-  }
-}
-
 </style>
 </html>

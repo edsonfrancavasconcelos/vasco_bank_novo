@@ -1,0 +1,248 @@
+/* theme.css - Estilo Dark Moderno VascoBank Refatorado */
+
+/* Paleta de Cores */
+:root {
+  --color1: #fc580c;
+  --color2: #fc6b0a;
+  --color3: #f8872e;
+  --color4: #ffa927;
+  --color5: #fdca49;
+
+  --primary: var(--color1);
+  --primary-light: var(--color3);
+  --primary-dark: var(--color2);
+
+  --text-light: #ffffff;
+  --text-dark: #dcdcdc;
+  --gray-light: #2a2a2a;
+  --gray-dark: #1f1f1f;
+  --gray-darker: #121212;
+
+  --bg-gradient: linear-gradient(135deg, var(--primary), var(--color4));
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --transition: 0.3s ease;
+}
+
+/* Reset Básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background-color: var(--gray-darker);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+header .logo {
+  height:300px;
+margin-left: -80px;
+  
+}
+
+/* Container padrão */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--gray-dark);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+/* Header */
+header {
+  background: var(--color1);
+  color: var(--text-light);
+  padding: 1.2rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+nav a {
+  color: var(--text-light);
+  margin-left: 1.5rem;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+nav a:hover {
+  color: var(--primary-light);
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+}
+/* Conteúdo principal */
+main {
+  flex: 1;
+  padding: 2rem 1rem;
+}
+
+h1, h2, h3, h4 {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* Grid de ícones */
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+/* Correção para texto dos botões estilo 'Cotações' */
+.icon-item {
+  background: #1c1c1c;
+  color: var(--text-light);
+}
+
+.icon-item span,
+.icon-item p {
+  color: var(--text-light);
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+
+
+
+.icon-item:hover {
+  background-color: var(--primary);
+  transform: translateY(-5px) scale(1.05);
+}
+
+.icon-circle {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-circle i {
+  color: var(--text-light);
+  font-size: 24px;
+}
+
+/* Formulários */
+input, select, textarea {
+  background-color: var(--gray-light);
+  color: var(--text-light);
+  border: 1px solid var(--gray-dark);
+  padding: 0.85rem;
+  border-radius: 10px;
+  width: 100%;
+  margin-bottom: 1.2rem;
+  font-size: 1rem;
+  transition: border 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+/* Botões */
+.btn-primary {
+  background-color: var(--primary);
+  border: none;
+  color: var(--text-light);
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Rodapé */
+footer {
+  background: var(--color1);
+  color: var(--text-light);
+  text-align: center;
+  padding: 1.2rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-icons {
+  margin-top: 0.5rem;
+}
+
+.social-icons a {
+  color: var(--text-light);
+  margin: 0 0.5rem;
+  font-size: 1.6rem;
+  transition: var(--transition);
+}
+
+.social-icons a:hover {
+  transform: scale(1.25);
+  color: var(--primary-light);
+}
+
+/* Preload */
+.preload {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: var(--gray-dark);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.preload img {
+  width: 180px;
+  margin-bottom: 1rem;
+}
+
+.preload .spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--gray-light);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

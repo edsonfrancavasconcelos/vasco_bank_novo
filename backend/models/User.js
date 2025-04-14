@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 
 const pixKeySchema = new mongoose.Schema({
     keyType: { type: String, required: true }, // "CPF", "EMAIL", "PHONE", "RANDOM"
-    key: { type: String, required: true }, // Removi unique: true aqui, o índice composto vai cuidar disso
+    key: { type: String, required: true }, // Sem unique aqui, o índice composto cuida disso
 });
 
 const userSchema = new mongoose.Schema({
@@ -16,12 +16,18 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     accountNumber: { type: String, required: true, unique: true },
     balance: { type: Number, default: 0 },
-    pixKeys: [pixKeySchema], // Array de chaves Pix
+    pixKeys: { type: [pixKeySchema], default: [] }, // Array de chaves Pix com default vazio
     createdAt: { type: Date, default: Date.now },
 });
 
-// Índice único global pra pixKeys.key
-userSchema.index({ "pixKeys.key": 1 }, { unique: true });
+// Índice único parcial pra pixKeys.key, ignorando null/undefined
+userSchema.index(
+    { "pixKeys.key": 1 },
+    { 
+        unique: true,
+        partialFilterExpression: { "pixKeys.key": { $exists: true, $ne: null } }
+    }
+);
 
 userSchema.pre("save", async function (next) {
     if (this.isModified("password")) {

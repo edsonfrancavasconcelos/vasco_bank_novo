@@ -3,43 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VascoBank - Home</title> 
+  <title>VascoBank - Programar Pix</title> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-  <div class="preload" id="preload">
-    <img src="img/vbank.png" alt="VascoBank Logo">
-    <div class="spinner"></div>
-  </div>
-
   <header>
     <img src="img/vbank.png" alt="VascoBank Logo" class="logo">
     <nav>
-      <a href="/">Início</a>
-      <a href="/login.html">Login</a>
-      <a href="/dashboard.html">Dashboard</a>
+      <a href="index.html">Início</a>
+      <a href="login.html">Login</a>
+      <a href="dashboard.html">Dashboard</a>
     </nav>
   </header>
 
-  <main class="container mt-4 hidden" id="content">
-    <h2>Bem-vindo ao VascoBank</h2>
-
-    <!-- Seção Principal -->
-    <section class="mt-4">
-      <h3>Ações Principais</h3>
-      <div class="icon-grid">
-        <a href="create-account.html" class="icon-item">
-          <div class="icon-circle"><i class="fas fa-user-plus"></i></div>
-          <span>Criar Conta</span>
-        </a>
-        <a href="login.html" class="icon-item">
-          <div class="icon-circle"><i class="fas fa-sign-in-alt"></i></div>
-          <span>Fazer Login</span>
-        </a>
-       
+  <main class="container mt-4">
+    <h2>Programar Pix</h2>
+    <form id="schedule-form" class="mt-4">
+      <div class="form-group">
+        <label for="pix-key">Chave Pix</label>
+        <input type="text" id="pix-key" class="form-control" placeholder="CPF, e-mail, celular ou chave aleatória" required>
+        <small id="pix-error" class="form-text text-danger"></small>
+        <small id="pix-loading" class="form-text text-muted"></small>
       </div>
-    </section>
+      <div id="recipient-info" class="alert alert-success hidden"></div>
+      <div class="form-group">
+        <label for="amount">Valor</label>
+        <input type="number" id="amount" class="form-control" placeholder="R$ 0,00" step="0.01" min="0.01" required>
+      </div>
+      <div class="form-group">
+        <label for="date">Data e Hora</label>
+        <input type="datetime-local" id="date" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Descrição (opcional)</label>
+        <input type="text" id="description" class="form-control" placeholder="Ex: Pagamento futuro">
+      </div>
+      <button type="submit" id="submit-btn" class="btn btn-primary" disabled>Programar</button>
+      <div id="success-message" class="mt-3 text-success"></div>
+    </form>
   </main>
 
   <footer>
@@ -52,10 +54,9 @@
     </div>
   </footer>
 
-  <script src="/js/index.js"></script>
+  <script src="../js/programar-pix.js"></script>
 
   <style>
-    /* Seu CSS mantido intacto */
     :root {
       --color1: #fc580c;
       --color2: #fc6b0a;
@@ -70,15 +71,8 @@
       --gray-light: #c2b9b9;
       --gray-dark: #434040;
       --gray-darker: #121212;
-      --bg-gradient: linear-gradient(135deg, var(--primary), var(--color4));
       --shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
       --transition: 0.3s ease;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
     }
 
     body {
@@ -124,54 +118,32 @@
       padding: 2rem 1rem;
     }
 
-    h1, h2, h3, h4 {
+    h2 {
       color: var(--text-light);
       margin-bottom: 1rem;
       font-weight: 600;
     }
 
-    .icon-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-      justify-content: center;
-      margin-top: 2rem;
-    }
-
-    .icon-item {
-      background: #1c1c1c;
-      color: var(--text-light);
-      padding: 15px;
-      border-radius: 10px;
-      text-decoration: none;
-      text-align: center;
-      transition: transform 0.3s ease-in-out, background 0.3s, color 0.3s;
-      width: 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      box-shadow: var(--shadow);
-    }
-
-    .icon-item:hover {
-      background-color: var(--gray-dark);
-      transform: translateY(-5px) scale(1.05);
-    }
-
-    .icon-circle {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 12px;
-      border-radius: 50%;
+    .form-control {
       background-color: var(--gray-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: var(--text-light);
+      border: 1px solid var(--gray-dark);
     }
 
-    .icon-circle i {
-      color: var(--gray-dark);
-      font-size: 24px;
+    .form-control:focus {
+      background-color: var(--gray-light);
+      color: var(--text-light);
+      border-color: var(--primary);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
     }
 
     .hidden {
@@ -187,10 +159,6 @@
       border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .social-icons {
-      margin-top: 0.5rem;
-    }
-
     .social-icons a {
       color: var(--text-light);
       margin: 0 0.5rem;
@@ -201,40 +169,6 @@
     .social-icons a:hover {
       transform: scale(1.25);
       color: var(--primary-light);
-    }
-
-    .preload {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: var(--gray-dark);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .preload img {
-      width: 180px;
-      margin-bottom: 1rem;
-    }
-
-    .preload .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid var(--gray-light);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
     }
   </style>
 </body>

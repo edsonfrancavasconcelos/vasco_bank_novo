@@ -1,100 +1,168 @@
-<!-- frontend/pages/dashboard.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - VascoBank</title>
+  <title>VascoBank - Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <header>
-    <h1>VBank</h1>
+    <img src="img/vbank.png" alt="VascoBank Logo" class="logo">
     <nav>
-      <a href="/">Início</a>
-      <a href="/dashboard.html">Transações</a>
-      <a href="/dashboard.html">Pix</a>
-      <a href="/login">Login</a>
+      <a href="/index.html">Início</a>
+      <a href="/login.html">Login</a>
+      <a href="/dashboard.html">Dashboard</a>
     </nav>
   </header>
 
   <main class="container mt-4">
-    <div class="row">
-      <div class="col-md-6">
-        <h2>Você está aqui</h2>
-        <div id="userInfo" class="text-center">
-          <p><strong>Nome:</strong> <span id="userName">Carregando...</span></p>
-          <p><strong>Número da Conta:</strong> <span id="accountNumber">Carregando...</span></p>
-          <p><strong>Saldo:</strong> <span id="balance">Carregando...</span></p>
+    <h2>Dashboard</h2>
+    <div class="user-info card p-3 mb-4">
+      <h3 id="userName">Bem-vindo!</h3>
+      <p><strong>Conta:</strong> <span id="accountNumber">---</span></p>
+      <p><strong>Saldo:</strong> <span id="balance">R$ ---</span>
+        <i id="toggleBalance" class="fas fa-eye ml-2" style="cursor: pointer;"></i>
+      </p>
+    </div>
+
+    <!-- Área Pix -->
+    <section class="mt-4">
+      <h3>Ações Principais</h3>
+      <div class="icon-grid">
+        <a href="create-account.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-user-plus"></i></div>
+          <span>Criar Conta</span>
+        </a>
+        <a href="login.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-sign-in-alt"></i></div>
+          <span>Fazer Login</span>
+        </a>
+        <a href="#" class="icon-item" id="transferMoney">
+          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
+          <span>Transferir</span>
+        </a>
+        <a href="#" class="icon-item" id="depositMoney">
+          <div class="icon-circle"><i class="fas fa-money-check-alt"></i></div>
+          <span>Depositar</span>
+        </a>
+        <a href="#" class="icon-item" id="withdrawMoney">
+          <div class="icon-circle"><i class="fas fa-hand-holding-usd"></i></div>
+          <span>Sacar</span>
+        </a>
+        <a href="pix-area.html" class="icon-item" id="pixArea">
+          <div class="icon-circle"><i class="fas fa-qrcode"></i></div>
+          <span>Área Pix</span>
+        </a>
+        <a href="#" class="icon-item" id="payBill">
+          <div class="icon-circle"><i class="fas fa-barcode"></i></div>
+          <span>Pagar Boleto</span>
+        </a>
+        <a href="#" class="icon-item" id="getLoan">
+          <div class="icon-circle"><i class="fas fa-coins"></i></div>
+          <span>Empréstimo</span>
+        </a>
+        <a href="#" class="icon-item" id="rechargePhone">
+          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+          <span>Recarga</span>
+        </a>
+        <a href="#" class="icon-item" id="showQuotes">
+          <div class="icon-circle"><i class="fas fa-dollar-sign"></i></div>
+          <span>Cotações</span>
+        </a>
+        <a href="#" class="icon-item" id="investMoney">
+          <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
+          <span>Investir</span>
+        </a>
+        <a href="products-services.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-box-open"></i></div>
+          <span>Produtos</span>
+        </a>
+        <a href="recover-access.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-key"></i></div>
+          <span>Recuperar Acesso</span>
+        </a>
+        <a href="create-card.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-id-card"></i></div>
+          <span>Criar Cartão</span>
+        </a>
+        <a href="#" class="icon-item" id="createVirtualCard">
+          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+          <span>Criar Cartão Virtual</span>
+        </a>
+        <a href="#" class="icon-item" id="replacePhysicalCard">
+          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
+          <span>Solicitar Novo Cartão</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Transações -->
+    <section class="mb-4">
+      <h3>Transações</h3>
+      <div class="icon-grid">
+        <div class="icon-item" data-action="pagar">
+          <div class="icon-circle"><i class="fas fa-barcode"></i></div>
+          <span>Pagar</span>
+        </div>
+        <div class="icon-item" data-action="emprestimo">
+          <div class="icon-circle"><i class="fas fa-coins"></i></div>
+          <span>Pegar Empréstimo</span>
+        </div>
+        <div class="icon-item" data-action="recarga">
+          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+          <span>Recarga Celular</span>
+        </div>
+        <div class="icon-item" data-action="investir">
+          <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
+          <span>Investir</span>
         </div>
       </div>
+    </section>
 
-      <div class="col-md-6">
-        <h3>Faça suas transações</h3>
-        <form id="transactionForm">
-          <div class="form-group">
-            <label for="transactionType">Tipo de Transação</label>
-            <select class="form-control" id="transactionType" required>
-              <option value="" disabled selected>Escolha uma transação</option>
-              <option value="transfer">Transferência</option>
-              <option value="deposit">Depósito</option>
-              <option value="withdrawal">Saque</option>
-              <option value="pix/transfer">PIX Transferência</option>
-              <option value="pix/payment">PIX Pagamento</option>
-              <option value="pix/receive">PIX Recebimento</option>
-              <option value="pix/register">PIX Registro</option>
-              <option value="pix/charge">Cobrança PIX</option>
-              <option value="pix/schedule">Programar PIX</option>
-              <option value="bill/pay">Pagar Boleto</option>
-              <option value="loan">Pegar Empréstimo</option>
-              <option value="recharge">Recarga de Celular</option>
-              <option value="invest">Investir</option>
-            </select>
-          </div>
-          <div id="dynamicFields" class="mt-3"></div>
-          <button type="submit" class="btn btn-primary mt-2" id="submitTransaction" disabled>Executar</button>
-        </form>
-        <div id="transactionMessage" class="mt-3"></div>
+    <!-- Histórico -->
+    <section class="mb-4">
+      <h3>Histórico de Transações</h3>
+      <div id="transactionHistory" class="list-group">
+        <!-- Preenchido pelo JS -->
       </div>
-    </div>
+    </section>
 
-    <!-- Seção com botão para chaves Pix -->
-<div class="mt-4">     
-  <button id="loadPixKeys" class="btn btn-primary mb-3">Minhas Chaves Pix</button>
-  <ul id="pixKeysList" class="list-group">
-    <!-- As chaves Pix serão inseridas aqui dinamicamente pelo JavaScript -->
-  </ul>
-  <div id="pixKeysMessage" class="mt-3"></div>
-</div>
-    <div class="mt-4">
-     
-      <!--<button id="loadHistory" class="btn btn-primary">Carregar Histórico</button>-->
-      <a href="./transactions.html" class="btn btn-info ml-2">Ver Histórico Completo</a>
-      <table class="table mt-3" id="historyTable" style="display: none;">
-        <thead>
-          <tr>
-            <th>Tipo</th>
-            <th>Valor</th>
-            <th>De</th>
-            <th>Para</th>
-            <th>Descrição</th>
-            <th>Data</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody"></tbody>
-      </table>
-      <div id="historyMessage" class="mt-3"></div>
-    </div>
-
-    <div class="form-group mt-4 text-center">
-      <button class="btn btn-secondary" id="logoutButton">Sair</button>
-    </div>
+    <!-- Cartões e Empréstimos -->
+    <section class="mb-4">
+      <h3>Cartões e Empréstimos</h3>
+      <div class="card p-3">
+        <p><strong>Cartão de Crédito - Fatura Atual:</strong> <span id="creditCardInvoice">R$ ---</span></p>
+        <p><strong>Empréstimos:</strong> <span id="loans">---</span></p>
+        <p><strong>Consignados:</strong> <span id="consignedLoans">---</span></p>
+      </div>
+    </section>
   </main>
 
+  <!-- Modal genérico pra ações -->
+  <div class="modal fade" id="actionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Ação</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- Conteúdo dinâmico -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-primary" id="modalConfirm">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>
-    <p class="text-center">© 2024 VascoBank. Todos os direitos reservados.</p>
+    <p class="text-center">© 2025 VascoBank. Todos os direitos reservados.</p>
     <div class="social-icons text-center">
       <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
       <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
@@ -103,203 +171,162 @@
     </div>
   </footer>
 
-  <script src="../js/dashboard.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="js/dashboard.js"></script>
+
+  <style>
+    :root {
+      --color1: #fc580c;
+      --color2: #fc6b0a;
+      --color3: #f8872e;
+      --color4: #ffa927;
+      --color5: #fdca49;
+      --primary: var(--color1);
+      --primary-light: var(--color3);
+      --primary-dark: var(--color2);
+      --text-light: #ffffff;
+      --text-dark: #dcdcdc;
+      --gray-light: #c2b9b9;
+      --gray-dark: #434040;
+      --gray-darker: #121212;
+      --shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+      --transition: 0.3s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background-color: var(--gray-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--color1);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    header .logo {
+      height: 300px;
+      margin-left: -8px;
+    }
+
+    nav a {
+      color: var(--text-light);
+      margin-left: 1.5rem;
+      text-decoration: none;
+      font-size: 1.4rem;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    nav a:hover {
+      color: var(--primary-light);
+      text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem 1rem;
+    }
+
+    h2, h3 {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .user-info {
+      background: #1c1c1c;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .icon-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .icon-item {
+      background: #1c1c1c;
+      color: var(--text-light);
+      padding: 15px;
+      border-radius: 10px;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.3s ease-in-out, background 0.3s, color 0.3s;
+      width: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+
+    .icon-item:hover {
+      background-color: var(--gray-dark);
+      transform: translateY(-5px) scale(1.05);
+    }
+
+    .icon-circle {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background-color: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-circle i {
+      color: var(--gray-dark);
+      font-size: 24px;
+    }
+
+    .list-group-item {
+      background: #1c1c1c;
+      color: var(--text-light);
+      border: none;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .list-group-item:hover {
+      background-color: var(--gray-dark);
+    }
+
+    footer {
+      background: var(--color1);
+      color: var(--text-light);
+      text-align: center;
+      padding: 1.2rem;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .social-icons a {
+      color: var(--text-light);
+      margin: 0 0.5rem;
+      font-size: 1.6rem;
+      transition: var(--transition);
+    }
+
+    .social-icons a:hover {
+      transform: scale(1.25);
+      color: var(--primary-light);
+    }
+  </style>
 </body>
-<style>
-  /* Variáveis globais para cores */
-  :root {
-  --primary-light: #87d1f1;
-  --primary: #1692c9;
-  --primary-dark: #04446c;
-  --text-dark: #333;
-  --text-light: #fff;
-  --gray-light: #f4f4f4;
-  --gray-dark: #555;
-  --bg-gradient: linear-gradient(135deg, var(--primary-dark), var(--primary));
-}
-
-/* Reset básico */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-/* Corpo */
-body {
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  color: var(--text-light);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Cabeçalho */
-header {
-  width: 100%;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header h1 {
-  font-size: 1.8rem;
-  font-weight: bold;
-}
-
-nav a {
-  color: var(--text-light);
-  text-decoration: none;
-  margin: 0 1rem;
-  font-size: 1.2rem;
-  transition: color 0.3s ease-in-out;
-}
-
-nav a:hover {
-  color: var(--primary-light);
-}
-
-/* Container principal */
-.container {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 600px;
-  margin-top: 2rem;
-  backdrop-filter: blur(10px);
-}
-
-/* Títulos */
-h2, h3 {
-  color: var(--text-light);
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-/* Botões */
-.btn {
-  display: inline-block;
-  width: 100%;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 10px;
-  background: var(--primary-light);
-  color: var(--text-light);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.btn:hover {
-  transform: scale(1.05);
-  background: var(--primary);
-}
-
-.btn-primary {
-  background: var(--primary);
-   margin:  0.5rem;
-
-
-  
-}
-
-.btn-primary:hover {
-  background: var(--primary-dark);
-}
-
-.btn-secondary{
- margin:  0.5rem;
-
-}
-
-/* Inputs */
-.form-group {
-  margin-bottom: 1rem;
-}
-
-input, select {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid var(--gray-light);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--text-light);
-  font-size: 1rem;
-}
-
-input::placeholder {
-  color: var(--gray-light);
-}
-
-/* Tabela de histórico */
-.table {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.table th, .table td {
-  padding: 1rem;
-  text-align: center;
-}
-
-.table th {
-  background: var(--primary-dark);
-  color: var(--text-light);
-}
-
-.table td {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Ícones sociais */
-.social-icons {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.social-icons a {
-  color: var(--text-light);
-  font-size: 1.5rem;
-  margin: 0 10px;
-  transition: transform 0.3s ease-in-out;
-}
-
-.social-icons a:hover {
-  transform: scale(1.2);
-  color: var(--primary-light);
-}
-
-/* Rodapé */
-footer {
-  margin-top: auto;
-  padding: 1rem;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.3);
-  width: 100%;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .container {
-    width: 95%;
-    padding: 1.5rem;
-  }
-
-  nav a {
-    font-size: 1rem;
-    margin: 0 0.5rem;
-  }
-}
-
-</style>
 </html>

@@ -6,6 +6,16 @@ const bcrypt = require("bcrypt");
 require("dotenv").config(); // Certifique-se de carregar as variáveis de ambiente
 
 router.post("/", async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.password !== password) { // Ajusta pra bcrypt se tiver hash
+        return res.status(401).json({ error: "Credenciais inválidas" });
+    }
+    const token = jwt.sign({ id: user._id }, "vasco_bank_secret", { expiresIn: "1h" });
+    res.json({ token });
+});
+
+router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

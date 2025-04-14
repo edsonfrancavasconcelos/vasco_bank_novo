@@ -1,764 +1,235 @@
-// dashboard.js - 30 de março de 2025
+document.addEventListener("DOMContentLoaded", () => {
+  const userName = document.getElementById("userName");
+  const accountNumber = document.getElementById("accountNumber");
+  const balance = document.getElementById("balance");
+  const toggleBalance = document.getElementById("toggleBalance");
+  const transactionHistory = document.getElementById("transactionHistory");
+  const creditCardInvoice = document.getElementById("creditCardInvoice");
+  const loans = document.getElementById("loans");
+  const consignedLoans = document.getElementById("consignedLoans");
+  let balanceVisible = false;
 
-const token = localStorage.getItem("token");
-let pixKeysLoaded = false; // Flag pra controlar se as chaves já foram carregadas
-let pixKeysData = null; // Armazenar os dados das chaves Pix
+  // Carrega dados do usuário
+  async function loadUserData() {
+      try {
+          const token = localStorage.getItem("token");
+          if (!token || token.split(".").length !== 3) {
+            console.error("Token inválido, deslogando...");
+            localStorage.removeItem("token");
+            window.location.href = "/login.html"; // ou o caminho do seu login
+          }
 
-function isTokenExpired(token) {
-    if (!token) return true;
+          const response = await fetch("http://localhost:3000/api/user", {
+              headers: { "Authorization": `Bearer ${token}` },
+          });
+          if (!response.ok) throw new Error("Erro ao buscar usuário");
+
+          const data = await response.json();
+          userName.textContent = `Bem-vindo, ${data.user.name}!`;
+          accountNumber.textContent = data.user.accountNumber || "0000-0";
+          balance.textContent = `R$ ${data.user.balance.toFixed(2)}`;
+          balance.dataset.value = data.user.balance.toFixed(2);
+      } catch (error) {
+          console.error("Erro ao carregar usuário:", error);
+          userName.textContent = "Erro ao carregar dados";
+      }
+  }
+
+  // Toggle saldo
+  toggleBalance.addEventListener("click", () => {
+      balanceVisible = !balanceVisible;
+      balance.textContent = balanceVisible ? `R$ ${balance.dataset.value}` : "R$ ---";
+      toggleBalance.className = balanceVisible ? "fas fa-eye-slash ml-2" : "fas fa-eye ml-2";
+  });
+
+  // Carrega histórico
+  
+  async function loadHistory() {
     try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const exp = payload.exp * 1000;
-        const now = Date.now();
-        console.log("Token expira em:", new Date(exp).toLocaleString());
-        console.log("Hora atual:", new Date(now).toLocaleString());
-        return exp < now;
-    } catch (error) {
-        console.error("Erro ao decodificar token:", error.message);
-        return true;
-    }
-}
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:3000/api/transactions/history", {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
 
-function checkTokenAndRedirect(messageEl = null) {
-    if (!token || isTokenExpired(token)) {
-        console.log("Token não encontrado ou expirado");
-        localStorage.removeItem("token");
-        if (messageEl) {
-            messageEl.textContent = "Sessão expirada, redirecionando...";
-            messageEl.className = "mt-3 text-danger";
-            setTimeout(() => (window.location.href = "/index.html"), 2000);
+        if (!response.ok) throw new Error("Erro ao buscar histórico");
+
+        const data = await response.json();
+        console.log("Dados recebidos:", data);
+
+        if (data && Array.isArray(data.transactions)) {
+            transactionHistory.innerHTML = data.transactions.length > 0
+                ? data.transactions.map(tx => `
+                    <div class="list-group-item">
+                        <strong>${tx.type}</strong> - R$ ${tx.amount.toFixed(2)}<br>
+                        <small>${new Date(tx.date).toLocaleString()}</small>
+                    </div>
+                `).join("")
+                : "<p>Sem transações</p>";
         } else {
-            window.location.href = "/index.html";
+            transactionHistory.innerHTML = "<p>Nenhum dado de transação encontrado.</p>";
         }
-        return true;
-    }
-    return false;
-}
-
-function logout() {
-    console.log("Iniciando logout...");
-    localStorage.removeItem("token"); // Remove o token do localStorage
-    window.location.href = "/index.html"; // Redireciona pra tela inicial
-}
-
-async function fetchName(accountNumber) {
-    if (!accountNumber || checkTokenAndRedirect()) return "-";
-    try {
-        const response = await fetch(`http://localhost:3000/api/users/account/${accountNumber}`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        });
-        if (!response.ok) {
-            const errorData = await response.json();
-            if (response.status === 401) {
-                console.error("401 Unauthorized em fetchName - Token inválido ou expirado");
-                localStorage.removeItem("token");
-                window.location.href = "/index.html";
-                return "-";
-            }
-            throw new Error(errorData.error || "Erro ao buscar nome");
-        }
-        const data = await response.json();
-        return data.fullName || "Desconhecido";
     } catch (error) {
-        console.error(`Erro ao buscar nome para ${accountNumber}:`, error.message);
-        return "Desconhecido";
+        console.error("Erro ao carregar histórico:", error);
+        transactionHistory.innerHTML = "<p>Erro ao carregar histórico</p>";
     }
 }
 
-async function transferMoney(amount, destinationAccount) {
-    if (checkTokenAndRedirect()) return null;
+  // Carrega dados do cartão e empréstimos
+  async function loadFinancialData() {
     try {
-        console.log("Token enviado na transferência:", token);
-        const response = await fetch("http://localhost:3000/api/transactions/transfer", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ amount, destinationAccount }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            if (response.status === 401) {
-                console.error("401 Unauthorized em transferMoney - Token inválido ou expirado");
-                localStorage.removeItem("token");
-                window.location.href = "/index.html";
-                return null;
-            }
-            throw new Error(errorData.error || "Erro na transação");
-        }
-
-        const data = await response.json();
-        console.log("Transferência realizada:", data);
-        return data;
-    } catch (error) {
-        console.error("Erro na transação transfer:", error.message);
-        throw error;
-    }
-}
-
-async function loadUserData() {
-    console.log("Iniciando loadUserData...");
-    const userNameEl = document.getElementById("userName");
-    const accountNumberEl = document.getElementById("accountNumber");
-    const balanceEl = document.getElementById("balance");
-    const message = document.getElementById("transactionMessage");
-
-    if (!userNameEl || !accountNumberEl || !balanceEl || !message) {
-        console.error("Elementos DOM não encontrados:", {
-            userNameEl: !!userNameEl,
-            accountNumberEl: !!accountNumberEl,
-            balanceEl: !!balanceEl,
-            message: !!message,
-        });
-        if (message) {
-            message.textContent = "Erro: Elementos da página não encontrados";
-            message.className = "mt-3 text-danger";
-        }
-        return;
-    }
-
-    if (checkTokenAndRedirect(message)) return;
-
-    try {
-        console.log("Carregando dados do usuário com token:", token);
-        const response = await fetch("http://localhost:3000/api/users/me", {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            if (response.status === 401) {
-                console.error("401 Unauthorized em loadUserData - Token inválido ou expirado");
-                localStorage.removeItem("token");
-                message.textContent = "Sessão expirada, redirecionando...";
-                message.className = "mt-3 text-danger";
-                setTimeout(() => (window.location.href = "/index.html"), 2000);
-                return;
-            }
-            throw new Error(errorData.error || `Erro ${response.status}`);
-        }
-
-        const userData = await response.json();
-        console.log("Dados recebidos no frontend:", userData);
-
-        userNameEl.textContent = userData.fullName || "Nome não disponível";
-        accountNumberEl.textContent = userData.accountNumber || "Conta não disponível";
-        balanceEl.textContent =
-            userData.balance !== undefined
-                ? `R$ ${userData.balance.toFixed(2)}`
-                : "Saldo não disponível";
-
-        message.textContent = "Dados carregados com sucesso!";
-        message.className = "mt-3 text-success";
-    } catch (error) {
-        console.error("Erro ao carregar dados:", error.message);
-        message.textContent = `Erro: ${error.message}`;
-        message.className = "mt-3 text-danger";
-    }
-}
-
-// Função ajustada pra toggle de chaves Pix com olho
-async function togglePixKeys() {
-    console.log("Iniciando togglePixKeys...");
-    const pixKeysList = document.getElementById("pixKeysList");
-    const pixKeysMessage = document.getElementById("pixKeysMessage");
-    const loadPixKeysBtn = document.getElementById("loadPixKeys");
-    const eyeIcon = loadPixKeysBtn.querySelector("i");
-
-    if (!pixKeysList || !pixKeysMessage || !loadPixKeysBtn) {
-        console.error("Elementos de chaves Pix não encontrados:", {
-            pixKeysList: !!pixKeysList,
-            pixKeysMessage: !!pixKeysMessage,
-            loadPixKeysBtn: !!loadPixKeysBtn,
-        });
-        return;
-    }
-
-    if (checkTokenAndRedirect(pixKeysMessage)) return;
-
-    if (!pixKeysLoaded) {
-        try {
-            const response = await fetch("http://localhost:3000/api/transactions/pix/keys", {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.log("Erro retornado pelo servidor:", errorData);
-                if (response.status === 401) {
-                    console.error("401 Unauthorized em togglePixKeys - Token inválido ou expirado");
-                    localStorage.removeItem("token");
-                    pixKeysMessage.textContent = "Sessão expirada, redirecionando...";
-                    pixKeysMessage.className = "mt-3 text-danger";
-                    setTimeout(() => (window.location.href = "/index.html"), 2000);
-                    return;
-                }
-                throw new Error(errorData.error || "Erro ao carregar chaves Pix");
-            }
-
-            pixKeysData = await response.json();
-            console.log("Chaves Pix recebidas:", pixKeysData);
-            pixKeysLoaded = true;
-        } catch (error) {
-            console.error("Erro ao carregar chaves Pix:", error.message);
-            pixKeysMessage.textContent = `Erro: ${error.message}`;
-            pixKeysMessage.className = "mt-3 text-danger";
-            pixKeysList.innerHTML = "<li>Erro ao carregar chaves</li>";
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.error("Token não encontrado no localStorage");
+            creditCardInvoice.textContent = "Erro: Faça login novamente";
+            loans.textContent = "Erro: Faça login novamente";
+            consignedLoans.textContent = "Erro: Faça login novamente";
             return;
         }
-    }
 
-    if (pixKeysList.classList.contains("hidden")) {
-        pixKeysList.innerHTML = "";
-        if (pixKeysData.pixKeys.length === 0) {
-            pixKeysList.innerHTML = "<li>Nenhuma chave Pix cadastrada</li>";
-            pixKeysMessage.textContent = "Nenhuma chave Pix encontrada.";
-            pixKeysMessage.className = "mt-3 text-info";
-        } else {
-            pixKeysData.pixKeys.forEach(pk => {
-                const li = document.createElement("li");
-                li.textContent = `${pk.keyType}: ${pk.key}`;
-                pixKeysList.appendChild(li);
+        console.log("Fazendo fetch para /api/transactions/financial com token:", token.substring(0, 10) + "...");
+        const response = await fetch("http://localhost:3000/api/transactions/financial", {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error("Erro na API /financial:", {
+                status: response.status,
+                statusText: response.statusText,
+                error: errorData.error || "Sem detalhes",
             });
-            pixKeysMessage.textContent = "Chaves Pix carregadas com sucesso!";
-            pixKeysMessage.className = "mt-3 text-success";
+            throw new Error(errorData.error || `HTTP ${response.status}`);
         }
-        pixKeysList.classList.remove("hidden");
-        eyeIcon.classList.remove("fa-eye");
-        eyeIcon.classList.add("fa-eye-slash");
-        loadPixKeysBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Esconder Chaves Pix';
-    } else {
-        pixKeysList.classList.add("hidden");
-        pixKeysMessage.textContent = "";
-        pixKeysMessage.className = "";
-        eyeIcon.classList.remove("fa-eye-slash");
-        eyeIcon.classList.add("fa-eye");
-        loadPixKeysBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar Chaves Pix';
+
+        const data = await response.json();
+        console.log("Dados financeiros recebidos:", data);
+        creditCardInvoice.textContent = `R$ ${data.card.invoice.toFixed(2)}`;
+        loans.textContent = data.loans.length ? data.loans.map(l => `R$ ${l.amount.toFixed(2)}`).join(", ") : "Nenhum";
+        consignedLoans.textContent = data.consigned.length ? data.consigned.map(c => `R$ ${c.amount.toFixed(2)}`).join(", ") : "Nenhum";
+    } catch (error) {
+        console.error("Erro ao carregar dados financeiros:", error);
+        creditCardInvoice.textContent = "Erro";
+        loans.textContent = "Erro";
+        consignedLoans.textContent = "Erro";
     }
 }
+  // Ações da área Pix e transações
+  document.querySelectorAll(".icon-item").forEach(item => {
+      item.addEventListener("click", () => {
+          const action = item.dataset.action;
+          const modalTitle = document.getElementById("modalTitle");
+          const modalBody = document.getElementById("modalBody");
+          const modalConfirm = document.getElementById("modalConfirm");
 
-function updateDynamicFields() {
-    const transactionType = document.getElementById("transactionType")?.value;
-    const dynamicFields = document.getElementById("dynamicFields");
-    const submitButton = document.getElementById("submitTransaction");
+          modalTitle.textContent = item.querySelector("span").textContent;
+          modalBody.innerHTML = getModalContent(action);
+          modalConfirm.onclick = () => handleAction(action);
+          $("#actionModal").modal("show");
+      });
+  });
 
-    if (!dynamicFields || !submitButton) {
-        console.error("Elementos de formulário não encontrados:", {
-            dynamicFields: !!dynamicFields,
-            submitButton: !!submitButton,
-        });
-        return;
-    }
+  function getModalContent(action) {
+      const actions = {
+          transferir: `<input type="text" class="form-control mb-2" id="pixKey" placeholder="Chave Pix">
+                      <input type="number" class="form-control" id="amount" placeholder="Valor">`,
+          programar: `<input type="text" class="form-control mb-2" id="pixKey" placeholder="Chave Pix">
+                      <input type="number" class="form-control mb-2" id="amount" placeholder="Valor">
+                      <input type="date" class="form-control" id="scheduleDate">`,
+          qrcode: `<p>Funcionalidade em desenvolvimento.</p>`,
+          copiaecola: `<input type="text" class="form-control" id="pixCode" placeholder="Código Pix">`,
+          cobrar: `<input type="number" class="form-control" id="amount" placeholder="Valor a cobrar">`,
+          depositar: `<input type="number" class="form-control" id="amount" placeholder="Valor a depositar">`,
+          chaves: `<p><a href="/minhas-chaves.html">Gerenciar chaves Pix</a></p>`,
+          limites: `<input type="number" class="form-control" id="pixLimit" placeholder="Limite diário Pix">`,
+          pagar: `<input type="text" class="form-control" id="barcode" placeholder="Código de barras">`,
+          emprestimo: `<input type="number" class="form-control" id="loanAmount" placeholder="Valor do empréstimo">`,
+          recarga: `<input type="text" class="form-control mb-2" id="phone" placeholder="Número do celular">
+                    <input type="number" class="form-control" id="amount" placeholder="Valor da recarga">`,
+          investir: `<input type="number" class="form-control" id="investAmount" placeholder="Valor a investir">`,
+      };
+      return actions[action] || "<p>Funcionalidade em desenvolvimento.</p>";
+  }
 
-    dynamicFields.innerHTML = "";
+  async function handleAction(action) {
+      const token = localStorage.getItem("token");
+      const actions = {
+          transferir: () => ({
+              url: "/api/pix/transfer",
+              body: {
+                  key: document.getElementById("pixKey").value,
+                  amount: parseFloat(document.getElementById("amount").value),
+              },
+          }),
+          programar: () => ({
+              url: "/api/pix/schedule",
+              body: {
+                  key: document.getElementById("pixKey").value,
+                  amount: parseFloat(document.getElementById("amount").value),
+                  date: document.getElementById("scheduleDate").value,
+              },
+          }),
+          copiaecola: () => ({
+              url: "/api/pix/copiaecola",
+              body: { code: document.getElementById("pixCode").value },
+          }),
+          cobrar: () => ({
+              url: "/api/pix/charge",
+              body: { amount: parseFloat(document.getElementById("amount").value) },
+          }),
+          depositar: () => ({
+              url: "/api/pix/deposit",
+              body: { amount: parseFloat(document.getElementById("amount").value) },
+          }),
+          limites: () => ({
+              url: "/api/pix/limits",
+              body: { limit: parseFloat(document.getElementById("pixLimit").value) },
+          }),
+          pagar: () => ({
+              url: "/api/transactions/pay",
+              body: { barcode: document.getElementById("barcode").value },
+          }),
+          emprestimo: () => ({
+              url: "/api/loans/request",
+              body: { amount: parseFloat(document.getElementById("loanAmount").value) },
+          }),
+          recarga: () => ({
+              url: "/api/transactions/recharge",
+              body: {
+                  phone: document.getElementById("phone").value,
+                  amount: parseFloat(document.getElementById("amount").value),
+              },
+          }),
+          investir: () => ({
+              url: "/api/investments",
+              body: { amount: parseFloat(document.getElementById("investAmount").value) },
+          }),
+      };
 
-    switch (transactionType) {
-        case "transfer":
-        case "pix/transfer":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="toAccount">${transactionType === "pix/transfer" ? "Chave PIX Destino" : "Conta Destino"}</label>
-                    <input type="text" class="form-control" id="toAccount" required>
-                </div>
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Descrição (opcional)</label>
-                    <input type="text" class="form-control" id="description">
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "deposit":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="toAccount">Conta Destino</label>
-                    <input type="text" class="form-control" id="toAccount" required>
-                </div>
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "withdrawal":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "pix/payment":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="toAccount">Chave PIX do Pagamento</label>
-                    <input type="text" class="form-control" id="toAccount" required>
-                </div>
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "pix/receive":
-            dynamicFields.innerHTML = `
-                <p>Sua chave PIX será gerada no backend. Clique em "Executar" para visualizar.</p>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "pix/register":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="pixKey">Chave PIX (ex.: CPF, e-mail, telefone)</label>
-                    <input type="text" class="form-control" id="pixKey" required>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "pix/charge":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Descrição (opcional)</label>
-                    <input type="text" class="form-control" id="description">
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "pix/schedule":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="toAccount">Chave PIX Destino</label>
-                    <input type="text" class="form-control" id="toAccount" required>
-                </div>
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="scheduleDate">Data Programada</label>
-                    <input type="date" class="form-control" id="scheduleDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Descrição (opcional)</label>
-                    <input type="text" class="form-control" id="description">
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "bill/pay":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="billCode">Código do Boleto</label>
-                    <input type="text" class="form-control" id="billCode" required>
-                </div>
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "loan":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="loanAmount">Valor do Empréstimo</label>
-                    <select class="form-control" id="loanAmount" required>
-                        <option value="">Selecione</option>
-                        <option value="100">R$ 100,00</option>
-                        <option value="200">R$ 200,00</option>
-                        <option value="500">R$ 500,00</option>
-                        <option value="1000">R$ 1.000,00</option>
-                    </select>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "recharge":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="phoneNumber">Número do Telefone</label>
-                    <input type="text" class="form-control" id="phoneNumber" required>
-                </div>
-                <div class="form-group">
-                    <label for="operator">Operadora</label>
-                    <select class="form-control" id="operator" required>
-                        <option value="">Selecione</option>
-                        <option value="Vivo">Vivo</option>
-                        <option value="Claro">Claro</option>
-                        <option value="Tim">Tim</option>
-                        <option value="Oi">Oi</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="rechargeAmount">Valor da Recarga</label>
-                    <select class="form-control" id="rechargeAmount" required>
-                        <option value="">Selecione</option>
-                        <option value="10">R$ 10,00</option>
-                        <option value="20">R$ 20,00</option>
-                        <option value="30">R$ 30,00</option>
-                        <option value="50">R$ 50,00</option>
-                    </select>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        case "invest":
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="amount">Valor (R$)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" min="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="investmentType">Tipo de Investimento</label>
-                    <select class="form-control" id="investmentType" required>
-                        <option value="">Selecione</option>
-                        <option value="tesouro-selic">Tesouro Selic</option>
-                        <option value="tesouro-prefixado">Tesouro Prefixado</option>
-                        <option value="tesouro-ipca">Tesouro IPCA+</option>
-                        <option value="cdb">CDB</option>
-                        <option value="acoes">Ações</option>
-                    </select>
-                </div>
-            `;
-            submitButton.disabled = false;
-            break;
-        default:
-            dynamicFields.innerHTML = "<p>Selecione um tipo de transação.</p>";
-            submitButton.disabled = true;
-            break;
-    }
+      if (actions[action]) {
+          try {
+              const { url, body } = actions[action]();
+              const response = await fetch(`http://localhost:3000${url}`, {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`,
+                  },
+                  body: JSON.stringify(body),
+              });
+              if (!response.ok) throw new Error("Erro na ação");
+              alert("Ação realizada com sucesso!");
+              $("#actionModal").modal("hide");
+              loadHistory(); // Atualiza histórico
+          } catch (error) {
+              console.error(`Erro na ação ${action}:`, error);
+              alert("Erro ao realizar ação. Tente novamente.");
+          }
+      } else {
+          alert("Funcionalidade em desenvolvimento.");
+      }
+  }
 
-    const inputs = dynamicFields.querySelectorAll("input, select");
-    inputs.forEach((input) => {
-        input.addEventListener("input", () => {
-            submitButton.disabled = !isFormValid(inputs);
-        });
-    });
-
-    function isFormValid(inputs) {
-        return [...inputs].every((input) => {
-            if (input.required && !input.value) return false;
-            if (input.type === "number" && input.value && parseFloat(input.value) <= 0) return false;
-            return true;
-        });
-    }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM completamente carregado, inicializando dashboard...");
-
-    // Checa login e mostra mensagem se não estiver logado
-    const notLoggedIn = document.getElementById("notLoggedIn");
-    const dashboardContent = document.getElementById("dashboardContent");
-    if (checkTokenAndRedirect()) {
-        if (notLoggedIn && dashboardContent) {
-            notLoggedIn.classList.remove("hidden");
-            dashboardContent.classList.add("hidden");
-        }
-        return;
-    } else if (notLoggedIn && dashboardContent) {
-        notLoggedIn.classList.add("hidden");
-        dashboardContent.classList.remove("hidden");
-    }
-
-    // Botão de logout
-    const logoutButton = document.getElementById("logoutButton");
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logout);
-    } else {
-        console.error("Botão 'logoutButton' não encontrado no DOM!");
-    }
-
-    // Botão para toggle de chaves Pix
-    const loadPixKeysBtn = document.getElementById("loadPixKeys");
-    if (loadPixKeysBtn) {
-        loadPixKeysBtn.addEventListener("click", togglePixKeys);
-    } else {
-        console.error("Botão 'loadPixKeys' não encontrado no DOM!");
-    }
-
-    // Inicialização do histórico
-    const loadHistoryBtn = document.getElementById("loadHistory");
-    if (loadHistoryBtn) {
-        loadHistoryBtn.addEventListener("click", async () => {
-            const historyTable = document.getElementById("historyTable");
-            const historyBody = document.getElementById("historyBody");
-            const historyMessage = document.getElementById("historyMessage");
-
-            if (!historyTable || !historyBody || !historyMessage) {
-                console.error("Elementos do histórico não encontrados:", {
-                    historyTable: !!historyTable,
-                    historyBody: !!historyBody,
-                    historyMessage: !!historyMessage,
-                });
-                return;
-            }
-
-            if (checkTokenAndRedirect(historyMessage)) return;
-
-            try {
-                console.log("Carregando histórico com token:", token);
-                const response = await fetch("http://localhost:3000/api/transactions/history", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    if (response.status === 401) {
-                        console.error("401 Unauthorized em histórico - Token inválido ou expirado");
-                        localStorage.removeItem("token");
-                        historyMessage.textContent = "Sessão expirada, redirecionando...";
-                        historyMessage.className = "mt-3 text-danger";
-                        setTimeout(() => (window.location.href = "/index.html"), 2000);
-                        return;
-                    }
-                    throw new Error(errorData.error || "Erro ao carregar histórico");
-                }
-
-                const transactions = await response.json();
-                historyBody.innerHTML = "";
-                const dataArray = transactions.data || transactions;
-                if (!Array.isArray(dataArray) || dataArray.length === 0) {
-                    historyMessage.textContent = "Nenhuma transação encontrada.";
-                    historyMessage.className = "mt-3 text-info";
-                    historyTable.style.display = "none";
-                    return;
-                }
-
-                for (const t of dataArray) {
-                    const fromName = t.fromAccount ? await fetchName(t.fromAccount) : "-";
-                    const toName = t.targetAccount ? await fetchName(t.targetAccount) : "-";
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${t.type || "-"}</td>
-                        <td>R$ ${(t.amount || 0).toFixed(2)}</td>
-                        <td>${fromName} (${t.fromAccount || "-"})</td>
-                        <td>${toName} (${t.targetAccount || "-"})</td>
-                        <td>${t.description || "-"}</td>
-                        <td>${t.date ? new Date(t.date).toLocaleString() : "-"}</td>
-                    `;
-                    historyBody.appendChild(row);
-                }
-
-                historyTable.style.display = "table";
-                historyMessage.textContent = "Histórico carregado com sucesso!";
-                historyMessage.className = "mt-3 text-success";
-            } catch (error) {
-                console.error("Erro ao carregar histórico:", error.message);
-                historyMessage.textContent = `Erro: ${error.message}`;
-                historyMessage.className = "mt-3 text-danger";
-                historyTable.style.display = "none";
-            }
-        });
-    }
-
-    // Inicialização do formulário
-    const transactionTypeEl = document.getElementById("transactionType");
-    const form = document.getElementById("transactionForm");
-
-    if (transactionTypeEl && form) {
-        transactionTypeEl.addEventListener("change", updateDynamicFields);
-
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const transactionType = transactionTypeEl.value;
-            const transactionMessage = document.getElementById("transactionMessage");
-
-            if (!transactionMessage) {
-                console.error("Elemento transactionMessage não encontrado");
-                return;
-            }
-
-            if (checkTokenAndRedirect(transactionMessage)) return;
-
-            let url, body, method;
-            switch (transactionType) {
-                case "transfer":
-                    url = "http://localhost:3000/api/transactions/transfer";
-                    method = "POST";
-                    body = {
-                        toAccount: document.getElementById("toAccount")?.value,
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                        description: document.getElementById("description")?.value,
-                    };
-                    break;
-                case "deposit":
-                    url = "http://localhost:3000/api/transactions/deposit";
-                    method = "POST";
-                    body = {
-                        toAccount: document.getElementById("toAccount")?.value,
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                    };
-                    break;
-                case "withdrawal":
-                    url = "http://localhost:3000/api/transactions/withdrawal";
-                    method = "POST";
-                    body = { amount: parseFloat(document.getElementById("amount")?.value) };
-                    break;
-                case "pix/transfer":
-                    url = "http://localhost:3000/api/transactions/pix/transfer";
-                    method = "POST";
-                    body = {
-                        toAccount: document.getElementById("toAccount")?.value,
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                        description: document.getElementById("description")?.value,
-                    };
-                    break;
-                case "pix/payment":
-                    url = "http://localhost:3000/api/transactions/pix/payment";
-                    method = "POST";
-                    body = {
-                        targetKey: document.getElementById("toAccount")?.value,
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                    };
-                    break;
-                case "pix/receive":
-                    url = "http://localhost:3000/api/transactions/pix/receive";
-                    method = "GET";
-                    body = null;
-                    break;
-                case "pix/register":
-                    url = "http://localhost:3000/api/transactions/pix/register";
-                    method = "POST";
-                    body = { pixKey: document.getElementById("pixKey")?.value };
-                    break;
-                case "pix/charge":
-                    url = "http://localhost:3000/api/transactions/pix/charge";
-                    method = "POST";
-                    body = {
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                        description: document.getElementById("description")?.value,
-                    };
-                    break;
-                case "pix/schedule":
-                    url = "http://localhost:3000/api/transactions/pix/schedule";
-                    method = "POST";
-                    body = {
-                        toAccount: document.getElementById("toAccount")?.value,
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                        scheduleDate: document.getElementById("scheduleDate")?.value,
-                        description: document.getElementById("description")?.value,
-                    };
-                    break;
-                case "bill/pay":
-                    url = "http://localhost:3000/api/transactions/bill/pay";
-                    method = "POST";
-                    body = {
-                        billCode: document.getElementById("billCode")?.value,
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                    };
-                    break;
-                case "loan":
-                    url = "http://localhost:3000/api/transactions/loan";
-                    method = "POST";
-                    body = { amount: parseFloat(document.getElementById("loanAmount")?.value) };
-                    break;
-                case "recharge":
-                    url = "http://localhost:3000/api/transactions/recharge";
-                    method = "POST";
-                    body = {
-                        operator: document.getElementById("operator")?.value,
-                        phoneNumber: document.getElementById("phoneNumber")?.value,
-                        amount: parseFloat(document.getElementById("rechargeAmount")?.value),
-                    };
-                    break;
-                case "invest":
-                    url = "http://localhost:3000/api/transactions/invest";
-                    method = "POST";
-                    body = {
-                        amount: parseFloat(document.getElementById("amount")?.value),
-                        investmentType: document.getElementById("investmentType")?.value,
-                    };
-                    break;
-                default:
-                    console.error("Tipo de transação inválido:", transactionType);
-                    transactionMessage.textContent = "Erro: Tipo de transação inválido";
-                    transactionMessage.className = "mt-3 text-danger";
-                    return;
-            }
-
-            if (method !== "GET" && (!body || Object.values(body).some((val) => val === undefined || val === null))) {
-                console.error("Campos obrigatórios não encontrados:", body);
-                transactionMessage.textContent = "Erro: Preencha todos os campos obrigatórios";
-                transactionMessage.className = "mt-3 text-danger";
-                return;
-            }
-
-            try {
-                console.log(`Enviando ${method} para ${url} com body:`, body);
-                console.log("Token enviado na transação:", token);
-
-                const response = await fetch(url, {
-                    method,
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: method === "GET" ? undefined : JSON.stringify(body),
-                });
-
-                const data = await response.json();
-                if (!response.ok) {
-                    console.log("Resposta de erro do servidor:", data);
-                    if (response.status === 401) {
-                        console.error("401 Unauthorized em transação - Token inválido ou expirado");
-                        localStorage.removeItem("token");
-                        transactionMessage.textContent = "Sessão expirada, redirecionando...";
-                        transactionMessage.className = "mt-3 text-danger";
-                        setTimeout(() => (window.location.href = "/index.html"), 2000);
-                        return;
-                    }
-                    throw new Error(data.error || `Erro ${response.status}: ${response.statusText}`);
-                }
-
-                console.log("Resposta da transação:", data);
-                transactionMessage.textContent = data.message || "Transação realizada com sucesso!";
-                transactionMessage.className = "mt-3 text-success";
-                setTimeout(() => {
-                    transactionMessage.textContent = "";
-                    form.reset();
-                    updateDynamicFields();
-                    loadUserData();
-                    if (transactionType === "pix/register") pixKeysLoaded = false; // Recarregar chaves após registro
-                }, 2000);
-            } catch (error) {
-                console.error(`Erro na transação ${transactionType}:`, error.message);
-                transactionMessage.textContent = error.message.includes("404")
-                    ? "Erro: Conta não encontrada ou problema no servidor"
-                    : `Erro: ${error.message}`;
-                transactionMessage.className = "mt-3 text-danger";
-            }
-        });
-    }
-
-    updateDynamicFields();
-    loadUserData();
+  // Carrega tudo
+  loadUserData();
+  loadHistory();
+  loadFinancialData();
 });

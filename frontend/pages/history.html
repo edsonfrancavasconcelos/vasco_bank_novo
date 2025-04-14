@@ -6,7 +6,9 @@
   <title>Histórico - VascoBank</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="css/theme.css">
+
+
 </head>
 </head>
 <body>
@@ -15,7 +17,6 @@
     <nav>
       <a href="/">Início</a>
       <a href="/dashboard.html">Transações</a>
-      <a href="/dashboard.html">Pix</a>
       <a href="/login">Login</a>
     </nav>
   </header>
@@ -47,120 +48,5 @@
   </footer>
   <script src="js/view-history.js"></script>
 </body>
-<style>
-  /* Estilo moderno inspirado no Nubank para VascoBank */
 
-  :root {
-  --primary-light: #87d1f1;
-  --primary: #1692c9;
-  --primary-dark: #04446c;
-  --text-dark: #333;
-  --text-light: #fff;
-  --gray-light: #f4f4f4;
-  --gray-dark: #555;
-  --bg-gradient: linear-gradient(135deg, var(--primary-dark), var(--primary));
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
-  color: var(--text-light);
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-header h1 {
-  font-size: 24px;
-}
-
-nav a {
-  color: var(--text-light);
-  margin: 0 15px;
-  text-decoration: none;
-  transition: 0.3s;
-}
-
-nav a:hover {
-  color: var(--primary-light);
-}
-
-main {
-  margin: 40px auto;
-  padding: 20px;
-  max-width: 800px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  border-radius: 15px;
-}
-
-h2 {
-  margin-bottom: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-table th, table td {
-  padding: 15px;
-  text-align: left;
-}
-
-table th {
-  background: var(--primary);
-  color: var(--text-light);
-}
-
-tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.back-button {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: var(--primary);
-  color: var(--text-light);
-  text-decoration: none;
-  border-radius: 10px;
-  transition: 0.3s;
-}
-
-.back-button:hover {
-  background: var(--primary-light);
-}
-
-footer {
-  margin-top: 40px;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.social-icons a {
-  color: var(--text-light);
-  margin: 0 10px;
-  font-size: 20px;
-  transition: 0.3s;
-}
-
-.social-icons a:hover {
-  color: var(--primary-light);
-}
-
-</style>
 </html>

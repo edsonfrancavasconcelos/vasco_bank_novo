@@ -338,7 +338,7 @@ async function pixRegister(req, res) {
     }
 }
 
-// Nova Rota: Listar Chaves Pix Cadastradas
+// Listar Chaves Pix Cadastradas
 async function pixKeys(req, res) {
     if (!req.user?.id || !req.user?.accountNumber) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -366,6 +366,89 @@ async function pixKeys(req, res) {
     } catch (error) {
         console.error("Erro ao consultar chaves PIX:", error.stack);
         res.status(500).json({ error: "Erro ao consultar chaves PIX" });
+    }
+}
+
+// Cadastrar Chave Pix (Nova Rota)
+async function registerPixKey(req, res) {
+    const { keyType, key } = req.body;
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
+
+    try {
+        console.log(`Cadastrando chave PIX: ${key} (tipo: ${keyType}) para ${fromAccount}`);
+
+        if (!keyType || !key) {
+            return res.status(400).json({ error: "Tipo e valor da chave são obrigatórios" });
+        }
+
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) {
+            console.log("Conta não encontrada:", fromAccount);
+            return res.status(404).json({ error: "Conta não encontrada" });
+        }
+
+        if (user.pixKeys.some(pk => pk.key === key)) {
+            console.log("Chave PIX já registrada para este usuário:", key);
+            return res.status(400).json({ error: `Chave PIX já cadastrada: ${key}` });
+        }
+
+        const existingKey = await User.findOne({ "pixKeys.key": key });
+        if (existingKey) {
+            console.log("Chave PIX já registrada por outro usuário:", key);
+            return res.status(400).json({ error: `Chave PIX já registrada por outro usuário: ${key}` });
+        }
+
+        const newPixKey = { keyType, key };
+        user.pixKeys.push(newPixKey);
+        await user.save();
+
+        res.status(201).json({
+            message: "Chave Pix cadastrada com sucesso",
+            pixKey: newPixKey
+        });
+    } catch (error) {
+        console.error("Erro ao cadastrar chave Pix:", error.stack);
+        res.status(500).json({ error: "Erro interno ao cadastrar chave Pix" });
+    }
+}
+
+// Excluir Chave Pix (Corrigida)
+async function deletePixKey(req, res) {
+    const { pixKey } = req.body;
+    if (!req.user?.id || !req.user?.accountNumber) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const fromAccount = req.user.accountNumber;
+
+    try {
+        console.log(`Excluindo chave PIX: ${pixKey} de ${fromAccount}`);
+
+        if (!pixKey) {
+            return res.status(400).json({ error: "Chave Pix não fornecida" });
+        }
+
+        const user = await User.findOne({ accountNumber: fromAccount });
+        if (!user) {
+            console.log("Conta não encontrada:", fromAccount);
+            return res.status(404).json({ error: "Conta não encontrada" });
+        }
+
+        const keyIndex = user.pixKeys.findIndex(pk => pk.key === pixKey);
+        if (keyIndex === -1) {
+            console.log("Chave PIX não encontrada:", pixKey);
+            return res.status(404).json({ error: "Chave Pix não encontrada" });
+        }
+
+        user.pixKeys.splice(keyIndex, 1);
+        await user.save();
+
+        res.json({ message: "Chave Pix excluída com sucesso" });
+    } catch (error) {
+        console.error("Erro ao excluir chave Pix:", error.stack);
+        res.status(500).json({ error: "Erro interno ao excluir chave Pix" });
     }
 }
 
@@ -559,7 +642,9 @@ router.post("/pix/payment", pixPayment);
 router.get("/pix/receive", pixReceive);
 router.post("/recharge", recharge);
 router.post("/pix/register", pixRegister);
-router.get("/pix/keys", pixKeys); // Nova rota adicionada
+router.get("/pix/keys", pixKeys);
+router.post("/pix/keys", registerPixKey); // Nova rota adicionada
+router.delete("/pix/keys", deletePixKey); // Rota ajustada pra consistência
 router.post("/bill/pay", payBill);
 router.post("/loan", getLoan);
 router.post("/invest", invest);
