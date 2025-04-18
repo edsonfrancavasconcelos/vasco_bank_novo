@@ -1,134 +1,166 @@
 const User = require("../models/User");
+const PixKey = require("../models/pixKey");
 const Transaction = require("../models/Transaction");
-const PixLimit = require("../models/PixLimit");
 
-exports.transfer = async (req, res) => {
+const transferPix = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
     const { key, amount } = req.body;
-    try {
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-        if (user.balance < amount) return res.status(400).json({ error: "Saldo insuficiente" });
-
-        const pixLimit = await PixLimit.findOne({ userId: req.user.id });
-        if (pixLimit && amount > pixLimit.dailyLimit) return res.status(400).json({ error: "Excede limite Pix" });
-
-        user.balance -= amount;
-        await user.save();
-
-        const transaction = new Transaction({
-            userId: req.user.id,
-            type: "pix_transfer",
-            amount: -amount,
-            details: { key },
-        });
-        await transaction.save();
-
-        res.json({ message: "Transferência realizada" });
-    } catch (error) {
-        console.error("Erro na transferência Pix:", error);
-        res.status(500).json({ error: "Erro interno" });
+    if (!key || !amount || amount <= 0) {
+      return res
+        .status(400)
+        .json({ error: "Chave Pix e valor são obrigatórios" });
     }
+
+    const user = await User.findById(req.user.id).session(session);
+    if (!user || user.balance < amount) {
+      return res.status(400).json({ error: "Saldo insuficiente" });
+    }
+
+    const recipientKey = await PixKey.findOne({ value: key }).session(session);
+    if (!recipientKey) {
+      return res.status(404).json({ error: "Chave Pix não encontrada" });
+    }
+
+    const recipient = await User.findById(recipientKey.userId).session(session);
+    if (!recipient) {
+      return res.status(404).json({ error: "Destinatário não encontrado" });
+    }
+
+    user.balance -= amount;
+    recipient.balance += amount;
+
+    const transaction = new Transaction({
+      userId: req.user.id,
+      type: "pix_transfer",
+      amount,
+      details: { key },
+    });
+
+    await Promise.all([
+      user.save({ session }),
+      recipient.save({ session }),
+      transaction.save({ session }),
+    ]);
+
+    await session.commitTransaction();
+    res.json({ message: "Transferência Pix realizada com sucesso" });
+  } catch (error) {
+    await session.abortTransaction();
+    console.error("Erro ao transferir Pix:", error.stack);
+    res.status(500).json({ error: "Erro ao realizar transferência Pix" });
+  } finally {
+    session.endSession();
+  }
 };
 
-exports.schedule = async (req, res) => {
-    const { key, amount, date } = req.body;
-    try {
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-
-        const transaction = new Transaction({
-            userId: req.user.id,
-            type: "pix_scheduled",
-            amount: -amount,
-            details: { key, scheduledDate: date },
-        });
-        await transaction.save();
-        res.json({ message: "Pix programado" });
-    } catch (error) {
-        console.error("Erro ao programar Pix:", error);
-        res.status(500).json({ error: "Erro interno" });
-    }
-};
-
-exports.copiaecola = async (req, res) => {
+const payPix = async (req, res) => {
+  try {
     const { code } = req.body;
-    try {
-        const transaction = new Transaction({
-            userId: req.user.id,
-            type: "pix_copiaecola",
-            amount: 0,
-            details: { code },
-        });
-        await transaction.save();
-        res.json({ message: "Copia e Cola processado" });
-    } catch (error) {
-        console.error("Erro no Copia e Cola:", error);
-        res.status(500).json({ error: "Erro interno" });
+    if (!code) {
+      return res.status(400).json({ error: "Código Pix obrigatório" });
     }
+
+    // Simulação: validar código Pix
+    const amount = 50; // Substituir por integração real
+    const user = await User.findById(req.user.id);
+    if (user.balance < amount) {
+      return res.status(400).json({ error: "Saldo insuficiente" });
+    }
+
+    user.balance -= amount;
+
+    const transaction = new Transaction({
+      userId: req.user.id,
+      type: "pix_payment",
+      amount,
+      details: { code },
+    });
+
+    await Promise.all([user.save(), transaction.save()]);
+    res.json({ message: "Pagamento Pix realizado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao pagar Pix:", error.stack);
+    res.status(500).json({ error: "Erro ao realizar pagamento Pix" });
+  }
 };
 
-exports.charge = async (req, res) => {
+const chargePix = async (req, res) => {
+  try {
     const { amount } = req.body;
-    try {
-        const transaction = new Transaction({
-            userId: req.user.id,
-            type: "pix_charge",
-            amount,
-            details: { status: "pending" },
-        });
-        await transaction.save();
-        res.json({ message: "Cobrança criada" });
-    } catch (error) {
-        console.error("Erro ao criar cobrança:", error);
-        res.status(500).json({ error: "Erro interno" });
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: "Valor inválido" });
     }
+
+    // Simulação: gerar cobrança Pix
+    res.json({
+      message: "Cobrança Pix criada com sucesso",
+      code: "PIX_CODE_123",
+    });
+  } catch (error) {
+    console.error("Erro ao criar cobrança Pix:", error.stack);
+    res.status(500).json({ error: "Erro ao criar cobrança Pix" });
+  }
 };
 
-exports.deposit = async (req, res) => {
-    const { amount } = req.body;
-    try {
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-        user.balance += amount;
-        await user.save();
-
-        const transaction = new Transaction({
-            userId: req.user.id,
-            type: "pix_deposit",
-            amount,
-        });
-        await transaction.save();
-        res.json({ message: "Depósito realizado" });
-    } catch (error) {
-        console.error("Erro no depósito:", error);
-        res.status(500).json({ error: "Erro interno" });
+const schedulePix = async (req, res) => {
+  try {
+    const { key, amount, date } = req.body;
+    if (!key || !amount || !date) {
+      return res
+        .status(400)
+        .json({ error: "Chave Pix, valor e data são obrigatórios" });
     }
+
+    // Simulação: agendar transferência
+    const transaction = new Transaction({
+      userId: req.user.id,
+      type: "pix_scheduled",
+      amount,
+      details: { key, date },
+    });
+
+    await transaction.save();
+    res.json({ message: "Transferência Pix agendada com sucesso" });
+  } catch (error) {
+    console.error("Erro ao agendar Pix:", error.stack);
+    res.status(500).json({ error: "Erro ao agendar transferência Pix" });
+  }
 };
 
-exports.setLimit = async (req, res) => {
-    const { limit } = req.body;
-    try {
-        let pixLimit = await PixLimit.findOne({ userId: req.user.id });
-        if (!pixLimit) {
-            pixLimit = new PixLimit({ userId: req.user.id, dailyLimit: limit });
-        } else {
-            pixLimit.dailyLimit = limit;
-        }
-        await pixLimit.save();
-        res.json({ message: "Limite Pix atualizado" });
-    } catch (error) {
-        console.error("Erro ao definir limite Pix:", error);
-        res.status(500).json({ error: "Erro interno" });
+const registerPixKey = async (req, res) => {
+  try {
+    const { type, value } = req.body;
+    if (!type || !value) {
+      return res
+        .status(400)
+        .json({ error: "Tipo e valor da chave são obrigatórios" });
     }
+
+    const existingKey = await PixKey.findOne({ value });
+    if (existingKey) {
+      return res.status(400).json({ error: "Chave Pix já registrada" });
+    }
+
+    const pixKey = new PixKey({
+      userId: req.user.id,
+      type,
+      value,
+    });
+
+    await pixKey.save();
+    res.json({ message: "Chave Pix registrada com sucesso" });
+  } catch (error) {
+    console.error("Erro ao registrar chave Pix:", error.stack);
+    res.status(500).json({ error: "Erro ao registrar chave Pix" });
+  }
 };
 
-exports.getKeys = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-        res.json({ keys: user.pixKeys || [] });
-    } catch (error) {
-        console.error("Erro ao listar chaves Pix:", error);
-        res.status(500).json({ error: "Erro interno" });
-    }
+module.exports = {
+  transferPix,
+  payPix,
+  chargePix,
+  schedulePix,
+  registerPixKey,
 };

@@ -1,8 +1,3 @@
-// backend/controllers/loginController.js
-const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -18,14 +13,18 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { _id: user._id },
-      process.env.JWT_SECRET || "sua-chave-secreta-aqui"
+      { 
+        _id: user._id, 
+        email: user.email,        // Adicionando mais informações no payload, se necessário
+        accountNumber: user.accountNumber // Exemplo, se for relevante
+      },
+      process.env.JWT_SECRET || "sua-chave-secreta-aqui",
+      { expiresIn: "1h" } // Adicionando expiração do token
     );
+
     res.status(200).json({ token });
   } catch (error) {
     console.error("Erro ao fazer login:", error);
     res.status(500).json({ error: "Erro interno no servidor" });
   }
 };
-
-module.exports = { loginUser }; // Exporta explicitamente

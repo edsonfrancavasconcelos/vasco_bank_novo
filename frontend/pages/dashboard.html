@@ -6,175 +6,6 @@
   <title>VascoBank - Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
-<body>
-  <header>
-    <img src="img/vbank.png" alt="VascoBank Logo" class="logo">
-    <nav>
-      <a href="/index.html">Início</a>
-      <a href="/login.html">Login</a>
-      <a href="/dashboard.html">Dashboard</a>
-    </nav>
-  </header>
-
-  <main class="container mt-4">
-    <h2>Dashboard</h2>
-    <div class="user-info card p-3 mb-4">
-      <h3 id="userName">Bem-vindo!</h3>
-      <p><strong>Conta:</strong> <span id="accountNumber">---</span></p>
-      <p><strong>Saldo:</strong> <span id="balance">R$ ---</span>
-        <i id="toggleBalance" class="fas fa-eye ml-2" style="cursor: pointer;"></i>
-      </p>
-    </div>
-
-    <!-- Área Pix -->
-    <section class="mt-4">
-      <h3>Ações Principais</h3>
-      <div class="icon-grid">
-        <a href="create-account.html" class="icon-item">
-          <div class="icon-circle"><i class="fas fa-user-plus"></i></div>
-          <span>Criar Conta</span>
-        </a>
-        <a href="login.html" class="icon-item">
-          <div class="icon-circle"><i class="fas fa-sign-in-alt"></i></div>
-          <span>Fazer Login</span>
-        </a>
-        <a href="#" class="icon-item" id="transferMoney">
-          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
-          <span>Transferir</span>
-        </a>
-        <a href="#" class="icon-item" id="depositMoney">
-          <div class="icon-circle"><i class="fas fa-money-check-alt"></i></div>
-          <span>Depositar</span>
-        </a>
-        <a href="#" class="icon-item" id="withdrawMoney">
-          <div class="icon-circle"><i class="fas fa-hand-holding-usd"></i></div>
-          <span>Sacar</span>
-        </a>
-        <a href="pix-area.html" class="icon-item" id="pixArea">
-          <div class="icon-circle"><i class="fas fa-qrcode"></i></div>
-          <span>Área Pix</span>
-        </a>
-        <a href="#" class="icon-item" id="payBill">
-          <div class="icon-circle"><i class="fas fa-barcode"></i></div>
-          <span>Pagar Boleto</span>
-        </a>
-        <a href="#" class="icon-item" id="getLoan">
-          <div class="icon-circle"><i class="fas fa-coins"></i></div>
-          <span>Empréstimo</span>
-        </a>
-        <a href="#" class="icon-item" id="rechargePhone">
-          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
-          <span>Recarga</span>
-        </a>
-        <a href="#" class="icon-item" id="showQuotes">
-          <div class="icon-circle"><i class="fas fa-dollar-sign"></i></div>
-          <span>Cotações</span>
-        </a>
-        <a href="#" class="icon-item" id="investMoney">
-          <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
-          <span>Investir</span>
-        </a>
-        <a href="products-services.html" class="icon-item">
-          <div class="icon-circle"><i class="fas fa-box-open"></i></div>
-          <span>Produtos</span>
-        </a>
-        <a href="recover-access.html" class="icon-item">
-          <div class="icon-circle"><i class="fas fa-key"></i></div>
-          <span>Recuperar Acesso</span>
-        </a>
-        <a href="create-card.html" class="icon-item">
-          <div class="icon-circle"><i class="fas fa-id-card"></i></div>
-          <span>Criar Cartão</span>
-        </a>
-        <a href="#" class="icon-item" id="createVirtualCard">
-          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
-          <span>Criar Cartão Virtual</span>
-        </a>
-        <a href="#" class="icon-item" id="replacePhysicalCard">
-          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
-          <span>Solicitar Novo Cartão</span>
-        </a>
-      </div>
-    </section>
-
-    <!-- Transações -->
-    <section class="mb-4">
-      <h3>Transações</h3>
-      <div class="icon-grid">
-        <div class="icon-item" data-action="pagar">
-          <div class="icon-circle"><i class="fas fa-barcode"></i></div>
-          <span>Pagar</span>
-        </div>
-        <div class="icon-item" data-action="emprestimo">
-          <div class="icon-circle"><i class="fas fa-coins"></i></div>
-          <span>Pegar Empréstimo</span>
-        </div>
-        <div class="icon-item" data-action="recarga">
-          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
-          <span>Recarga Celular</span>
-        </div>
-        <div class="icon-item" data-action="investir">
-          <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
-          <span>Investir</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Histórico -->
-    <section class="mb-4">
-      <h3>Histórico de Transações</h3>
-      <div id="transactionHistory" class="list-group">
-        <!-- Preenchido pelo JS -->
-      </div>
-    </section>
-
-    <!-- Cartões e Empréstimos -->
-    <section class="mb-4">
-      <h3>Cartões e Empréstimos</h3>
-      <div class="card p-3">
-        <p><strong>Cartão de Crédito - Fatura Atual:</strong> <span id="creditCardInvoice">R$ ---</span></p>
-        <p><strong>Empréstimos:</strong> <span id="loans">---</span></p>
-        <p><strong>Consignados:</strong> <span id="consignedLoans">---</span></p>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal genérico pra ações -->
-  <div class="modal fade" id="actionModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle">Ação</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body" id="modalBody">
-          <!-- Conteúdo dinâmico -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-          <button type="button" class="btn btn-primary" id="modalConfirm">Confirmar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <p class="text-center">© 2025 VascoBank. Todos os direitos reservados.</p>
-    <div class="social-icons text-center">
-      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-      <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-    </div>
-  </footer>
-
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  <script src="js/dashboard.js"></script>
-
   <style>
     :root {
       --color1: #fc580c;
@@ -328,5 +159,174 @@
       color: var(--primary-light);
     }
   </style>
+</head>
+<body>
+  <header>
+    <img src="img/vbank.png" alt="VascoBank Logo" class="logo">
+    <nav>
+      <a href="/index.html">Início</a>
+      <a href="/login.html">Login</a>
+      <a href="/dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <main class="container mt-4">
+    <h2>Dashboard</h2>
+    <div class="user-info card p-3 mb-4">
+      <h3 id="userName">Bem-vindo!</h3>
+      <p><strong>Conta:</strong> <span id="accountNumber">---</span></p>
+      <p><strong>Saldo:</strong> <span id="balance">R$ ---</span>
+        <i id="toggleBalance" class="fas fa-eye ml-2" style="cursor: pointer;"></i>
+      </p>
+    </div>
+
+    <!-- Área Pix -->
+    <section class="mt-4">
+      <h3>Ações Principais</h3>
+      <div class="icon-grid">
+        <a href="create-account.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-user-plus"></i></div>
+          <span>Criar Conta</span>
+        </a>
+        <a href="login.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-sign-in-alt"></i></div>
+          <span>Fazer Login</span>
+        </a>
+        <a href="#" class="icon-item" id="transferMoney">
+          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
+          <span>Transferir</span>
+        </a>
+        <a href="#" class="icon-item" id="depositMoney">
+          <div class="icon-circle"><i class="fas fa-money-check-alt"></i></div>
+          <span>Depositar</span>
+        </a>
+        <a href="#" class="icon-item" id="withdrawMoney">
+          <div class="icon-circle"><i class="fas fa-hand-holding-usd"></i></div>
+          <span>Sacar</span>
+        </a>
+        <a href="pix-area.html" class="icon-item" id="pixArea">
+          <div class="icon-circle"><i class="fas fa-qrcode"></i></div>
+          <span>Área Pix</span>
+        </a>
+        <a href="#" class="icon-item" id="payBill">
+          <div class="icon-circle"><i class="fas fa-barcode"></i></div>
+          <span>Pagar Boleto</span>
+        </a>
+        <a href="#" class="icon-item" id="getLoan">
+          <div class="icon-circle"><i class="fas fa-coins"></i></div>
+          <span>Empréstimo</span>
+        </a>
+        <a href="#" class="icon-item" id="rechargePhone">
+          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+          <span>Recarga</span>
+        </a>
+        <a href="#" class="icon-item" id="showQuotes">
+          <div class="icon-circle"><i class="fas fa-dollar-sign"></i></div>
+          <span>Cotações</span>
+        </a>
+        <a href="#" class="icon-item" id="investMoney">
+          <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
+          <span>Investir</span>
+        </a>
+        <a href="products-services.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-box-open"></i></div>
+          <span>Produtos</span>
+        </a>
+        <a href="recover-access.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-key"></i></div>
+          <span>Recuperar Acesso</span>
+        </a>
+        <a href="create-card.html" class="icon-item">
+          <div class="icon-circle"><i class="fas fa-id-card"></i></div>
+          <span>Criar Cartão</span>
+        </a>
+        <a href="#" class="icon-item" id="createVirtualCard">
+          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+          <span>Criar Cartão Virtual</span>
+        </a>
+        <a href="#" class="icon-item" id="replacePhysicalCard">
+          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
+          <span>Solicitar Novo Cartão</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Transações -->
+    <section class="mb-4">
+      <h3>Transações</h3>
+      <div class="icon-grid">
+        <div class="icon-item" data-action="pagar">
+          <div class="icon-circle"><i class="fas fa-barcode"></i></div>
+          <span>Pagar</span>
+        </div>
+        <div class="icon-item" data-action="emprestimo">
+          <div class="icon-circle"><i class="fas fa-coins"></i></div>
+          <span>Pegar Empréstimo</span>
+        </div>
+        <div class="icon-item" data-action="recarga">
+          <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+          <span>Recarga Celular</span>
+        </div>
+        <div class="icon-item" data-action="investir">
+          <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
+          <span>Investir</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Histórico -->
+    <section class="mb-4">
+      <h3>Histórico de Transações</h3>
+      <div id="transactionHistory" class="list-group">
+        <!-- Preenchido pelo JS -->
+      </div>
+    </section>
+
+    <!-- Cartões e Empréstimos -->
+    <section class="mb-4">
+      <h3>Cartões e Empréstimos</h3>
+      <div class="card p-3">
+        <p><strong>Cartão de Crédito - Fatura Atual:</strong> <span id="creditCardInvoice">R$ ---</span></p>
+        <p><strong>Cartões:</strong> <span id="cardsList">Nenhum cartão encontrado</span></p>
+        <p><strong>Empréstimos:</strong> <span id="loans">---</span></p>
+        <p><strong>Consignados:</strong> <span id="consignedLoans">---</span></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal genérico pra ações -->
+  <div class="modal fade" id="actionModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Ação</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- Conteúdo dinâmico -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-primary" id="modalConfirm">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="text-center">© 2025 VascoBank. Todos os direitos reservados.</p>
+    <div class="social-icons text-center">
+      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

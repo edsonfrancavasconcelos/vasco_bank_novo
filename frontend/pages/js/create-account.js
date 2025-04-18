@@ -1,4 +1,3 @@
-// frontend/pages/js/create-account.js
 document
   .getElementById("createAccountForm")
   .addEventListener("submit", async (e) => {
@@ -15,25 +14,33 @@ document
       document.getElementById("initialBalance").value
     );
 
-    console.log("Valores capturados:", { fullName, email, cpf, rg, address, password, initialBalance });
+    const messageEl = document.getElementById("message");
 
+    // Validação básica
     if (password !== confirmPassword) {
-      document.getElementById("message").textContent =
-        "As senhas não coincidem";
-      document.getElementById("message").className = "mt-3 text-danger";
+      messageEl.textContent = "As senhas não coincidem";
+      messageEl.className = "mt-3 text-danger";
       return;
     }
 
-    if (!fullName || !email || !cpf || !rg || !address || !password) {
-      document.getElementById("message").textContent =
-        "Todos os campos são obrigatórios";
-      document.getElementById("message").className = "mt-3 text-danger";
+    if (!fullName || !email || !cpf || !rg || !address || !password || isNaN(initialBalance)) {
+      messageEl.textContent = "Todos os campos são obrigatórios";
+      messageEl.className = "mt-3 text-danger";
       return;
     }
 
     try {
-      const payload = { fullName, email, cpf, rg, address, password, initialBalance };
+      const payload = {
+        fullName,
+        email,
+        cpf,
+        rg,
+        address,
+        password,
+        initialBalance,
+      };
       console.log("Payload enviado:", payload);
+
       const response = await fetch("http://localhost:3000/api/users/register", {
         method: "POST",
         headers: {
@@ -46,18 +53,21 @@ document
       console.log("Resposta do backend:", response.status, data);
 
       if (!response.ok) {
-        throw new Error(data.error || "Erro ao criar conta");
+        const errorMsg =
+          data?.errors?.map((e) => e.msg).join(" - ") ||
+          data?.error ||
+          "Erro ao criar conta";
+        throw new Error(errorMsg);
       }
 
       localStorage.setItem("token", data.token);
       console.log("Token salvo:", data.token);
-      document.getElementById(
-        "message"
-      ).textContent = `Conta criada com sucesso! Seu número da conta é: ${data.accountNumber}`;
-      document.getElementById("message").className = "mt-3 text-success";
+
+      messageEl.textContent = `Conta criada com sucesso! Seu número da conta é: ${data.accountNumber}`;
+      messageEl.className = "mt-3 text-success";
     } catch (error) {
       console.error("Erro ao criar conta:", error);
-      document.getElementById("message").textContent = `Erro: ${error.message}`;
-      document.getElementById("message").className = "mt-3 text-danger";
+      messageEl.textContent = `Erro: ${error.message}`;
+      messageEl.className = "mt-3 text-danger";
     }
   });
