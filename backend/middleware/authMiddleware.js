@@ -1,3 +1,5 @@
+// backend/middleware/authMiddleware.js
+// Data: 18/04/2025
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
@@ -26,8 +28,8 @@ const authMiddleware = (req, res, next) => {
       return res.status(401).json({ error: 'Token inválido: dados incompletos' });
     }
 
-    // Salva os dados decodificados
-    req.user = { id: decoded.id, accountNumber: decoded.accountNumber };
+    // Salva os dados decodificados com id e _id pra compatibilidade
+    req.user = { id: decoded.id, _id: decoded.id, accountNumber: decoded.accountNumber, email: decoded.email };
     console.log('Token validado, dados do usuário:', req.user);
     next();
   } catch (error) {

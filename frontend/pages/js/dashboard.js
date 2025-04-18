@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const consignedLoans = document.getElementById('consignedLoans');
   const cardsList = document.getElementById('cardsList');
   let balanceVisible = false;
+  let userAccountNumber = null; // Armazenar accountNumber globalmente
 
   // Verificar token
   const token = localStorage.getItem('token');
@@ -32,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           'Content-Type': 'application/json'
         }
       });
-      
 
       console.log('Resposta /users/me:', response.status);
       if (response.status === 401) {
@@ -51,13 +51,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const displayName = data.fullName || data.email || 'Usuário';
       userName.textContent = `Bem-vindo, ${displayName}!`;
-      accountNumber.textContent = data.accountNumber || '---';
+      userAccountNumber = data.accountNumber || '---'; // Armazena globalmente
+      accountNumber.textContent = userAccountNumber;
       balance.textContent = `R$ ${data.balance?.toFixed(2) || '0.00'}`;
       balance.dataset.value = `R$ ${data.balance?.toFixed(2) || '0.00'}`;
     } catch (error) {
       console.error('Erro ao carregar usuário:', error.message);
       userName.textContent = 'Erro ao carregar';
       accountNumber.textContent = '---';
+      userAccountNumber = null;
       balance.textContent = 'R$ ---';
     }
   }
@@ -201,7 +203,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           'Content-Type': 'application/json'
         }
       });
-      
 
       console.log('Resposta /financial:', response.status);
       if (response.status === 401) {
@@ -229,34 +230,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Ações da área Pix e transações
-  document.querySelectorAll('.icon-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-      const action = item.id || item.dataset.action;
-      if (!action) {
-        console.error('Ação não definida para o item:', item);
-        return;
-      }
-      e.preventDefault();
-      console.log('Abrindo modal para ação:', action);
+  // Manipulação de cliques
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('.icon-item, .pix-icon-item');
+    if (!item) return;
 
-      const modalTitle = document.getElementById('modalTitle');
-      const modalBody = document.getElementById('modalBody');
-      const modalConfirm = document.getElementById('modalConfirm');
+    const action = item.id || item.dataset.action || item.dataset.pixAction;
+    if (!action) {
+      console.error('Ação não definida para o item:', item);
+      return;
+    }
+    e.preventDefault();
+    console.log('Ação clicada:', action);
 
-      modalTitle.textContent = item.querySelector('span')?.textContent || action;
-      modalBody.innerHTML = getModalContent(action);
+    // Ações que redirecionam
+    const redirectActions = {
+      'create-account': '/create-account.html',
+      'login': '/login.html',
+      'products-services': '/products-services.html',
+      'recover-access': '/recover-access.html',
+      'create-card': '/create-card.html'
+    };
 
-      // Vincular o evento após garantir que o modal tá renderizado
-      modalConfirm.onclick = null; // Limpar qualquer listener anterior
-      modalConfirm.onclick = () => {
-        console.log('Clicou em Confirmar para ação:', action);
-        handleAction(action);
-      };
+    if (redirectActions[action]) {
+      console.log('Redirecionando para:', redirectActions[action]);
+      window.location.href = redirectActions[action];
+      return;
+    }
 
-      // Abrir modal com Bootstrap
-      $('#actionModal').modal('show');
-    });
+    // Área Pix
+    if (action === 'pixArea') {
+      console.log('Abrindo modal da Área Pix');
+      $('#pixAreaModal').modal('show');
+      return;
+    }
+
+    // Ações do Pix ou outras ações
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalConfirm = document.getElementById('modalConfirm');
+
+    modalTitle.textContent = item.querySelector('span')?.textContent || action;
+    modalBody.innerHTML = getModalContent(action);
+
+    modalConfirm.onclick = null;
+    modalConfirm.onclick = () => {
+      console.log('Clicou em Confirmar para ação:', action);
+      handleAction(action);
+    };
+
+    $('#pixAreaModal').modal('hide');
+    $('#actionModal').modal('show');
   });
 
   // Evento para botões de desbloqueio
@@ -278,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </form>
       `,
       depositMoney: `
-         <form id="depositForm">
+        <form id="depositForm">
           <input type="text" class="form-control mb-2" id="depositAccountNumber" placeholder="Número da Conta Destino" required>
           <input type="number" class="form-control mb-2" id="depositAmount" placeholder="Valor" min="0.01" step="0.01" required>
         </form>
@@ -345,7 +369,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       `,
       pixTransfer: `
         <form id="pixTransferForm">
-          <input type="text" class="form-control mb-2" id="pixKey" placeholder="Chave Pix" required>
+          <input type="text" class="form-control mb-2" id="pixKey" placeholder="Chave Pix (CPF, email, telefone)" required>
           <input type="number" class="form-control" id="pixAmount" placeholder="Valor" min="0.01" step="0.01" required>
         </form>
       `,
@@ -378,13 +402,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         </form>
       `,
       pixMyKeys: `
-        <p><a href="/minhas-chaves.html">Gerenciar chaves Pix</a></p>
-      `,
-      recoverAccess: `
-        <p><a href="/recover-access.html">Recuperar acesso</a></p>
-      `,
-      productsServices: `
-        <p><a href="/products-services.html">Ver produtos</a></p>
+        <p>Carregando chaves Pix...</p>
+        <div id="pixKeysResult"></div>
       `,
       pagar: `
         <form id="payBillForm">
@@ -445,7 +464,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!accountNumber || isNaN(amount) || amount <= 0) {
           throw new Error('Número da conta e valor são obrigatórios');
         }
-        // Validação adicional para o número da conta
         if (!/^\d+$/.test(accountNumber)) {
           throw new Error('Número da conta deve conter apenas dígitos');
         }
@@ -510,13 +528,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const amount = parseFloat(document.getElementById('loanAmount')?.value);
         const installments = parseInt(document.getElementById('installments')?.value);
-        console.log('Valores capturados para empréstimo:', { amount, installments });
-        if (isNaN(amount) || amount <= 0 || !installments) {
-          throw new Error('Valor do empréstimo e parcelas são obrigatórios');
+        console.log('Valores capturados para empréstimo:', {
+          amount,
+          installments,
+          fromAccount: userAccountNumber,
+          rawAmount: document.getElementById('loanAmount')?.value,
+          rawInstallments: document.getElementById('installments')?.value
+        });
+        if (isNaN(amount) || amount <= 0 || isNaN(installments) || installments <= 0) {
+          throw new Error('Valor do empréstimo e parcelas devem ser válidos');
+        }
+        if (!userAccountNumber || userAccountNumber === '---') {
+          throw new Error('Número da conta não disponível. Tente novamente após recarregar a página.');
         }
         return {
           url: '/api/loans/request',
-          body: { amount, installments }
+          body: { amount, installments, fromAccount: userAccountNumber }
         };
       },
       rechargePhone: () => {
@@ -694,6 +721,30 @@ document.addEventListener('DOMContentLoaded', async () => {
           body: { type, value }
         };
       },
+      pixMyKeys: async () => {
+        try {
+          console.log('Buscando chaves Pix');
+          const response = await fetch('http://localhost:3000/api/pix/keys', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('Resposta /pix/keys:', response.status);
+          if (!response.ok) {
+            throw new Error('Erro ao buscar chaves Pix');
+          }
+          const data = await response.json();
+          document.getElementById('pixKeysResult').innerHTML = data.keys?.length
+            ? data.keys.map(key => `<p>${key.type}: ${key.value}</p>`).join('')
+            : '<p>Nenhuma chave Pix cadastrada.</p>';
+          return null;
+        } catch (error) {
+          console.error('Erro ao carregar chaves Pix:', error.message);
+          document.getElementById('pixKeysResult').innerHTML = `<p>Erro: ${error.message}</p>`;
+          throw error;
+        }
+      },
       pagar: () => {
         const form = document.getElementById('payBillForm');
         if (!form || !form.checkValidity()) {
@@ -718,13 +769,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const amount = parseFloat(document.getElementById('loanAmount')?.value);
         const installments = parseInt(document.getElementById('installments')?.value);
-        console.log('Valores capturados para empréstimo:', { amount, installments });
-        if (isNaN(amount) || amount <= 0 || !installments) {
-          throw new Error('Valor do empréstimo e parcelas são obrigatórios');
+        console.log('Valores capturados para empréstimo:', {
+          amount,
+          installments,
+          fromAccount: userAccountNumber
+        });
+        if (isNaN(amount) || amount <= 0 || isNaN(installments) || installments <= 0) {
+          throw new Error('Valor do empréstimo e parcelas devem ser válidos');
+        }
+        if (!userAccountNumber || userAccountNumber === '---') {
+          throw new Error('Número da conta não disponível. Tente novamente após recarregar a página.');
         }
         return {
           url: '/api/loans/request',
-          body: { amount, installments }
+          body: { amount, installments, fromAccount: userAccountNumber }
         };
       },
       recarga: () => {
@@ -764,18 +822,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     };
 
-    if (['pixMyKeys', 'recoverAccess', 'productsServices'].includes(action)) {
+    if (['recoverAccess', 'productsServices'].includes(action)) {
       console.log('Redirecionando para:', action);
       alert('Redirecionando para a página correspondente.');
       return;
     }
 
-    if (action === 'showQuotes') {
+    if (action === 'showQuotes' || action === 'pixMyKeys') {
       try {
         await actions[action]();
-        return; // Não fecha o modal pra mostrar cotações
+        return;
       } catch (error) {
-        alert('Erro ao carregar cotações: ' + error.message);
+        alert(`Erro ao carregar ${action === 'showQuotes' ? 'cotações' : 'chaves Pix'}: ${error.message}`);
         return;
       }
     }
@@ -783,7 +841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (actions[action]) {
       try {
         const result = await actions[action]();
-        if (!result) return; // Para ações que não fazem POST (ex.: showQuotes)
+        if (!result) return;
 
         const { url, body } = result;
         console.log(`Enviando ação ${action} para ${url}:`, body);
@@ -805,10 +863,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
+          let errorData;
+          try {
+            errorData = await response.json();
+          } catch {
+            errorData = {};
+          }
           const errorMessage = errorData.error || `Erro na ação: ${response.status}`;
-          if (errorMessage.includes('Conta não encontrada')) {
-            throw new Error('Conta destino não encontrada. Verifique o número da conta.');
+          console.error(`Detalhes do erro ${url}:`, { status: response.status, errorData });
+          if (errorMessage.includes('Conta não encontrada') || errorMessage.includes('Chave Pix não encontrada')) {
+            throw new Error('Destino não encontrado. Verifique a chave Pix ou número da conta.');
+          }
+          if (url === '/api/loans/request' && response.status === 500) {
+            throw new Error('Erro interno no servidor ao solicitar empréstimo. Tente novamente ou contate o suporte.');
+          }
+          if (errorMessage.includes('ValidationError')) {
+            throw new Error('Dados inválidos para o empréstimo. Verifique os campos e tente novamente.');
           }
           throw new Error(errorMessage);
         }

@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
-const { loginUser, getUserInfo, getUserByAccountNumber } = require("../controllers/userController");
+const { loginUser, getUserInfo, getUserByAccountNumber } = require("../controllers/userController"); // Removi registerUser da importação
 const { body, validationResult } = require("express-validator");
-const User = require("../models/User");
+const User = require("../models/User"); // Adicionei o modelo User explicitamente
 
 // Função local renomeada pra evitar conflito
 async function registerNewUser(req, res) {
@@ -14,12 +14,7 @@ async function registerNewUser(req, res) {
 
         const existingUser = await User.findOne({ $or: [{ email }, { cpf }] });
         if (existingUser) {
-            if (existingUser.email === email) {
-                return res.status(400).json({ error: "E-mail já cadastrado" });
-            }
-            if (existingUser.cpf === cpf) {
-                return res.status(400).json({ error: "CPF já cadastrado" });
-            }
+            return res.status(400).json({ error: "E-mail ou CPF já cadastrado" });
         }
 
         const user = new User({
@@ -50,7 +45,9 @@ async function registerNewUser(req, res) {
 
 // Função simplificada pra validar CPF
 const validarCPF = (cpf) => {
-    const cleanedCpf = String(cpf).replace(/[^\d]/g, "");
+    const cleanedCpf = String(cpf).replace(/[^\d]/g, ""); // Converte pra string e remove não-dígitos
+    console.log("CPF recebido no backend:", cleanedCpf); // Log pra debug
+    console.log("Tamanho do CPF:", cleanedCpf.length); // Log do tamanho
     return cleanedCpf.length === 11; // Só verifica se tem 11 dígitos
 };
 
@@ -79,11 +76,12 @@ const validateRequest = (req, res, next) => {
         console.log("Erros de validação:", errors.array());
         return res.status(400).json({ errors: errors.array() });
     }
+    console.log("Validação passou com sucesso!");
     next();
 };
 
 // Rotas
-router.post("/register", validateUserInput, validateRequest, registerNewUser);
+router.post("/register", validateUserInput, validateRequest, registerNewUser); // Usa a função local renomeada
 router.post("/login", loginUser);
 router.get("/me", authMiddleware, getUserInfo);
 router.get("/account/:accountNumber", authMiddleware, getUserByAccountNumber);
