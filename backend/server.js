@@ -1,10 +1,9 @@
-// backend/server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-const axios = require("axios");
-require("dotenv").config(); // Movido pro topo
+const fetch = require("node-fetch");
+require("dotenv").config();
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
@@ -26,8 +25,7 @@ console.log("cardRoutes:", cardRoutes);
 console.log("pixRoutes:", pixRoutes);
 console.log("loanRoutes:", loanRoutes);
 console.log("investmentRoutes:", investmentRoutes);
-
-console.log("authMiddleware:", authMiddleware); // Debug pro middleware
+console.log("authMiddleware:", authMiddleware);
 
 // Middleware
 app.use(express.json());
@@ -57,9 +55,17 @@ mongoose.connection.on("reconnected", () => {
   console.log("MongoDB reconectado com sucesso!");
 });
 
+// Função para gerar número de cartão simulado
+const generateCardNumber = () => {
+  const firstSix = '411111'; // Simulando Visa
+  const lastFour = Math.floor(1000 + Math.random() * 9000).toString();
+  const middle = Math.floor(10000000 + Math.random() * 90000000).toString();
+  return `${firstSix}${middle}${lastFour}`;
+};
+
 // Rotas
 app.use("/api/users", userRoutes);
-app.use("/api/transactions", transactionRoutes); // Linha 61
+app.use("/api/transactions", transactionRoutes);
 app.use("/api/login", loginRoutes);
 app.use("/api/cards", authMiddleware, cardRoutes);
 app.use("/api/pix", authMiddleware, pixRoutes);
@@ -87,30 +93,155 @@ app.get("/api/financial", authMiddleware, async (req, res) => {
   }
 });
 
-// Rota para cotações
+// Rota para cotações em tempo real
 app.get("/api/quotes", authMiddleware, async (req, res) => {
   try {
-    const apiKey = process.env.ALPHA_VANTAGE_API_KEY || "demo";
-    const symbols = ["BRLUSD", "BRLBTC"];
-    const quotes = {};
-
-    for (const symbol of symbols) {
-      const response = await axios.get(
-        `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${symbol.slice(0, 3)}&to_currency=${symbol.slice(3)}&apikey=${apiKey}`
-      );
-      const data = response.data["Realtime Currency Exchange Rate"];
-      if (data) {
-        quotes[symbol] = {
-          rate: parseFloat(data["5. Exchange Rate"]),
-          updated: data["6. Last Refreshed"]
-        };
-      }
+    const exchangeRateApiKey = process.env.EXCHANGERATE_API_KEY;
+    if (!exchangeRateApiKey) {
+      console.warn("EXCHANGERATE_API_KEY não configurada no .env");
+      throw new Error("Chave da ExchangeRate-API não configurada");
     }
 
-    res.json({ quotes });
+    const [fiatResponse, cryptoResponse] = await Promise.all([
+      fetch(`https://v6.exchangerate-api.com/v6/${exchangeRateApiKey}/latest/USD`, { timeout: 5000 }),
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl&include_last_updated_at=true', { timeout: 5000 })
+    ]);
+
+    if (!fiatResponse.ok) {
+      throw new Error(`Erro na ExchangeRate-API: ${fiatResponse.status}`);
+    }
+    if (!cryptoResponse.ok) {
+      throw new Error(`Erro na CoinGecko: ${cryptoResponse.status}`);
+    }
+
+    const fiatData = await fiatResponse.json();
+    const cryptoData = await cryptoResponse.json();
+
+    if (!fiatData.rates || !cryptoData.bitcoin) {
+      throw new Error("Formato de dados inválido das APIs");
+    }
+
+    const mockStockQuotes = {
+      'IBOVESPA': { rate: '125000', updated: new Date().toISOString() },
+      'SP500': { rate: '5000', updated: new Date().toISOString() },
+      'NASDAQ': { rate: '16000', updated: new Date().toISOString() },
+      'PETR4': { rate: '40.50', updated: new Date().toISOString() },
+      'AAPL': { rate: '190.00', updated: new Date().toISOString() }
+    };
+
+    const quotes = {
+      quotes: {
+        'USD': { rate: fiatData.rates.BRL.toFixed(2), updated: new Date().toISOString() },
+        'EUR': { rate: (fiatData.rates.BRL / fiatData.rates.EUR).toFixed(2), updated: new Date().toISOString() },
+        'GBP': { rate: (fiatData.rates.BRL / fiatData.rates.GBP).toFixed(2), updated: new Date().toISOString() },
+        'JPY': { rate: (fiatData.rates.BRL / fiatData.rates.JPY).toFixed(3), updated: new Date().toISOString() },
+        'CHF': { rate: (fiatData.rates.BRL / fiatData.rates.CHF).toFixed(2), updated: new Date().toISOString() },
+        'BTC/BRL': { rate: cryptoData.bitcoin.brl.toFixed(0), updated: new Date(cryptoData.bitcoin.last_updated_at * 1000).toISOString() },
+        ...mockStockQuotes
+      }
+    };
+
+    console.log('Cotações enviadas:', quotes);
+    res.status(200).json(quotes);
   } catch (error) {
-    console.error("Erro na rota /api/quotes:", error.stack);
-    res.status(500).json({ error: "Erro ao buscar cotações" });
+    console.error("Erro na rota /api/quotes:", error.message, error.stack);
+    const fallbackQuotes = {
+      'USD': { rate: '5.65', updated: new Date().toISOString() },
+      'EUR': { rate: '6.72', updated: new Date().toISOString() },
+      'GBP': { rate: '7.10', updated: new Date().toISOString() },
+      'JPY': { rate: '0.035', updated: new Date().toISOString() },
+      'CHF': { rate: '6.00', updated: new Date().toISOString() },
+      'BTC/BRL': { rate: '350000', updated: new Date().toISOString() },
+      'IBOVESPA': { rate: '125000', updated: new Date().toISOString() },
+      'SP500': { rate: '5000', updated: new Date().toISOString() },
+      'NASDAQ': { rate: '16000', updated: new Date().toISOString() },
+      'PETR4': { rate: '40.50', updated: new Date().toISOString() },
+      'AAPL': { rate: '190.00', updated: new Date().toISOString() }
+    };
+    console.log('Usando cotações mockadas como fallback:', fallbackQuotes);
+    res.status(200).json({ quotes: fallbackQuotes });
+  }
+});
+
+// Rota para criar cartão virtual
+app.post("/api/virtual-cards", authMiddleware, async (req, res) => {
+  try {
+    const { limit, type } = req.body;
+    if (!limit || limit <= 0 || !type || !['single-use', 'multi-use'].includes(type)) {
+      return res.status(400).json({ error: 'Dados inválidos' });
+    }
+
+    const VirtualCard = require("./models/VirtualCard");
+    const cardNumber = generateCardNumber();
+    const card = new VirtualCard({
+      userId: req.user.id,
+      number: cardNumber,
+      lastFour: cardNumber.slice(-4),
+      cvv: Math.floor(100 + Math.random() * 900).toString(),
+      expiry: new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: '2-digit', year: 'numeric' }),
+      limit: parseFloat(limit),
+      type,
+      status: 'active'
+    });
+
+    await card.save();
+    res.status(201).json({ message: 'Cartão virtual criado com sucesso' });
+  } catch (error) {
+    console.error("Erro na rota /api/virtual-cards:", error.stack);
+    res.status(500).json({ error: 'Erro ao criar cartão virtual' });
+  }
+});
+
+// Rota para listar cartões virtuais do usuário
+app.get("/api/virtual-cards", authMiddleware, async (req, res) => {
+  try {
+    const VirtualCard = require("./models/VirtualCard");
+    const cards = await VirtualCard.find({ userId: req.user.id });
+    res.json(cards);
+  } catch (error) {
+    console.error("Erro na rota /api/virtual-cards:", error.stack);
+    res.status(500).json({ error: 'Erro ao listar cartões virtuais' });
+  }
+});
+
+// Rota para solicitar cartão adicional
+app.post("/api/card-requests", authMiddleware, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    if (!reason) {
+      return res.status(400).json({ error: 'Motivo não fornecido' });
+    }
+
+    const CardRequest = require("./models/CardRequest");
+    const request = new CardRequest({
+      userId: req.user.id,
+      reason,
+      status: 'pending'
+    });
+
+    await request.save();
+    res.status(201).json({ message: 'Solicitação de cartão enviada com sucesso' });
+  } catch (error) {
+    console.error("Erro na rota /api/card-requests:", error.stack);
+    res.status(500).json({ error: 'Erro ao solicitar cartão' });
+  }
+});
+
+// Rota para admin listar solicitações de cartões
+app.get("/api/card-requests", authMiddleware, async (req, res) => {
+  try {
+    const User = require("./models/User");
+    const user = await User.findById(req.user.id);
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+
+    const CardRequest = require("./models/CardRequest");
+    const requests = await CardRequest.find().populate('userId', 'name email');
+    res.json(requests);
+  } catch (error) {
+    console.error("Erro na rota /api/card-requests:", error.stack);
+    res.status(500).json({ error: 'Erro ao listar solicitações' });
   }
 });
 
@@ -181,7 +312,7 @@ app.get("/recover-access", (req, res) => res.sendFile(path.join(__dirname, "../f
 app.get("/products-services", (req, res) => res.sendFile(path.join(__dirname, "../frontend/pages/products-services.html")));
 
 // Manipulação de erros
-app.use((req, res, next) => res.status(404).json({ error: "Rota não encontrada" }));
+app.use((req, res) => res.status(404).json({ error: "Rota não encontrada" }));
 app.use((err, req, res, next) => {
   console.error("Erro no servidor:", err.stack);
   res.status(500).json({ error: "Erro interno do servidor" });
