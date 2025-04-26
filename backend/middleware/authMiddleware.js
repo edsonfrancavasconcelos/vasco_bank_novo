@@ -2,6 +2,20 @@
 // Data: 18/04/2025
 const jwt = require('jsonwebtoken');
 
+module.exports = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'Token não fornecido' });
+  }
+  try {
+    const decoded = jwt.verify(token, 'seu-segredo-jwt');
+    req.user = { id: decoded.id };
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Token inválido' });
+  }
+};
+
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers['authorization'];
 

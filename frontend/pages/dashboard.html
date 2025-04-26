@@ -1,809 +1,1051 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Dashboard do VascoBank - Gerencie suas finanças com segurança e praticidade">
-  <title>VascoBank - Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="shortcut icon" href="img/favicon_io/favicon.ico" type="image/x-icon">
-  <style>
-    :root {
-      --color1: #fc580c;
-      --color2: #fc6b0a;
-      --color3: #f8872e;
-      --color4: #ffa927;
-      --color5: #fdca49;
-      --primary: var(--color1);
-      --primary-light: var(--color3);
-      --primary-dark: var(--color2);
-      --text-light: #ffffff;
-      --text-dark: #dcdcdc;
-      --gray-light: #c2b9b9;
-      --gray-dark: #434040;
-      --gray-darker: #121212;
-      --shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-      --transition: 0.3s ease;
-      --neon-glow: 0 0 10px rgba(252, 88, 12, 0.8), 0 0 20px rgba(252, 88, 12, 0.6);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Dashboard do VascoBank - Gerencie suas finanças com segurança e praticidade">
+<title>VascoBank - Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<style>
+:root {
+  --color1: #fc580c; /* Laranja principal */
+  --color2: #121212; /* Preto */
+  --color3: #f8872e; /* Laranja claro */
+  --color4: #ffa927; /* Amarelo botão */
+  --color5: #fdca49; /* Amarelo claro */
+  --primary: var(--color1);
+  --primary-light: var(--color3);
+  --primary-dark: var(--color2);
+  --text-light: #ffffff;
+  --text-dark: #dcdcdc;
+  --gray-light: #c2b9b9;
+  --gray-dark: #434040;
+  --gray-darker: #121212;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --transition: 0.3s ease;
+  --neon-glow: 0 0 10px rgba(252, 88, 12, 0.8), 0 0 20px rgba(252, 88, 12, 0.6);
+}
 
-    body {
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-      background-color: var(--gray-darker);
-      color: var(--text-light);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      line-height: 1.6;
-    }
+body {
+  font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background-color: var(--gray-darker);
+  color: var(--text-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
 
-    header {
-      background: linear-gradient(135deg, var(--color1), var(--color2));
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
+header {
+  background: linear-gradient(135deg, var(--color1), var(--color3));
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 
-    header .logo {
-      height: 90px;
-      margin-left: 0;
-      transition: transform 0.3s ease;
-    }
+header .logo {
+  height: 80px;
+  margin-left: 0;
+  transition: transform 0.3s ease;
+}
 
-    header .logo:hover {
-      transform: scale(1.05);
-    }
+header .logo:hover {
+  transform: scale(1.05);
+}
 
-    nav a {
-      color: var(--text-light);
-      margin-left: 1.5rem;
-      text-decoration: none;
-      font-size: 1.2rem;
-      font-weight: 500;
-      transition: var(--transition);
-    }
+nav a {
+  color: var(--text-light);
+  margin-left: 1.5rem;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
 
-    nav a:hover {
-      color: var(--color5);
-      text-shadow: var(--neon-glow);
-    }
+nav a:hover {
+  color: var(--color5);
+  text-shadow: var(--neon-glow);
+}
 
-    main {
-      flex: 1;
-      padding: 2rem 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+main {
+  flex: 1;
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-    h2, h3 {
-      color: var(--text-light);
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
+h2, h3 {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
 
-    .user-info {
-      background: #1c1c1c;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      transition: transform 0.3s ease;
-    }
+.user-info {
+  background: #1c1c1c;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease;
+}
 
-    .user-info:hover {
-      transform: translateY(-5px);
-    }
+.user-info:hover {
+  transform: translateY(-5px);
+}
 
-    .icon-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 20px;
-      justify-content: center;
-      margin-top: 1.5rem;
-    }
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 20px;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
 
-    .icon-item, .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
-      color: var(--text-light);
-      text-decoration: none;
-      text-align: center;
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      background: none;
-    }
+.icon-item, .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
+  color: var(--text-light);
+  text-decoration: none;
+  text-align: center;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+}
 
-    .icon-item:hover, .pix-icon-item:hover, .cards-icon-item:hover, .investments-icon-item:hover, .transactions-icon-item:hover, .financing-icon-item:hover {
-      transform: translateY(-5px) scale(1.05);
-    }
+.icon-item:hover, .pix-icon-item:hover, .cards-icon-item:hover, .investments-icon-item:hover, .transactions-icon-item:hover, .financing-icon-item:hover {
+  transform: translateY(-5px) scale(1.05);
+}
 
-    .pix-area-icon {
-      position: relative;
-    }
+.pix-area-icon {
+  position: relative;
+}
 
-    .pix-area-icon::after {
-      content: 'PIX';
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: var(--color5);
-      color: var(--gray-darker);
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 8px;
-      font-weight: bold;
-    }
+.pix-area-icon::after {
+  content: 'PIX';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: var(--color5);
+  color: var(--gray-darker);
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: bold;
+}
 
-    .pix-area-icon:hover {
-      transform: translateY(-8px) scale(1.1);
-    }
+.pix-area-icon:hover {
+  transform: translateY(-8px) scale(1.1);
+}
 
-    .icon-circle, .pix-icon-circle {
-      width: 50px;
-      height: 50px;
-      margin: 0 auto 10px;
-      border-radius: 50%;
-      background: var(--gray-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.3s ease, background 0.3s, box-shadow 0.3s;
-    }
+.icon-circle, .pix-icon-circle {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: var(--gray-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, background 0.3s, box-shadow 0.3s;
+}
 
-    .icon-circle i, .pix-icon-circle i {
-      color: var(--gray-darker);
-      font-size: 22px;
-    }
+.icon-circle i, .pix-icon-circle i {
+  color: var(--gray-darker);
+  font-size: 22px;
+}
 
-    .icon-item:hover .icon-circle, .pix-icon-item:hover .pix-icon-circle, .cards-icon-item:hover .icon-circle, .investments-icon-item:hover .icon-circle, .transactions-icon-item:hover .icon-circle, .financing-icon-item:hover .icon-circle {
-      background: var(--color5);
-      transform: rotate(360deg);
-      box-shadow: var(--neon-glow);
-    }
+.icon-item:hover .icon-circle, .pix-icon-item:hover .pix-icon-circle, .cards-icon-item:hover .icon-circle, .investments-icon-item:hover .icon-circle, .transactions-icon-item:hover .icon-circle, .financing-icon-item:hover .icon-circle {
+  background: var(--color5);
+  transform: rotate(360deg);
+  box-shadow: var(--neon-glow);
+}
 
-    .card {
-      background: #1c1c1c;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      transition: transform 0.3s ease;
-    }
+.card {
+  background: #1c1c1c;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease;
+}
 
-    .card:hover {
-      transform: translateY(-5px);
-    }
+.card:hover {
+  transform: translateY(-5px);
+}
 
-    .quotes-result {
-      min-height: 100px;
-      color: var(--text-light);
-      font-size: 1.1rem;
-      padding: 12px;
-      border: 1px solid var(--color3);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      transition: opacity 0.3s ease;
-    }
+.quotes-result {
+  min-height: 60px;
+  color: var(--text-light);
+  font-size: 1.1rem;
+  padding: 12px;
+  border: 1px solid var(--color3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: opacity 0.3s ease;
+}
 
-    .quotes-result p {
-      margin: 0.5rem 0;
-      line-height: 1.8;
-    }
+.quotes-result p {
+  margin: 0;
+  line-height: 1.8;
+}
 
-    .quotes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-    }
+.list-group-item {
+  background: #1c1c1c;
+  color: var(--text-light);
+  border: none;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
 
-    .quotes-section h4 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      color: var(--color5);
-    }
+.list-group-item:hover {
+  background: var(--gray-dark);
+}
 
-    .list-group-item {
-      background: #1c1c1c;
-      color: var(--text-light);
-      border: none;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      transition: background 0.3s ease;
-    }
+footer {
+  background: linear-gradient(135deg, var(--color1), var(--color3));
+  color: var(--text-light);
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-    .list-group-item:hover {
-      background: var(--gray-dark);
-    }
+.social-icons a {
+  color: var(--text-light);
+  margin: 0 0.8rem;
+  font-size: 1.8rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
 
-    footer {
-      background: linear-gradient(135deg, var(--color1), var(--color2));
-      color: var(--text-light);
-      text-align: center;
-      padding: 1.5rem;
-      margin-top: auto;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
+.social-icons a:hover {
+  transform: scale(1.3);
+  color: var(--color5);
+}
 
-    .social-icons a {
-      color: var(--text-light);
-      margin: 0 0.8rem;
-      font-size: 1.8rem;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
+.pix-modal-content, .cards-modal-content, .investments-modal-content, .transactions-modal-content, .financing-modal-content {
+  background: linear-gradient(135deg, #1c1c1c, #2a2a2a);
+  border: none;
+  border-radius: 15px;
+  box-shadow: var(--neon-glow);
+  animation: fadeIn 0.5s ease-in-out;
+}
 
-    .social-icons a:hover {
-      transform: scale(1.3);
-      color: var(--color5);
-    }
+.pix-modal-header, .cards-modal-header, .investments-modal-header, .transactions-modal-header, .financing-modal-header {
+  background: transparent;
+  border-bottom: none;
+  color: var(--text-light);
+}
 
-    .pix-modal-content, .cards-modal-content, .investments-modal-content, .transactions-modal-content, .financing-modal-content {
-      background: linear-gradient(135deg, #1c1c1c, #2a2a2a);
-      border: none;
-      border-radius: 15px;
-      box-shadow: var(--neon-glow);
-      animation: fadeIn 0.5s ease-in-out;
-    }
+.pix-modal-body, .cards-modal-body, .investments-modal-body, .transactions-modal-body, .financing-modal-body {
+  padding: 2rem;
+}
 
-    .pix-modal-header, .cards-modal-header, .investments-modal-header, .transactions-modal-header, .financing-modal-header {
-      background: transparent;
-      border-bottom: none;
-      color: var(--text-light);
-    }
+.pix-icon-grid, .cards-icon-grid, .investments-icon-grid, .transactions-icon-grid, .financing-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+  justify-content: center;
+}
 
-    .pix-modal-body, .cards-modal-body, .investments-modal-body, .transactions-modal-body, .financing-modal-body {
-      padding: 2rem;
-    }
+.pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
+  color: var(--text-light);
+  text-align: center;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  position: relative;
+  overflow: hidden;
+}
 
-    .pix-icon-grid, .cards-icon-grid, .investments-icon-grid, .transactions-icon-grid, .financing-icon-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 20px;
-      justify-content: center;
-    }
+.pix-icon-item:hover, .cards-icon-item:hover, .investments-icon-item:hover, .transactions-icon-item:hover, .financing-icon-item:hover {
+  transform: translateY(-10px) scale(1.05);
+}
 
-    .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
-      color: var(--text-light);
-      text-align: center;
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      background: none;
-      position: relative;
-      overflow: hidden;
-    }
+.pix-icon-item::before, .cards-icon-item::before, .investments-icon-item::before, .transactions-icon-item::before, .financing-icon-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
 
-    .pix-icon-item:hover, .cards-icon-item:hover, .investments-icon-item:hover, .transactions-icon-item:hover, .financing-icon-item:hover {
-      transform: translateY(-10px) scale(1.05);
-    }
+.pix-icon-item:hover::before, .cards-icon-item:hover::before, .investments-icon-item:hover::before, .transactions-icon-item:hover::before, .financing-icon-item:hover::before {
+  left: 100%;
+}
 
-    .pix-icon-item::before, .cards-icon-item::before, .investments-icon-item::before, .transactions-icon-item::before, .financing-icon-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: 0.5s;
-    }
+.pix-icon-circle, .cards-icon-circle, .investments-icon-circle, .transactions-icon-circle, .financing-icon-circle {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s;
+}
 
-    .pix-icon-item:hover::before, .cards-icon-item:hover::before, .investments-icon-item::before, .transactions-icon-item:hover::before, .financing-icon-item:hover::before {
-      left: 100%;
-    }
+.pix-icon-circle i, .cards-icon-circle i, .investments-icon-circle i, .transactions-icon-circle i, .financing-icon-circle i {
+  color: var(--gray-darker);
+  font-size: 26px;
+}
 
-    .pix-icon-circle, .cards-icon-circle, .investments-icon-circle, .transactions-icon-circle, .financing-icon-circle {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 10px;
-      border-radius: 50%;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, box-shadow 0.3s;
-    }
+.pix-icon-item:hover .pix-icon-circle, .cards-icon-item:hover .cards-icon-circle, .investments-icon-item:hover .investments-icon-circle, .transactions-icon-item:hover .transactions-icon-circle, .financing-icon-item:hover .financing-icon-circle {
+  transform: rotate(360deg);
+  box-shadow: var(--neon-glow);
+}
 
-    .pix-icon-circle i, .cards-icon-circle i, .investments-icon-circle i, .transactions-icon-circle i, .financing-icon-circle i {
-      color: var(--gray-darker);
-      font-size: 26px;
-    }
+.pix-modal-footer, .cards-modal-footer, .investments-modal-footer, .transactions-modal-footer, .financing-modal-footer {
+  border-top: none;
+  background: transparent;
+}
 
-    .pix-icon-item:hover .pix-icon-circle, .cards-icon-item:hover .cards-icon-circle, .investments-icon-item:hover .investments-icon-circle, .transactions-icon-item:hover .transactions-icon-circle, .financing-icon-item:hover .financing-icon-circle {
-      transform: rotate(360deg);
-      box-shadow: var(--neon-glow);
-    }
+.hidden {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
-    .pix-modal-footer, .cards-modal-footer, .investments-modal-footer, .transactions-modal-footer, .financing-modal-footer {
-      border-top: none;
-      background: transparent;
-    }
+.hidden ~ * {
+  transition: transform 0.3s ease;
+}
 
-    .hidden {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
+section:not(.hidden), p:not(.hidden) {
+  opacity: 1;
+  display: block;
+}
 
-    .hidden ~ * {
-      transition: transform 0.3s ease;
-    }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
 
-    section:not(.hidden), p:not(.hidden) {
-      opacity: 1;
-      display: block;
-    }
+/* Estilo para cartões virtuais */
+#cardsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
+.card-virtual {
+  width: 340px; /* ~85.6mm */
+  aspect-ratio: 1.585; /* 85.6mm / 53.98mm */
+  background: linear-gradient(135deg, var(--gray-dark) 0%, var(--color2) 100%); /* Laranja a preto */
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 16px rgba(71, 70, 70, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-light);
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
 
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+.card-virtual:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(243, 78, 2, 0.7);
+}
 
-      header .logo {
-        height: 60px;
-        margin-bottom: 1rem;
-      }
+.card-virtual__logo {
+  position: absolute;
+  top: 5px;
+  left: 16px;
+  width: 64px;
+  opacity: 0.9;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
 
-      nav a {
-        margin-left: 1rem;
-        font-size: 1rem;
-      }
+.card-virtual:hover .card-virtual__logo {
+  opacity: 1;
+  transform: scale(1.1);
+}
 
-      .icon-grid, .pix-icon-grid, .cards-icon-grid, .investments-icon-grid, .transactions-icon-grid, .financing-icon-grid {
-        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-        gap: 15px;
-      }
+.card-virtual__chip {
+  position: absolute;
+  top: 50%;
+  right:16px;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 32px;
+  background: linear-gradient(135deg, #ffd700, #d4a017);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
 
-      .icon-item, .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
-        padding: 10px;
-        width: 90px;
-      }
+.card-virtual::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(17, 17, 17, 0.3), transparent);
+  transition: left 0.6s ease;
+}
 
-      .icon-circle, .pix-icon-circle, .cards-icon-circle, .investments-icon-circle, .transactions-icon-circle, .financing-icon-circle {
-        width: 40px;
-        height: 40px;
-      }
+.card-virtual:hover::before {
+  left: 200%;
+}
 
-      .icon-circle i, .pix-icon-circle i, .cards-icon-circle i, .investments-icon-circle i, .transactions-icon-circle i, .financing-icon-circle i {
-        font-size: 18px;
-      }
+.card-virtual__number {
+  margin: 25px;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing:1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
 
-      .pix-icon-grid, .cards-icon-grid, .investments-icon-grid, .transactions-icon-grid, .financing-icon-grid {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      }
+.card-virtual__user {
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
 
-      .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
-        padding: 12px;
-      }
+.card-virtual__info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
 
-      .pix-icon-circle, .cards-icon-circle, .investments-icon-circle, .transactions-icon-circle, .financing-icon-circle {
-        width: 50px;
-        height: 50px;
-      }
+}
 
-      .pix-icon-circle i, .cards-icon-circle i, .investments-icon-circle i, .transactions-icon-circle i, .financing-icon-circle i {
-        font-size: 22px;
-      }
+.card-virtual__info p {
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
 
-      .quotes-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+.card-virtual__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1px;
+}
 
-    @media (max-width: 576px) {
-      h2, h3 {
-        font-size: 1.5rem;
-      }
+.card-virtual__type {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
 
-      .quotes-result {
-        font-size: 1rem;
-      }
-    }
-  </style>
+.card-virtual__delete-btn {
+  background: var(--color4); /* Amarelo */
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-darker);
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  visibility: visible;
+}
+
+.card-virtual__delete-btn:hover {
+  background: var(--color3); /* Laranja claro */
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.card-virtual__error {
+  color: var(--color5);
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+  #cardsContainer {
+    padding: 16px;
+    max-width: 100%;
+  }
+
+  .card-virtual {
+    width: 280px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .card-virtual__logo {
+    width: 48px;
+    top: 12px;
+    left: 12px;
+  }
+
+  .card-virtual__chip {
+    width: 40px;
+    height: 28px;
+    left: 12px;
+  }
+
+  .card-virtual__number {
+    margin-top: 70px;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+
+  .card-virtual__user {
+    font-size: 0.5rem;
+  }
+
+  .card-virtual__info {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+
+  .card-virtual__footer {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .card-virtual__delete-btn {
+    width: 100%;
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  header .logo {
+    height: 60px;
+    margin-bottom: 1rem;
+  }
+
+  nav a {
+    margin-left: 1rem;
+    font-size: 1rem;
+  }
+
+  .icon-grid, .pix-icon-grid, .cards-icon-grid, .investments-icon-grid, .transactions-icon-grid, .financing-icon-grid {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 15px;
+  }
+
+  .icon-item, .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
+    padding: 10px;
+    width: 90px;
+  }
+
+  .icon-circle, .pix-icon-circle, .cards-icon-circle, .investments-icon-circle, .transactions-icon-circle, .financing-icon-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-circle i, .pix-icon-circle i, .cards-icon-circle i, .investments-icon-circle i, .transactions-icon-circle i, .financing-icon-circle i {
+    font-size: 18px;
+  }
+
+  .pix-icon-grid, .cards-icon-grid, .investments-icon-grid, .transactions-icon-grid, .financing-icon-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item {
+    padding: 12px;
+  }
+
+  .pix-icon-circle, .cards-icon-circle, .investments-icon-circle, .transactions-icon-circle, .financing-icon-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .pix-icon-circle i, .cards-icon-circle i, .investments-icon-circle i, .transactions-icon-circle i, .financing-icon-circle i {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 576px) {
+  h2, h3 {
+    font-size: 1.5rem;
+  }
+
+  .quotes-result {
+    font-size: 1rem;
+  }
+}
+</style>
 </head>
 <body>
-  <header>
-    <a href="/index.html" aria-label="Página inicial do VascoBank">
-      <img src="img/vbank.png" alt="VascoBank Logo" class="logo">
-    </a>
-    <nav>
-      <a href="/index.html">Início</a>
-      <a href="/login.html">Login</a>
-      <a href="/dashboard.html">Dashboard</a>
-    </nav>
-  </header>
+<header>
+<a href="/index.html" aria-label="Página inicial do VascoBank">
+<img src="img/vbank.png" alt="VascoBank Logo" class="logo">
+</a>
+<nav>
+<a href="/index.html">Início</a>
+<a href="/login.html">Login</a>
+<a href="/dashboard.html">Dashboard</a>
+</nav>
+</header>
 
-  <main class="container mt-4">
-    <h2>Dashboard</h2>
-    <div class="user-info card p-3 mb-4">
-      <h3 id="userName">Bem-vindo!</h3>
-      <p><strong>Conta:</strong> <span id="accountNumber">---</span></p>
-      <p><strong>Saldo:</strong> <span id="balance">R$ ---</span>
-        <i id="toggleBalance" class="fas fa-eye ml-2" style="cursor: pointer;" aria-label="Alternar visibilidade do saldo"></i>
-      </p>
-    </div>
+<main class="container mt-4">
+<h2>Dashboard</h2>
+<div class="user-info card p-3 mb-4">
+<h3 id="userName">Bem-vindo!</h3>
+<p><strong>Conta:</strong> <span id="accountNumber">---</span></p>
+<p><strong>Saldo:</strong> <span id="balance">R$ ---</span>
+  <i id="toggleBalance" class="fas fa-eye ml-2" style="cursor: pointer;" aria-label="Alternar visibilidade do saldo"></i>
+</p>
+</div>
 
-    <!-- Área de Cartões -->
-    <section class="mt-4">
-      <h3>Cartões</h3>
-      <div class="icon-grid">
-        <a href="/create-card.html" class="icon-item" id="create-card" aria-label="Criar cartão">
-          <div class="icon-circle"><i class="fas fa-id-card"></i></div>
-          <span>Criar Cartão</span>
-        </a>
-        <div class="icon-item cards-icon-item" id="cardsArea" aria-label="Acessar área de cartões">
-          <div class="icon-circle"><i class="fas fa-credit-card"></i></div>
-          <span>Área de Cartões</span>
-        </div>
-      </div>
-      <div class="card p-3 mt-3">
-        <p><strong>Cartão de Crédito - Fatura Atual:</strong> <span id="creditCardInvoice">R$ ---</span></p>
-        <p><strong>Cartões:</strong> <span id="cardsList">Nenhum cartão encontrado</span></p>
-      </div>
-    </section>
+<!-- Área de Cartões -->
+<section class="mt-4">
+<h3>Cartões</h3>
+<div class="icon-grid">
+  <a href="/create-card.html" class="icon-item" id="create-card" aria-label="Criar cartão">
+    <div class="icon-circle"><i class="fas fa-id-card"></i></div>
+    <span>Criar Cartão</span>
+  </a>
+  <div class="icon-item cards-icon-item" id="cardsArea" aria-label="Acessar área de cartões">
+    <div class="icon-circle"><i class="fas fa-credit-card"></i></div>
+    <span>Área de Cartões</span>
+  </div>
+</div>
+<div class="card p-3 mt-3">
+  <p><strong>Cartão de Crédito - Fatura Atual:</strong> <span id="creditCardInvoice">R$ ---</span></p>
+  <p><strong>Cartões:</strong> <span id="cardsList">Nenhum cartão encontrado</span></p>
+</div>
+</section>
 
-    <!-- Área de Investimentos -->
-    <section class="mt-4">
-      <h3>Investimentos</h3>
-      <div class="icon-grid">
-        <div class="icon-item investments-icon-item" id="investmentsArea" aria-label="Acessar área de investimentos">
-          <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
-          <span>Área de Investimentos</span>
-        </div>
-      </div>
-      <div class="card p-3 mt-3">
-        <p><strong>Saldo em Investimentos:</strong> <span id="investmentBalance">R$ ---</span></p>
-      </div>
-    </section>
+<!-- Área de Investimentos -->
+<section class="mt-4">
+<h3>Investimentos</h3>
+<div class="icon-grid">
+  <div class="icon-item investments-icon-item" id="investmentsArea" aria-label="Acessar área de investimentos">
+    <div class="icon-circle"><i class="fas fa-chart-line"></i></div>
+    <span>Área de Investimentos</span>
+  </div>
+</div>
+<div class="card p-3 mt-3">
+  <p><strong>Saldo em Investimentos:</strong> <span id="investmentBalance">R$ ---</span></p>
+</div>
+</section>
 
-    <!-- Área de Financiamentos -->
-    <section class="mt-4">
-      <h3>Financiamentos</h3>
-      <div class="icon-grid">
-        <div class="icon-item financing-icon-item" id="financingArea" aria-label="Acessar área de financiamentos">
-          <div class="icon-circle"><i class="fas fa-home"></i></div>
-          <span>Área de Financiamentos</span>
-        </div>
-      </div>
-      <div class="card p-3 mt-3">
-        <p><strong>Empréstimos:</strong> <span id="loans">---</span></p>
-        <p><strong>Consignados:</strong> <span id="consignedLoans">---</span></p>
-      </div>
-    </section>
+<!-- Área de Financiamentos -->
+<section class="mt-4">
+<h3>Financiamentos</h3>
+<div class="icon-grid">
+  <div class="icon-item financing-icon-item" id="financingArea" aria-label="Acessar área de financiamentos">
+    <div class="icon-circle"><i class="fas fa-home"></i></div>
+    <span>Área de Financiamentos</span>
+  </div>
+</div>
+<div class="card p-3 mt-3">
+  <p><strong>Empréstimos:</strong> <span id="loans">---</span></p>
+  <p><strong>Consignados:</strong> <span id="consignedLoans">---</span></p>
+</div>
+</section>
 
-    <!-- Área de Transações -->
-    <section class="mt-4">
-      <h3>Transações</h3>
-      <div class="icon-grid">
-        <div class="icon-item transactions-icon-item" id="transactionsArea" aria-label="Acessar área de transações">
-          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
-          <span>Área de Transações</span>
-        </div>
-        <div class="icon-item pix-area-icon" id="pixArea" aria-label="Acessar área Pix">
-          <div class="icon-circle"><i class="fas fa-qrcode"></i></div>
-          <span>Área Pix</span>
-        </div>
-      </div>
-    </section>
+<!-- Área de Transações -->
+<section class="mt-4">
+<h3>Transações</h3>
+<div class="icon-grid">
+  <div class="icon-item transactions-icon-item" id="transactionsArea" aria-label="Acessar área de transações">
+    <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
+    <span>Área de Transações</span>
+  </div>
+  <div class="icon-item pix-area-icon" id="pixArea" aria-label="Acessar área Pix">
+    <div class="icon-circle"><i class="fas fa-qrcode"></i></div>
+    <span>Área Pix</span>
+  </div>
+</div>
+</section>
 
-    <!-- Histórico de Transações -->
-    <section class="mt-4">
-      <h3>Histórico de Transações</h3>
-      <div id="transactionHistory" class="list-group">
-        <!-- Preenchido pelo JS -->
-      </div>
-    </section>
+<!-- Histórico de Transações -->
+<section class="mt-4">
+<h3>Histórico de Transações</h3>
+<div id="transactionHistory" class="list-group">
+  <!-- Preenchido pelo JS -->
+</div>
+</section>
 
-    <!-- Cotações -->
-    <section class="mt-4">
-      <h3>Cotações em Tempo Real</h3>
-      <div class="card p-3">
-        <div id="quotesResult" class="quotes-result">
-          <div class="quotes-grid">
-            <div class="quotes-section">
-              <h4>Moedas</h4>
-              <div id="currencyQuotes" class="list-group">
-                <div class="list-group-item">Carregando moedas...</div>
-              </div>
-            </div>
-            <div class="quotes-section">
-              <h4>Bolsa de Valores</h4>
-              <div id="stockQuotes" class="list-group">
-                <div class="list-group-item">Carregando bolsa...</div>
-              </div>
-            </div>
-            <div class="quotes-section">
-              <h4>Criptomoedas</h4>
-              <div id="cryptoQuotes" class="list-group">
-                <div class="list-group-item">Carregando criptomoedas...</div>
-              </div>
-            </div>
-          </div>
-          <div class="icon-item mt-3" id="showQuotes" aria-label="Atualizar cotações em tempo real">
-            <div class="icon-circle"><i class="fas fa-dollar-sign"></i></div>
-            <span>Atualizar Cotações</span>
-          </div>
-        </div>
-      </div>
-    </section>
+<!-- Cotações -->
+<section class="mt-4">
+<h3>Cotações</h3>
+<div class="card p-3">
+  <div id="quotesResult" class="quotes-result">
+    <p>Carregando cotações... <div class="icon-item" id="showQuotes" aria-label="Ver cotações em tempo real">
+      <div class="icon-circle"><i class="fas fa-dollar-sign"></i></div>
+      <span>Cotações</span>
+    </div></p>
+  </div>
+</div>
+</section>
 
-    <!-- Outras Ações -->
-    <section class="mt-4">
-      <h3>Outras Ações</h3>
-      <div class="icon-grid">
-        <a href="/create-account.html" class="icon-item" id="create-account" aria-label="Criar nova conta">
-          <div class="icon-circle"><i class="fas fa-user-plus"></i></div>
-          <span>Criar Conta</span>
-        </a>
-        <a href="/login.html" class="icon-item" id="login" aria-label="Fazer login">
-          <div class="icon-circle"><i class="fas fa-sign-in-alt"></i></div>
-          <span>Fazer Login</span>
-        </a>
-        <a href="/products-services.html" class="icon-item" id="products-services" aria-label="Ver produtos e serviços">
-          <div class="icon-circle"><i class="fas fa-box-open"></i></div>
-          <span>Produtos</span>
-        </a>
-        <a href="/recover-access.html" class="icon-item" id="recover-access" aria-label="Recuperar acesso">
-          <div class="icon-circle"><i class="fas fa-key"></i></div>
-          <span>Recuperar Acesso</span>
-        </a>
-      </div>
-    </section>
-  </main>
+<!-- Outras Ações -->
+<section class="mt-4">
+<h3>Outras Ações</h3>
+<div class="icon-grid">
+  <a href="/create-account.html" class="icon-item" id="create-account" aria-label="Criar nova conta">
+    <div class="icon-circle"><i class="fas fa-user-plus"></i></div>
+    <span>Criar Conta</span>
+  </a>
+  <a href="/login.html" class="icon-item" id="login" aria-label="Fazer login">
+    <div class="icon-circle"><i class="fas fa-sign-in-alt"></i></div>
+    <span>Fazer Login</span>
+  </a>
+  <a href="/products-services.html" class="icon-item" id="products-services" aria-label="Ver produtos e serviços">
+    <div class="icon-circle"><i class="fas fa-box-open"></i></div>
+    <span>Produtos</span>
+  </a>
+  <a href="/recover-access.html" class="icon-item" id="recover-access" aria-label="Recuperar acesso">
+    <div class="icon-circle"><i class="fas fa-key"></i></div>
+    <span>Recuperar Acesso</span>
+  </a>
+</div>
+</section>
+</main>
 
-  <!-- Modal genérico pra ações -->
-  <div class="modal fade" id="actionModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle">Ação</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body" id="modalBody">
-          <!-- Conteúdo dinâmico -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-          <button type="button" class="btn btn-primary" id="modalConfirm">Confirmar</button>
-        </div>
+<!-- Modal genérico pra ações -->
+<div class="modal fade" id="actionModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title" id="modalTitle">Ação</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body" id="modalBody">
+    <!-- Conteúdo dinâmico -->
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+    <button type="button" class="btn btn-primary" id="modalConfirm">Confirmar</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- Modal para Área Pix -->
+<div class="modal fade" id="pixAreaModal" tabindex="-1" role="dialog" aria-labelledby="pixAreaModalTitle">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content pix-modal-content">
+  <div class="modal-header pix-modal-header">
+    <h5 class="modal-title" id="pixAreaModalTitle">Área Pix</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body pix-modal-body">
+    <div class="pix-icon-grid">
+      <div class="pix-icon-item" data-pix-action="pixTransfer" aria-label="Realizar transferência Pix">
+        <div class="pix-icon-circle"><i class="fas fa-exchange-alt"></i></div>
+        <span>Transferência Pix</span>
+      </div>
+      <div class="pix-icon-item" data-pix-action="pixPayment" aria-label="Pagar com Pix">
+        <div class="pix-icon-circle"><i class="fas fa-qrcode"></i></div>
+        <span>Pagamento Pix</span>
+      </div>
+      <div class="pix-icon-item" data-pix-action="pixCharge" aria-label="Criar cobrança Pix">
+        <div class="pix-icon-circle"><i class="fas fa-money-bill"></i></div>
+        <span>Cobrança Pix</span>
+      </div>
+      <div class="pix-icon-item" data-pix-action="pixSchedule" aria-label="Agendar Pix">
+        <div class="pix-icon-circle"><i class="fas fa-calendar-alt"></i></div>
+        <span>Agendar Pix</span>
+      </div>
+      <div class="pix-icon-item" data-pix-action="pixKeys" aria-label="Criar chave Pix">
+        <div class="pix-icon-circle"><i class="fas fa-key"></i></div>
+        <span>Criar Chave Pix</span>
+      </div>
+      <div class="pix-icon-item" data-pix-action="pixMyKeys" aria-label="Ver minhas chaves Pix">
+        <div class="pix-icon-circle"><i class="fas fa-list"></i></div>
+        <span>Minhas Chaves</span>
       </div>
     </div>
   </div>
+  <div class="modal-footer pix-modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+  </div>
+</div>
+</div>
+</div>
 
-  <!-- Modal para Área Pix -->
-  <div class="modal fade" id="pixAreaModal" tabindex="-1" role="dialog" aria-labelledby="pixAreaModalTitle">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content pix-modal-content">
-        <div class="modal-header pix-modal-header">
-          <h5 class="modal-title" id="pixAreaModalTitle">Área Pix</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body pix-modal-body">
-          <div class="pix-icon-grid">
-            <div class="pix-icon-item" data-pix-action="pixTransfer" aria-label="Realizar transferência Pix">
-              <div class="pix-icon-circle"><i class="fas fa-exchange-alt"></i></div>
-              <span>Transferência Pix</span>
-            </div>
-            <div class="pix-icon-item" data-pix-action="pixPayment" aria-label="Pagar com Pix">
-              <div class="pix-icon-circle"><i class="fas fa-qrcode"></i></div>
-              <span>Pagamento Pix</span>
-            </div>
-            <div class="pix-icon-item" data-pix-action="pixCharge" aria-label="Criar cobrança Pix">
-              <div class="pix-icon-circle"><i class="fas fa-money-bill"></i></div>
-              <span>Cobrança Pix</span>
-            </div>
-            <div class="pix-icon-item" data-pix-action="pixSchedule" aria-label="Agendar Pix">
-              <div class="pix-icon-circle"><i class="fas fa-calendar-alt"></i></div>
-              <span>Agendar Pix</span>
-            </div>
-            <div class="pix-icon-item" data-pix-action="pixKeys" aria-label="Criar chave Pix">
-              <div class="pix-icon-circle"><i class="fas fa-key"></i></div>
-              <span>Criar Chave Pix</span>
-            </div>
-            <div class="pix-icon-item" data-pix-action="pixMyKeys" aria-label="Ver minhas chaves Pix">
-              <div class="pix-icon-circle"><i class="fas fa-list"></i></div>
-              <span>Minhas Chaves</span>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer pix-modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-        </div>
+<!-- Modal para Área de Cartões -->
+<div class="modal fade" id="cardsAreaModal" tabindex="-1" role="dialog" aria-labelledby="cardsAreaModalTitle">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content cards-modal-content">
+  <div class="modal-header cards-modal-header">
+    <h5 class="modal-title" id="cardsAreaModalTitle">Área de Cartões</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body cards-modal-body">
+    <div class="cards-icon-grid">
+      <div class="cards-icon-item" data-cards-action="createVirtualCard" aria-label="Criar cartão virtual">
+        <div class="cards-icon-circle"><i class="fas fa-mobile-alt"></i></div>
+        <span>Criar Cartão Virtual</span>
+      </div>
+      <div class="cards-icon-item" data-cards-action="replacePhysicalCard" aria-label="Solicitar novo cartão físico">
+        <div class="cards-icon-circle"><i class="fas fa-exchange-alt"></i></div>
+        <span>Solicitar Novo Cartão</span>
+      </div>
+      <div class="cards-icon-item" data-cards-action="viewVirtualCards" aria-label="Ver meus cartões virtuais">
+        <div class="cards-icon-circle"><i class="fas fa-credit-card"></i></div>
+        <span>Ver meus Cartões Virtuais</span>
+      </div>
+    </div>
+    <div id="cardsContainer" style="margin-top: 20px;"></div>
+  </div>
+  <div class="modal-footer cards-modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- Modal para Área de Investimentos -->
+<div class="modal fade" id="investmentsAreaModal" tabindex="-1" role="dialog" aria-labelledby="investmentsAreaModalTitle">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content investments-modal-content">
+  <div class="modal-header investments-modal-header">
+    <h5 class="modal-title" id="investmentsAreaModalTitle">Área de Investimentos</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body investments-modal-body">
+    <div class="investments-icon-grid">
+      <div class="investments-icon-item" data-investments-action="investMoney" aria-label="Investir">
+        <div class="investments-icon-circle"><i class="fas fa-chart-line"></i></div>
+        <span>Investir</span>
       </div>
     </div>
   </div>
+  <div class="modal-footer investments-modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+  </div>
+</div>
+</div>
+</div>
 
-  <!-- Modal para Área de Cartões -->
-  <div class="modal fade" id="cardsAreaModal" tabindex="-1" role="dialog" aria-labelledby="cardsAreaModalTitle">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content cards-modal-content">
-        <div class="modal-header cards-modal-header">
-          <h5 class="modal-title" id="cardsAreaModalTitle">Área de Cartões</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body cards-modal-body">
-          <div class="cards-icon-grid">
-            <div class="cards-icon-item" data-cards-action="createVirtualCard" aria-label="Criar cartão virtual">
-              <div class="cards-icon-circle"><i class="fas fa-mobile-alt"></i></div>
-              <span>Criar Cartão Virtual</span>
-            </div>
-            <div class="cards-icon-item" data-cards-action="requestAdditionalCard" aria-label="Solicitar cartão adicional">
-              <div class="cards-icon-circle"><i class="fas fa-credit-card"></i></div>
-              <span>Solicitar Cartão Adicional</span>
-            </div>
-          </div>
-          <!-- Formulário para Criar Cartão Virtual -->
-          <div id="createVirtualCardForm" class="mt-4" style="display: none;">
-            <h4 class="mb-3">Criar Cartão Virtual</h4>
-            <div class="form-group">
-              <label for="card-limit" class="text-light">Limite de Gastos (R$)</label>
-              <input type="number" id="card-limit" class="form-control bg-dark text-light border-dark" placeholder="Ex.: 1000" required>
-            </div>
-            <div class="form-group">
-              <label for="card-type" class="text-light">Tipo de Cartão</label>
-              <select id="card-type" class="form-control bg-dark text-light border-dark">
-                <option value="single-use">Uso Único</option>
-                <option value="multi-use">Uso Múltiplo</option>
-              </select>
-            </div>
-            <button id="create-card-btn" class="btn btn-primary" style="background-color: var(--color1); border-color: var(--color1);">Criar Cartão</button>
-          </div>
-          <!-- Formulário para Solicitar Cartão Adicional -->
-          <div id="requestAdditionalCardForm" class="mt-4" style="display: none;">
-            <h4 class="mb-3">Solicitar Cartão Adicional</h4>
-            <div class="form-group">
-              <label for="request-reason" class="text-light">Motivo da Solicitação</label>
-              <textarea id="request-reason" class="form-control bg-dark text-light border-dark" placeholder="Ex.: Necessito de um cartão para compras online" required></textarea>
-            </div>
-            <button id="request-card-btn" class="btn btn-primary" style="background-color: var(--color1); border-color: var(--color1);">Solicitar Cartão</button>
-          </div>
-        </div>
-        <div class="modal-footer cards-modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-        </div>
+<!-- Modal para Área de Transações -->
+<div class="modal fade" id="transactionsAreaModal" tabindex="-1" role="dialog" aria-labelledby="transactionsAreaModalTitle">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content transactions-modal-content">
+  <div class="modal-header transactions-modal-header">
+    <h5 class="modal-title" id="transactionsAreaModalTitle">Área de Transações</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body transactions-modal-body">
+    <div class="transactions-icon-grid">
+      <div class="transactions-icon-item" data-transactions-action="transferMoney" aria-label="Realizar transferência">
+        <div class="transactions-icon-circle"><i class="fas fa-exchange-alt"></i></div>
+        <span>Transferir</span>
+      </div>
+      <div class="transactions-icon-item" data-transactions-action="depositMoney" aria-label="Fazer depósito">
+        <div class="transactions-icon-circle"><i class="fas fa-money-check-alt"></i></div>
+        <span>Depositar</span>
+      </div>
+      <div class="transactions-icon-item" data-transactions-action="withdrawMoney" aria-label="Sacar">
+        <div class="transactions-icon-circle"><i class="fas fa-money-bill-wave"></i></div>
+        <span>Sacar</span>
+      </div>
+      <div class="transactions-icon-item" data-transactions-action="payBill" aria-label="Pagar boleto">
+        <div class="transactions-icon-circle"><i class="fas fa-barcode"></i></div>
+        <span>Pagar</span>
+      </div>
+      <div class="transactions-icon-item" data-transactions-action="rechargePhone" aria-label="Recarregar celular">
+        <div class="transactions-icon-circle"><i class="fas fa-mobile-alt"></i></div>
+        <span>Recarga</span>
       </div>
     </div>
   </div>
+  <div class="modal-footer transactions-modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+  </div>
+</div>
+</div>
+</div>
 
-  <!-- Modal para Área de Investimentos -->
-  <div class="modal fade" id="investmentsAreaModal" tabindex="-1" role="dialog" aria-labelledby="investmentsAreaModalTitle">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content investments-modal-content">
-        <div class="modal-header investments-modal-header">
-          <h5 class="modal-title" id="investmentsAreaModalTitle">Área de Investimentos</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body investments-modal-body">
-          <div class="investments-icon-grid">
-            <div class="investments-icon-item" data-investments-action="investMoney" aria-label="Investir">
-              <div class="investments-icon-circle"><i class="fas fa-chart-line"></i></div>
-              <span>Investir</span>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer investments-modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-        </div>
+<!-- Modal para Área de Financiamentos -->
+<div class="modal fade" id="financingAreaModal" tabindex="-1" role="dialog" aria-labelledby="financingAreaModalTitle">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content financing-modal-content">
+  <div class="modal-header financing-modal-header">
+    <h5 class="modal-title" id="financingAreaModalTitle">Área de Financiamentos</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body financing-modal-body">
+    <div class="financing-icon-grid">
+      <div class="financing-icon-item" data-financing-action="getLoan" aria-label="Solicitar empréstimo">
+        <div class="financing-icon-circle"><i class="fas fa-coins"></i></div>
+        <span>Empréstimo</span>
+      </div>
+      <div class="financing-icon-item" data-financing-action="financeProperty" aria-label="Financiamento imobiliário">
+        <div class="financing-icon-circle"><i class="fas fa-home"></i></div>
+        <span>Financiamento Imobiliário</span>
+      </div>
+      <div class="financing-icon-item" data-financing-action="financeVehicle" aria-label="Financiamento de veículo">
+        <div class="financing-icon-circle"><i class="fas fa-car"></i></div>
+        <span>Financiamento de Veículo</span>
+      </div>
+      <div class="financing-icon-item" data-financing-action="financePersonal" aria-label="Financiamento pessoal">
+        <div class="financing-icon-circle"><i class="fas fa-user"></i></div>
+        <span>Financiamento Pessoal</span>
       </div>
     </div>
   </div>
+  <div class="modal-footer financing-modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+  </div>
+</div>
+</div>
+</div>
 
-  <!-- Modal para Área de Transações -->
-  <div class="modal fade" id="transactionsAreaModal" tabindex="-1" role="dialog" aria-labelledby="transactionsAreaModalTitle">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content transactions-modal-content">
-        <div class="modal-header transactions-modal-header">
-          <h5 class="modal-title" id="transactionsAreaModalTitle">Área de Transações</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
+<footer>
+<p class="text-center">© 2025 VascoBank. Todos os direitos reservados.</p>
+<div class="social-icons text-center">
+<a href="#" aria-label="Facebook do VascoBank"><i class="fab fa-facebook-f"></i></a>
+<a href="#" aria-label="Twitter do VascoBank"><i class="fab fa-x-twitter"></i></a>
+<a href="#" aria-label="Instagram do VascoBank"><i class="fab fa-instagram"></i></a>
+<a href="#" aria-label="LinkedIn do VascoBank"><i class="fab fa-linkedin-in"></i></a>
+</div>
+</footer>
+
+<script>
+async function carregarCartoesVirtuais() {
+  const cardsContainer = document.getElementById('cardsContainer');
+  const token = localStorage.getItem('token');
+  const userName = localStorage.getItem('userName') || 'Usuário';
+  console.log('Iniciando carregarCartoesVirtuais, token:', token, 'userName:', userName);
+  if (!cardsContainer) {
+    console.error('Elemento cardsContainer não encontrado');
+    return;
+  }
+  if (!token) {
+    console.error('Token não encontrado. Redirecionando para login.');
+    window.location.href = '/login.html';
+    return;
+  }
+  try {
+    cardsContainer.innerHTML = '<p>Carregando cartões...</p>';
+    const response = await fetch('http://localhost:3000/api/virtual-cards', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Resposta do fetch:', response.status);
+    if (!response.ok) {
+      if (response.status === 401) {
+        console.error('Token inválido. Redirecionando para login.');
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+        return;
+      }
+      throw new Error(`Erro ao buscar cartões: ${response.status}`);
+    }
+    const cards = await response.json();
+    console.log('Cartões retornados:', cards);
+    if (cards.length === 0) {
+      cardsContainer.innerHTML = '<p class="card-virtual__error">Nenhum cartão virtual encontrado.</p>';
+      return;
+    }
+    cardsContainer.innerHTML = cards.map(card => `
+      <div class="card-virtual">
+        <img src="/img/vbank.png" alt="VascoBank Logo" class="card-virtual__logo">
+        <span class="card-virtual__chip"></span>
+        <div class="card-virtual__number">**** **** **** ${card.lastFour}</div>
+        <div class="card-virtual__user">${userName}</div>
+        <div class="card-virtual__info">
+          <p>Validade: ${card.expiry}</p>
+          <p>Limite: R$ ${card.limit.toFixed(2)}</p>
         </div>
-        <div class="modal-body transactions-modal-body">
-          <div class="transactions-icon-grid">
-            <div class="transactions-icon-item" data-transactions-action="transferMoney" aria-label="Realizar transferência">
-              <div class="transactions-icon-circle"><i class="fas fa-exchange-alt"></i></div>
-              <span>Transferir</span>
-            </div>
-            <div class="transactions-icon-item" data-transactions-action="depositMoney" aria-label="Fazer depósito">
-              <div class="transactions-icon-circle"><i class="fas fa-money-check-alt"></i></div>
-              <span>Depositar</span>
-            </div>
-            <div class="transactions-icon-item" data-transactions-action="withdrawMoney" aria-label="Sacar">
-              <div class="transactions-icon-circle"><i class="fas fa-money-bill-wave"></i></div>
-              <span>Sacar</span>
-            </div>
-            <div class="transactions-icon-item" data-transactions-action="payBill" aria-label="Pagar boleto">
-              <div class="transactions-icon-circle"><i class="fas fa-barcode"></i></div>
-              <span>Pagar</span>
-            </div>
-            <div class="transactions-icon-item" data-transactions-action="rechargePhone" aria-label="Recarregar celular">
-              <div class="transactions-icon-circle"><i class="fas fa-mobile-alt"></i></div>
-              <span>Recarga</span>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer transactions-modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        <div class="card-virtual__footer">
+          <span class="card-virtual__type">${card.type === 'single-use' ? 'Uso Único' : 'Multi-uso'} • ${card.status === 'active' ? 'Ativo' : 'Inativo'}</span>
+          ${card._id ? `<button class="card-virtual__delete-btn" data-id="${card._id}">Excluir</button>` : '<p class="card-virtual__error">ID do cartão não disponível</p>'}
         </div>
       </div>
-    </div>
-  </div>
+    `).join('');
+    document.querySelectorAll('.card-virtual__delete-btn').forEach(button => {
+      button.addEventListener('click', async () => {
+        const cardId = button.dataset.id;
+        console.log('Clicou em Excluir, cardId:', cardId);
+        if (!cardId) {
+          alert('ID do cartão não disponível');
+          return;
+        }
+        if (confirm('Deseja realmente excluir este cartão virtual?')) {
+          await excluirCartaoVirtual(cardId);
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Erro ao carregar cartões virtuais:', error);
+    cardsContainer.innerHTML = '<p class="card-virtual__error">Erro ao carregar cartões.</p>';
+  }
+}
 
-  <!-- Modal para Área de Financiamentos -->
-  <div class="modal fade" id="financingAreaModal" tabindex="-1" role="dialog" aria-labelledby="financingAreaModalTitle">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content financing-modal-content">
-        <div class="modal-header financing-modal-header">
-          <h5 class="modal-title" id="financingAreaModalTitle">Área de Financiamentos</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body financing-modal-body">
-          <div class="financing-icon-grid">
-            <div class="financing-icon-item" data-financing-action="getLoan" aria-label="Solicitar empréstimo">
-              <div class="financing-icon-circle"><i class="fas fa-coins"></i></div>
-              <span>Empréstimo</span>
-            </div>
-            <div class="financing-icon-item" data-financing-action="financeProperty" aria-label="Financiamento imobiliário">
-              <div class="financing-icon-circle"><i class="fas fa-home"></i></div>
-              <span>Financiamento Imobiliário</span>
-            </div>
-            <div class="financing-icon-item" data-financing-action="financeVehicle" aria-label="Financiamento de veículo">
-              <div class="financing-icon-circle"><i class="fas fa-car"></i></div>
-              <span>Financiamento de Veículo</span>
-            </div>
-            <div class="financing-icon-item" data-financing-action="financePersonal" aria-label="Financiamento pessoal">
-              <div class="financing-icon-circle"><i class="fas fa-user"></i></div>
-              <span>Financiamento Pessoal</span>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer financing-modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+async function excluirCartaoVirtual(cardId) {
+  const token = localStorage.getItem('token');
+  console.log('Iniciando excluirCartaoVirtual, cardId:', cardId);
+  try {
+    const response = await fetch(`http://localhost:3000/api/virtual-cards/${cardId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Resposta do DELETE:', response.status);
+    if (!response.ok) {
+      if (response.status === 401) {
+        console.error('Token inválido. Redirecionando para login.');
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+        return;
+      }
+      throw new Error(`Erro ao excluir cartão: ${response.status}`);
+    }
+    alert('Cartão virtual excluído com sucesso!');
+    await carregarCartoesVirtuais();
+  } catch (error) {
+    console.error('Erro ao excluir cartão virtual:', error);
+    alert('Erro ao excluir cartão: ' + error.message);
+  }
+}
 
-  <footer>
-    <p class="text-center">© 2025 VascoBank. Todos os direitos reservados.</p>
-    <div class="social-icons text-center">
-      <a href="#" aria-label="Facebook do VascoBank"><i class="fab fa-facebook-f"></i></a>
-      <a href="#" aria-label="Twitter do VascoBank"><i class="fab fa-x-twitter"></i></a>
-      <a href="#" aria-label="Instagram do VascoBank"><i class="fab fa-instagram"></i></a>
-      <a href="#" aria-label="LinkedIn do VascoBank"><i class="fab fa-linkedin-in"></i></a>
-    </div>
-  </footer>
+document.getElementById('cardsAreaModal').addEventListener('shown.bs.modal', () => {
+  console.log('Modal cardsAreaModal aberto, chamando carregarCartoesVirtuais');
+  carregarCartoesVirtuais();
+});
+</script>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  <script src="js/dashboard.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="js/dashboard.js"></script>
 </body>
 </html>
