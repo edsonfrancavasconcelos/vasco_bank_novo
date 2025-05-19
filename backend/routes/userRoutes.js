@@ -1,89 +1,93 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
-const { loginUser, getUserInfo, getUserByAccountNumber } = require("../controllers/userController"); // Removi registerUser da importação
-const { body, validationResult } = require("express-validator");
-const User = require("../models/User"); // Adicionei o modelo User explicitamente
+const User = require('../models/User');
+const {
+  registerUser,
+  loginUser,
+  getUserInfo,
+  getUserByAccountNumber,
+  checkAuth,
+} = require('../controllers/userController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Função local renomeada pra evitar conflito
-async function registerNewUser(req, res) {
-    const { fullName, email, cpf, rg, address, password, initialBalance } = req.body;
+console.log('Inicializando userRoutes');
 
-    try {
-        const accountNumber = Math.random().toString().slice(2, 11);
+// Registrar usuário
+router.post('/', (req, res, next) => {
+  console.log('Recebido POST /api/users:', {
+    body: { ...req.body, password: '[HIDDEN]' },
+  });
+  registerUser(req, res, next);
+});
 
-        const existingUser = await User.findOne({ $or: [{ email }, { cpf }] });
-        if (existingUser) {
-            return res.status(400).json({ error: "E-mail ou CPF já cadastrado" });
-        }
+// Registrar usuário (mantido para compatibilidade)
+router.post('/register', (req, res, next) => {
+  console.log('Recebido POST /api/users/register:', {
+    body: { ...req.body, password: '[HIDDEN]' },
+  });
+  registerUser(req, res, next);
+});
 
-        const user = new User({
-            fullName,
-            email,
-            cpf,
-            rg,
-            address,
-            password, // Será hasheado pelo pre-save
-            accountNumber,
-            balance: initialBalance || 0,
-            pixKeys: []
-        });
+// Login
+router.post('/login', loginUser);
 
-        await user.save();
-        res.status(201).json({ message: "Conta criada com sucesso", accountNumber });
-    } catch (error) {
-        console.error("Erro detalhado ao registrar usuário:", error);
-        if (error.code === 11000) {
-            return res.status(400).json({ error: "E-mail, CPF ou número de conta já existe" });
-        }
-        if (error.code === "ECONNRESET" || error.name === "MongoNetworkError") {
-            return res.status(503).json({ error: "Erro de conexão com o banco de dados, tente novamente" });
-        }
-        res.status(500).json({ error: "Erro ao criar conta" });
+// Obter informações do usuário
+router.get('/info', authMiddleware, getUserInfo);
+
+// Obter usuário por número da conta
+router.get('/account/:accountNumber', authMiddleware, getUserByAccountNumber);
+
+// Verificar autenticação
+router.get('/check', authMiddleware, checkAuth);
+
+// Buscar usuário por CPF ou número da conta
+router.get('/search', authMiddleware, async (req, res) => {
+  try {
+    const { identifier } = req.query;
+    if (!identifier) {
+      return res.status(400).json({ error: 'CPF ou número da conta é obrigatório' });
     }
-}
-
-// Função simplificada pra validar CPF
-const validarCPF = (cpf) => {
-    const cleanedCpf = String(cpf).replace(/[^\d]/g, ""); // Converte pra string e remove não-dígitos
-    console.log("CPF recebido no backend:", cleanedCpf); // Log pra debug
-    console.log("Tamanho do CPF:", cleanedCpf.length); // Log do tamanho
-    return cleanedCpf.length === 11; // Só verifica se tem 11 dígitos
-};
-
-// Validação de entrada
-const validateUserInput = [
-    body("fullName").notEmpty().withMessage("Nome completo é obrigatório"),
-    body("email").isEmail().withMessage("E-mail inválido"),
-    body("cpf")
-        .custom(validarCPF)
-        .withMessage("CPF deve ter exatamente 11 dígitos"),
-    body("rg").notEmpty().withMessage("RG é obrigatório"),
-    body("address").notEmpty().withMessage("Endereço é obrigatório"),
-    body("password")
-        .isLength({ min: 6 })
-        .withMessage("Senha deve ter pelo menos 6 caracteres"),
-    body("initialBalance")
-        .isFloat({ min: 0 })
-        .withMessage("Saldo inicial deve ser um número positivo")
-        .optional({ nullable: true }),
-];
-
-// Middleware de validação
-const validateRequest = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        console.log("Erros de validação:", errors.array());
-        return res.status(400).json({ errors: errors.array() });
+    const user = await User.findOne({
+      $or: [{ cpf: identifier }, { accountNumber: identifier }],
+    });
+    if (!user) {
+      return res.status(404).json({ error: 'Conta não encontrada' });
     }
-    console.log("Validação passou com sucesso!");
-    next();
-};
+    console.log('Usuário encontrado por busca:', { fullName: user.fullName, accountNumber: user.accountNumber });
+    res.status(200).json({
+      fullName: user.fullName,
+      cpf: user.cpf,
+      accountNumber: user.accountNumber,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar conta:', error.message);
+    res.status(500).json({ error: 'Erro ao buscar conta' });
+  }
+});
 
-// Rotas
-router.post("/register", validateUserInput, validateRequest, registerNewUser); // Usa a função local renomeada
-router.post("/login", loginUser);
-router.get("/me", authMiddleware, getUserInfo);
-router.get("/account/:accountNumber", authMiddleware, getUserByAccountNumber);
+// Obter dados do usuário autenticado
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    console.log('Acessando rota /api/users/me, userId:', req.user.id);
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      console.log('Usuário não encontrado:', req.user.id);
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    console.log('Dados do usuário enviados:', {
+      fullName: user.fullName,
+      accountNumber: user.accountNumber,
+      balance: user.balance,
+    });
+    res.json({
+      fullName: user.fullName,
+      accountNumber: user.accountNumber,
+      balance: user.balance,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar usuário:', error.message);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
 
 module.exports = router;

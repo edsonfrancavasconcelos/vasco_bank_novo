@@ -1,36 +1,41 @@
-// routes/index.js - Revisão: 2024-05-26 10:30:00
+// routes/index.js - Revisão: 2025-05-06 22:30:00
 
-// Possíveis melhorias:
+// Este arquivo agrupa e exporta todas as rotas da API do VascoBank, organizando os endpoints
+// para facilitar a manutenção e integração com o servidor Express. As rotas são importadas
+// em ordem alfabética para melhor legibilidade.
 
-// 1. Adicionar todas as rotas:
-//    - O arquivo está faltando o `recoverRoutes`. Incluí-lo para garantir que todas as rotas sejam exportadas.
+// Possíveis melhorias implementadas:
+// 1. Removidas duplicatas (recoverRoutes, productRoutes).
+// 2. Adicionado virtualCardRoutes para suportar /api/virtualCards.
+// 3. Removido searchRoutes, que não estava definido.
+// 4. Mantida ordem alfabética nas importações e exportações.
 
-// 2. Organização:
-//    - Manter a ordem alfabética das rotas para facilitar a leitura e manutenção.
+// Importação das rotas
+const cardRoutes = require('./cardRoutes');
+const investmentRoutes = require('./investmentRoutes');
+const loginRoutes = require('./loginRoutes');
+const loanRoutes = require('./loanRoutes');
+const pixRoutes = require('./pixRoutes');
+const productRoutes = require('./productRoutes');
+const quoteRoutes = require('./quoteRoutes');
+const recoverRoutes = require('./recoverRoutes');
+const statementRoutes = require('./statementRoutes');
+const transactionRoutes = require('./transactionRoutes');
+const userRoutes = require('./userRoutes');
+const virtualCardRoutes = require('./virtualCardRoutes');
 
-// 3. Comentários:
-//    - Adicionar um comentário explicativo sobre o propósito do arquivo.
-
-// Este arquivo agrupa e exporta todas as rotas da API.
-
-const cardRoutes = require("./cardRoutes");
-const loginRoutes = require("./loginRoutes");
-const productRoutes = require("./productRoutes");
-const recoverRoutes = require("./recoverRoutes");
-const searchRoutes = require("./searchRoutes");
-const statementRoutes = require("./statementRoutes");
-const transactionRoutes = require("./transactionRoutes");
-const userRoutes = require("./userRoutes");
-
-
+// Exportação das rotas em ordem alfabética
 module.exports = {
-    cardRoutes,
-    loginRoutes,
-    productRoutes,
-    recoverRoutes,
-    searchRoutes,
-    statementRoutes,
-    transactionRoutes,
-    userRoutes,
- 
+  cardRoutes,
+  investmentRoutes,
+  loginRoutes,
+  loanRoutes,
+  pixRoutes,
+  productRoutes,
+  quoteRoutes,
+  recoverRoutes,
+  statementRoutes,
+  transactionRoutes,
+  userRoutes,
+  virtualCardRoutes
 };

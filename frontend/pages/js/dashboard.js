@@ -1,24 +1,53 @@
-document.addEventListener('DOMContentLoaded', async () => {
-  console.log('Dashboard carregado');
+document.addEventListener('DOMContentLoaded', () => {
+  // Mapeia elementos do DOM
+  const elements = {
+    userName: document.getElementById('userName'),
+    accountNumber: document.getElementById('accountNumber'),
+    balance: document.getElementById('balance'),
+    toggleBalance: document.getElementById('toggleBalance'),
+    transactionHistory: document.getElementById('transactionHistory'),
+    creditCardInvoice: document.getElementById('creditCardInvoice'),
+    loans: document.getElementById('loans'),
+    consignedLoans: document.getElementById('consignedLoans'),
+    cardsList: document.getElementById('cardsList'),
+    cardsContainer: document.getElementById('cardsContainer'),
+    investmentBalance: document.getElementById('investmentBalance'),
+    currencyQuotes: document.getElementById('currencyQuotes'),
+    stockQuotes: document.getElementById('stockQuotes'),
+    modalTitle: document.getElementById('modalTitle'),
+    modalBody: document.getElementById('modalBody'),
+    modalConfirm: document.getElementById('modalConfirm')
+  };
 
-  // Elementos do DOM
-  const userName = document.getElementById('userName');
-  const accountNumber = document.getElementById('accountNumber');
-  const balance = document.getElementById('balance');
-  const toggleBalance = document.getElementById('toggleBalance');
-  const transactionHistory = document.getElementById('transactionHistory');
-  const creditCardInvoice = document.getElementById('creditCardInvoice');
-  const loans = document.getElementById('loans');
-  const consignedLoans = document.getElementById('consignedLoans');
-  const cardsList = document.getElementById('cardsList');
-  const investmentBalance = document.getElementById('investmentBalance');
-  const currencyQuotes = document.getElementById('currencyQuotes');
-  const stockQuotes = document.getElementById('stockQuotes');
+  document.getElementById("logoutBtn").addEventListener("click", (e) => {
+    e.preventDefault();
+    console.log("Logout iniciado");
+    localStorage.removeItem("token");
+    console.log("Token removido do localStorage");
+    window.location.href = "index.html";
+  });
+
+  // Função pra decodificar JWT
+  function decodeToken(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error('Erro ao decodificar token:', error.message);
+      return { email: null };
+    }
+  }
+
+  let userFullName = 'Usuário'; // Fallback inicial
   let balanceVisible = false;
   let userAccountNumber = null;
+  const token = localStorage.getItem('token');
 
   // Verificar token
-  const token = localStorage.getItem('token');
   if (!token) {
     console.error('Nenhum token encontrado, redirecionando para login');
     window.location.href = '/login.html';
@@ -28,44 +57,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Carrega dados do usuário
   async function loadUserData() {
     try {
-      console.log('Buscando dados do usuário');
-      const response = await fetch('http://localhost:3000/api/users/me', {
-        method: 'GET',
+      console.log('Iniciando loadUserData, token:', token);
+      const response = await fetch('http://localhost:3000/api/users/info', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-
-      console.log('Resposta /users/me:', response.status);
+      console.log('Resposta do fetch:', response.status);
       if (response.status === 401) {
         console.error('Token inválido, redirecionando para login');
         localStorage.removeItem('token');
         window.location.href = '/login.html';
         return;
       }
-
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar usuário: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Erro: ${response.status}`);
       const data = await response.json();
-      console.log('Dados do usuário recebidos:', data);
-
-      const displayName = data.fullName || data.email || 'Usuário';
-      if (userName) userName.textContent = `Bem-vindo, ${displayName}!`;
+      console.log('Dados retornados:', data);
+      userFullName = data.fullName || data.email || decodeToken(token).email || 'Usuário';
       userAccountNumber = data.accountNumber || '---';
-      if (accountNumber) accountNumber.textContent = userAccountNumber;
-      if (balance) {
-        balance.textContent = `R$ ${data.balance?.toFixed(2) || '0.00'}`;
-        balance.dataset.value = `R$ ${data.balance?.toFixed(2) || '0.00'}`;
+      localStorage.setItem('userName', userFullName);
+      if (elements.userName) elements.userName.textContent = `Bem-vindo, ${userFullName}!`;
+      if (elements.accountNumber) elements.accountNumber.textContent = userAccountNumber;
+      if (elements.balance) {
+        elements.balance.dataset.value = `R$ ${data.balance?.toFixed(2) || '0.00'}`;
+        elements.balance.textContent = balanceVisible ? elements.balance.dataset.value : 'R$ ---';
       }
+      console.log('userFullName definido:', userFullName);
+      return userFullName;
     } catch (error) {
       console.error('Erro ao carregar usuário:', error.message);
-      if (userName) userName.textContent = 'Erro ao carregar';
-      if (accountNumber) accountNumber.textContent = '---';
-      userAccountNumber = null;
-      if (balance) balance.textContent = 'R$ ---';
+      userFullName = decodeToken(token).email || 'Usuário';
+      if (elements.userName) elements.userName.textContent = 'Erro ao carregar';
+      if (elements.accountNumber) elements.accountNumber.textContent = '---';
+      if (elements.balance) elements.balance.textContent = 'R$ ---';
+      return userFullName;
     }
   }
 
@@ -91,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (response.status === 404) {
         console.log('Nenhum cartão encontrado para o usuário');
-        if (cardsList) cardsList.textContent = 'Nenhum cartão encontrado';
+        if (elements.cardsList) elements.cardsList.textContent = 'Nenhum cartão encontrado';
         return;
       }
 
@@ -103,12 +129,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log('Cartões:', cards);
 
       if (!cards || cards.length === 0) {
-        if (cardsList) cardsList.textContent = 'Nenhum cartão encontrado';
+        if (elements.cardsList) elements.cardsList.textContent = 'Nenhum cartão encontrado';
         return;
       }
 
-      if (cardsList) {
-        cardsList.innerHTML = cards.map(card => `
+      if (elements.cardsList) {
+        elements.cardsList.innerHTML = cards.map(card => `
           <div class="card-item mb-2">
             <strong>Cartão ${card.number.slice(-4)}</strong> (${card.type}, ${card.status})
             ${card.status === 'blocked' ? `<button class="btn btn-sm btn-primary unlock-btn" data-id="${card._id}">Desbloquear</button>` : ''}
@@ -117,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } catch (error) {
       console.error('Erro ao carregar cartões:', error.message);
-      if (cardsList) cardsList.textContent = 'Erro ao carregar cartões';
+      if (elements.cardsList) elements.cardsList.textContent = 'Erro ao carregar cartões';
     }
   }
 
@@ -156,6 +182,105 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Carrega cartões virtuais
+  async function loadVirtualCards() {
+    try {
+      await loadUserData();
+      console.log('Iniciando carregarCartoesVirtuais, token:', token, 'userName:', userFullName);
+      if (elements.cardsContainer) {
+        elements.cardsContainer.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Carregando...</p>';
+      }
+
+      const response = await fetch('http://localhost:3000/api/virtualCards', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Resposta do fetch:', response.status);
+      if (response.status === 401) {
+        console.error('Token inválido, redirecionando para login');
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      if (response.status === 404) {
+        if (elements.cardsContainer) {
+          elements.cardsContainer.innerHTML = '<p class="text-muted">Nenhum cartão virtual cadastrado.</p>';
+        }
+        return;
+      }
+
+      if (!response.ok) throw new Error(`Erro: ${response.status}`);
+
+      const cards = await response.json();
+      console.log('Cartões retornados:', cards);
+      if (elements.cardsContainer) {
+        elements.cardsContainer.innerHTML = cards.length ? cards.map(card => `
+          <div class="card-virtual">
+            <img src="/img/vbank.png" alt="VBank Logo" class="card-virtual__vbank-logo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Mastercard Logo" class="card-virtual__mastercard-logo">
+            <span class="card-virtual__chip"></span>
+            <button class="card-virtual__delete-btn" data-id="${card._id}">Excluir</button>
+            <div class="card-virtual__number">**** **** **** ${card.lastFour || card.number?.split(' ').pop() || '****'}</div>
+            <div class="card-virtual__user">${card.fullName || userFullName || 'Usuário'}</div>          
+              <p>Validade: ${card.expiry || 'MM/AA'}</p>
+            </div>
+            <div class="card-virtual__footer">
+              <span class="card-virtual__type">${card.type === 'single-use' ? 'Uso Único' : 'Multi-uso'} • ${card.status === 'active' ? 'Ativo' : 'Inativo'}</span>
+            </div>
+          </div>
+        `).join('') : '<p class="text-muted">Nenhum cartão virtual cadastrado.</p>';
+
+        $('.card-virtual__delete-btn').off('click').on('click', function () {
+          const cardId = $(this).data('id');
+          console.log('Clicou em Excluir, cardId:', cardId);
+          if (confirm('Deseja excluir este cartão virtual?')) {
+            deleteVirtualCard(cardId);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar cartões virtuais:', error.message);
+      if (elements.cardsContainer) {
+        elements.cardsContainer.innerHTML = `<p class="text-danger">Erro: ${error.message}</p>`;
+      }
+    }
+  }
+
+  // Exclui cartão virtual
+  async function deleteVirtualCard(cardId) {
+    try {
+      console.log('Iniciando excluirCartaoVirtual, cardId:', cardId);
+      const response = await fetch(`http://localhost:3000/api/virtualCards/${cardId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Resposta do DELETE:', response.status);
+      if (response.status === 401) {
+        console.error('Token inválido, redirecionando para login');
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      if (!response.ok) throw new Error(`Erro: ${response.status}`);
+
+      await loadVirtualCards();
+    } catch (error) {
+      console.error('Erro ao excluir cartão virtual:', error.message);
+      if (elements.cardsContainer) {
+        elements.cardsContainer.innerHTML = `<p class="text-danger">Erro: ${error.message}</p>`;
+      }
+    }
+  }
+
   // Carrega histórico
   async function loadHistory() {
     try {
@@ -182,8 +307,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await response.json();
       console.log('Histórico:', data);
       
-      if (transactionHistory) {
-        transactionHistory.innerHTML = data.transactions?.map(tx => `
+      if (elements.transactionHistory) {
+        elements.transactionHistory.innerHTML = data.transactions?.map(tx => `
           <div class="list-group-item">
             <strong>${tx.type}</strong> - R$ ${tx.amount.toFixed(2)}<br>
             <small>${new Date(tx.date).toLocaleString()}</small>
@@ -192,7 +317,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } catch (error) {
       console.error('Erro ao carregar histórico:', error.message);
-      if (transactionHistory) transactionHistory.innerHTML = '<p>Erro ao carregar histórico</p>';
+      if (elements.transactionHistory) {
+        elements.transactionHistory.innerHTML = '<p>Erro ao carregar histórico</p>';
+      }
     }
   }
 
@@ -223,33 +350,169 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await response.json();
       console.log('Dados financeiros:', data);
       
-      if (creditCardInvoice) creditCardInvoice.textContent = `R$ ${data.card?.invoice?.toFixed(2) || '0.00'}`;
-      if (loans) loans.textContent = data.loans?.length ? data.loans.map(l => `R$ ${l.amount.toFixed(2)} (${l.installments}x)`).join(', ') : 'Nenhum';
-      if (consignedLoans) consignedLoans.textContent = data.consigned?.length ? data.consigned.map(c => `R$ ${c.amount.toFixed(2)}`).join(', ') : 'Nenhum';
-      if (investmentBalance) investmentBalance.textContent = `R$ ${data.investments?.total?.toFixed(2) || '0.00'}`;
+      if (elements.creditCardInvoice) {
+        elements.creditCardInvoice.textContent = `R$ ${data.card?.invoice?.toFixed(2) || '0.00'}`;
+      }
+      if (elements.loans) {
+        elements.loans.textContent = data.loans?.length ? data.loans.map(l => `R$ ${l.amount.toFixed(2)} (${l.installments}x)`).join(', ') : 'Nenhum';
+      }
+      if (elements.consignedLoans) {
+        elements.consignedLoans.textContent = data.consigned?.length ? data.consigned.map(c => `R$ ${c.amount.toFixed(2)}`).join(', ') : 'Nenhum';
+      }
+      if (elements.investmentBalance) {
+        elements.investmentBalance.textContent = `R$ ${data.investments?.total?.toFixed(2) || '0.00'}`;
+      }
     } catch (error) {
       console.error('Erro ao carregar dados financeiros:', error.message);
-      if (creditCardInvoice) creditCardInvoice.textContent = 'Erro';
-      if (loans) loans.textContent = 'Erro';
-      if (consignedLoans) consignedLoans.textContent = 'Erro';
-      if (investmentBalance) investmentBalance.textContent = 'Erro';
+      if (elements.creditCardInvoice) elements.creditCardInvoice.textContent = 'Erro';
+      if (elements.loans) elements.loans.textContent = 'Erro';
+      if (elements.consignedLoans) elements.consignedLoans.textContent = 'Erro';
+      if (elements.investmentBalance) elements.investmentBalance.textContent = 'Erro';
+    }
+  }
+
+  // Carrega cotações iniciais
+  async function loadInitialQuotes() {
+    try {
+      console.log('Buscando cotações iniciais');
+      const response = await fetch('http://localhost:3000/api/quotes', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Resposta /quotes:', response.status);
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar cotações: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Cotações recebidas:', data);
+      
+      if (!data.quotes || typeof data.quotes !== 'object') {
+        throw new Error('Formato inválido: quotes não encontrado ou inválido');
+      }
+
+      if (elements.currencyQuotes) {
+        let html = '';
+        for (const currency of ['USD', 'EUR']) {
+          if (data.quotes[currency]) {
+            html += `<div>${currency}/BRL: R$ ${data.quotes[currency].rate}</div>`;
+          }
+        }
+        elements.currencyQuotes.innerHTML = html || 'Cotações não disponíveis';
+      }
+
+      if (elements.stockQuotes) {
+        let html = '';
+        for (const stock of ['IBOVESPA', 'PETR4']) {
+          if (data.quotes[stock]) {
+            html += `<div>${stock}: ${stock === 'IBOVESPA' ? '' : 'R$ '}${data.quotes[stock].rate}</div>`;
+          }
+        }
+        elements.stockQuotes.innerHTML = html || 'Cotações não disponíveis';
+      }
+    } catch (error) {
+      console.error('Erro ao carregar cotações iniciais:', error.message);
+      if (elements.currencyQuotes) elements.currencyQuotes.textContent = 'Erro ao carregar';
+      if (elements.stockQuotes) elements.stockQuotes.textContent = 'Erro ao carregar';
+    }
+  }
+
+  // Função showQuotes
+  async function showQuotes() {
+    try {
+      console.log('Buscando cotações...');
+      const quotesResult = document.getElementById('quotesResult');
+      
+      if (!quotesResult) {
+        console.error('Elemento quotesResult não encontrado no DOM');
+        return;
+      }
+      
+      quotesResult.innerHTML = '<p>Carregando...</p>';
+      
+      const response = await fetch('http://localhost:3000/api/quotes', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar cotações: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Cotações recebidas:', data);
+      
+      if (!data.quotes) {
+        throw new Error('Formato de dados inválido');
+      }
+      
+      if (quotesResult) {
+        let html = '<div class="quotes-container">';
+        
+        html += '<div class="quote-section"><h4>Moedas</h4>';
+        for (const currency of ['USD', 'EUR', 'GBP', 'JPY', 'CHF']) {
+          if (data.quotes[currency]) {
+            html += `<div class="quote-item">
+              <span>${currency}/BRL:</span> 
+              <strong>R$ ${data.quotes[currency].rate}</strong>
+            </div>`;
+          }
+        }
+        html += '</div>';
+        
+        if (data.quotes['BTC/BRL']) {
+          html += '<div class="quote-section"><h4>Criptomoedas</h4>';
+          html += `<div class="quote-item">
+            <span>Bitcoin:</span> 
+            <strong>R$ ${data.quotes['BTC/BRL'].rate}</strong>
+          </div>`;
+          html += '</div>';
+        }
+        
+        html += '<div class="quote-section"><h4>Ações e Índices</h4>';
+        for (const stock of ['IBOVESPA', 'SP500', 'NASDAQ', 'PETR4', 'AAPL']) {
+          if (data.quotes[stock]) {
+            html += `<div class="quote-item">
+              <span>${stock}:</span> 
+              <strong>${stock.includes('IBOVESPA') ? '' : 'R$ '}${data.quotes[stock].rate}</strong>
+            </div>`;
+          }
+        }
+        html += '</div>';
+        
+        html += '</div>';
+        quotesResult.innerHTML = html;
+      }
+    } catch (error) {
+      console.error('Erro ao carregar cotações:', error);
+      const quotesResult = document.getElementById('quotesResult');
+      if (quotesResult) {
+        quotesResult.innerHTML = `<p class="text-danger">Erro ao carregar cotações: ${error.message}</p>`;
+      }
     }
   }
 
   // Toggle saldo
-  if (toggleBalance) {
-    toggleBalance.addEventListener('click', () => {
+  if (elements.toggleBalance) {
+    elements.toggleBalance.addEventListener('click', () => {
       balanceVisible = !balanceVisible;
-      if (balance) balance.textContent = balanceVisible ? balance.dataset.value : 'R$ ---';
-      toggleBalance.className = balanceVisible ? 'fas fa-eye-slash ml-2' : 'fas fa-eye ml-2';
+      if (elements.balance) {
+        elements.balance.textContent = balanceVisible ? elements.balance.dataset.value : 'R$ ---';
+        elements.toggleBalance.className = balanceVisible ? 'fas fa-eye-slash ml-2' : 'fas fa-eye ml-2';
+      }
     });
   }
 
   // Toggle para histórico de transações
   const toggleTransactionHistory = () => {
-    if (!transactionHistory) return;
+    if (!elements.transactionHistory) return;
     
-    const historySection = transactionHistory.parentElement;
+    const historySection = elements.transactionHistory.parentElement;
     console.log('Clicou no saldo, toggling histórico');
     if (historySection.classList.contains('hidden')) {
       historySection.classList.remove('hidden');
@@ -261,9 +524,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Toggle para ações de cartão
   const toggleCardActions = () => {
-    if (!cardsList) return;
+    if (!elements.cardsList) return;
     
-    const cardActions = cardsList.parentElement;
+    const cardActions = elements.cardsList.parentElement;
     console.log('Clicou no cartão de crédito, toggling ações');
     if (cardActions.classList.contains('hidden')) {
       cardActions.classList.remove('hidden');
@@ -274,16 +537,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   // Adicionar listeners para toggles
-  if (balance) {
-    const balanceElement = balance.parentElement;
+  if (elements.balance) {
+    const balanceElement = elements.balance.parentElement;
     if (balanceElement) {
       balanceElement.style.cursor = 'pointer';
       balanceElement.addEventListener('click', toggleTransactionHistory);
     }
   }
 
-  if (creditCardInvoice) {
-    const creditCardElement = creditCardInvoice.parentElement;
+  if (elements.creditCardInvoice) {
+    const creditCardElement = elements.creditCardInvoice.parentElement;
     if (creditCardElement) {
       creditCardElement.style.cursor = 'pointer';
       creditCardElement.addEventListener('click', toggleCardActions);
@@ -291,103 +554,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Esconder seções por padrão
-  if (transactionHistory && transactionHistory.parentElement) {
-    transactionHistory.parentElement.classList.add('hidden');
+  if (elements.transactionHistory && elements.transactionHistory.parentElement) {
+    elements.transactionHistory.parentElement.classList.add('hidden');
   }
   
-  if (cardsList && cardsList.parentElement) {
-    cardsList.parentElement.classList.add('hidden');
+  if (elements.cardsList && elements.cardsList.parentElement) {
+    elements.cardsList.parentElement.classList.add('hidden');
   }
 
-  // Manipulação de cliques
-  document.addEventListener('click', (e) => {
-    const item = e.target.closest('.icon-item, .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item');
-    if (!item) return;
-
-    const action = item.id || item.dataset.action || item.dataset.pixAction || item.dataset.cardsAction || item.dataset.investmentsAction || item.dataset.transactionsAction || item.dataset.financingAction;
-    if (!action) {
-      console.error('Ação não definida para o item:', item);
-      return;
-    }
-    e.preventDefault();
-    console.log('Ação clicada:', action);
-
-    // Ações que redirecionam
-    const redirectActions = {
-      'create-account': '/create-account.html',
-      'login': '/login.html',
-      'products-services': '/products-services.html',
-      'recover-access': '/recover-access.html',
-      'create-card': '/create-card.html'
-    };
-
-    if (redirectActions[action]) {
-      console.log('Redirecionando para:', redirectActions[action]);
-      window.location.href = redirectActions[action];
-      return;
-    }
-
-    // Áreas de modais
-    const modalAreas = ['pixArea', 'cardsArea', 'investmentsArea', 'transactionsArea', 'financingArea'];
-    if (modalAreas.includes(action)) {
-      console.log(`Abrindo modal da ${action}`);
-      $(`#${action}Modal`).modal('show');
-      return;
-    }
-
-    // Ações gerais
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
-    const modalConfirm = document.getElementById('modalConfirm');
-
-    if (!modalTitle || !modalBody || !modalConfirm) {
-      console.error('Elementos do modal não encontrados');
-      return;
-    }
-
-    modalTitle.textContent = item.querySelector('span')?.textContent || action;
-    modalBody.innerHTML = getModalContent(action);
-
-    modalConfirm.onclick = null;
-    modalConfirm.onclick = async () => {
-      console.log('Clicou em Confirmar para ação:', action);
-      try {
-        await handleAction(action);
-        $('#actionModal').modal('hide');
-      } catch (error) {
-        console.error('Erro ao processar ação:', error);
-        alert('Erro ao executar a ação: ' + error.message);
-      }
-    };
-
-    $('#pixAreaModal').modal('hide');
-    $('#cardsAreaModal').modal('hide');
-    $('#investmentsAreaModal').modal('hide');
-    $('#transactionsAreaModal').modal('hide');
-    $('#financingAreaModal').modal('hide');
-    $('#actionModal').modal('show');
-  });
-
-  // Listener para itens de cartão
-  $(document).on('click', '.cards-icon-item', function () {
-    const action = $(this).data('cards-action');
-    if (action) {
-      handleAction(action);
-    }
-  });
-
-  // Evento para botões de desbloqueio
-  if (cardsList) {
-    cardsList.addEventListener('click', (e) => {
-      if (e.target.classList.contains('unlock-btn')) {
-        const cardId = e.target.dataset.id;
-        if (confirm('Deseja desbloquear este cartão?')) {
-          unlockCard(cardId);
-        }
-      }
-    });
-  }
-
+  // Função getModalContent
   function getModalContent(action) {
     const actions = {
       transferMoney: `
@@ -559,85 +734,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     return actions[action] || `<p>Conteúdo para ${action} não disponível</p>`;
   }
 
-  // Função showQuotes
-  async function showQuotes() {
-    try {
-      console.log('Buscando cotações...');
-      const quotesResult = document.getElementById('quotesResult');
-      
-      if (!quotesResult) {
-        console.error('Elemento quotesResult não encontrado no DOM');
-        return;
-      }
-      
-      quotesResult.innerHTML = '<p>Carregando...</p>';
-      
-      const response = await fetch('http://localhost:3000/api/quotes', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar cotações: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('Cotações recebidas:', data);
-      
-      if (!data.quotes) {
-        throw new Error('Formato de dados inválido');
-      }
-      
-      if (quotesResult) {
-        let html = '<div class="quotes-container">';
-        
-        html += '<div class="quote-section"><h4>Moedas</h4>';
-        for (const currency of ['USD', 'EUR', 'GBP', 'JPY', 'CHF']) {
-          if (data.quotes[currency]) {
-            html += `<div class="quote-item">
-              <span>${currency}/BRL:</span> 
-              <strong>R$ ${data.quotes[currency].rate}</strong>
-            </div>`;
-          }
-        }
-        html += '</div>';
-        
-        if (data.quotes['BTC/BRL']) {
-          html += '<div class="quote-section"><h4>Criptomoedas</h4>';
-          html += `<div class="quote-item">
-            <span>Bitcoin:</span> 
-            <strong>R$ ${data.quotes['BTC/BRL'].rate}</strong>
-          </div>`;
-          html += '</div>';
-        }
-        
-        html += '<div class="quote-section"><h4>Ações e Índices</h4>';
-        for (const stock of ['IBOVESPA', 'SP500', 'NASDAQ', 'PETR4', 'AAPL']) {
-          if (data.quotes[stock]) {
-            html += `<div class="quote-item">
-              <span>${stock}:</span> 
-              <strong>${stock.includes('IBOVESPA') ? '' : 'R$ '}${data.quotes[stock].rate}</strong>
-            </div>`;
-          }
-        }
-        html += '</div>';
-        
-        html += '</div>';
-        quotesResult.innerHTML = html;
-      } else {
-        console.error('Elemento quotesResult não encontrado após carregamento');
-      }
-    } catch (error) {
-      console.error('Erro ao carregar cotações:', error);
-      const quotesResult = document.getElementById('quotesResult');
-      if (quotesResult) {
-        quotesResult.innerHTML = `<p class="text-danger">Erro ao carregar cotações: ${error.message}</p>`;
-      }
-    }
-  }
-
   // Função handleAction
   async function handleAction(action) {
     try {
@@ -645,8 +741,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // Ação viewVirtualCards
       if (action === 'viewVirtualCards') {
-        console.log('Chamando carregarCartoesVirtuais');
-        carregarCartoesVirtuais(); // Função definida no dashboard.html
+        console.log('Chamando loadVirtualCards');
+        await loadVirtualCards();
         $('#actionModal').modal('hide');
         $('#cardsAreaModal').modal('show');
         return;
@@ -703,136 +799,100 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // Ação createVirtualCard
       if (action === 'createVirtualCard') {
+        console.log('Iniciando criação de cartão virtual');
+        if (elements.modalBody) {
+          elements.modalBody.innerHTML = `
+            <div class="p-4 bg-dark rounded text-center">
+              <div class="mb-3"><i class="fas fa-spinner fa-spin fa-3x text-primary"></i></div>
+              <h5 class="mb-3">Processando...</h5>
+              <p>Estamos criando seu cartão virtual.</p>
+            </div>
+          `;
+        }
+        if (elements.modalConfirm) {
+          elements.modalConfirm.disabled = true;
+          elements.modalConfirm.textContent = 'Processando...';
+        }
+      
         try {
-          console.log('Iniciando criação de cartão virtual');
-          
-          const modalBody = document.getElementById('modalBody');
-          if (modalBody) {
-            modalBody.innerHTML = `
-              <div class="p-4 bg-gray-800 rounded-md text-center">
-                <div class="mb-3">
-                  <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
-                </div>
-                <h5 class="mb-3">Processando...</h5>
-                <p>Estamos criando seu cartão virtual.</p>
-              </div>
-            `;
-          }    
-          
-          const modalConfirm = document.getElementById('modalConfirm');
-          if (modalConfirm) {
-            modalConfirm.disabled = true;
-            modalConfirm.textContent = 'Processando...';
-          }
-          
-          const userResponse = await fetch('http://localhost:3000/api/users/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (!userResponse.ok) {
-            throw new Error('Não foi possível obter seus dados cadastrais');
-          }
-          
-          const userData = await userResponse.json();
-          console.log('Dados do usuário obtidos para criação do cartão');
-          
+          await loadUserData();
+          console.log('Dados do usuário obtidos:', { fullName: userFullName });
+      
+          const cvv = Math.floor(100 + Math.random() * 900).toString().padStart(3, '0');
           const cardData = {
-            limit: 500, // Padrão, pode ajustar
-            type: 'multi-use' // Padrão, pode ajustar
+            limit: 500,
+            type: 'multi-use',
+            brand: 'Mastercard',
+            cvv: cvv,
+            fullName: userFullName || decodeToken(token).email || 'Usuário'
           };
-          
           console.log('Dados preparados para criação do cartão:', cardData);
-          
-          const response = await fetch('http://localhost:3000/api/virtual-cards', {
+      
+          const response = await fetch('http://localhost:3000/api/virtualCards', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify(cardData)
-          });    
-          
-          console.log('Resposta /api/virtual-cards:', response.status);
-          
+          });
+      
+          console.log('Resposta /api/virtualCards:', response.status);
           if (response.status === 401) {
             console.error('Token inválido, redirecionando para login');
             localStorage.removeItem('token');
             window.location.href = '/login.html';
             return;
           }
-          
+      
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Erro ao criar cartão virtual: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Erro: ${response.status}`);
           }
-          
+      
           const responseData = await response.json();
-          console.log('Resposta recebida:', responseData);
-          
-          if (modalBody) {
-            modalBody.innerHTML = `
-              <div class="p-4 bg-gray-800 rounded-md text-center">
-                <div class="mb-3">
-                  <i class="fas fa-check-circle fa-3x text-success"></i>
-                </div>
+          console.log('Cartão virtual criado:', responseData);
+          if (elements.modalBody) {
+            elements.modalBody.innerHTML = `
+              <div class="p-4 bg-dark rounded text-center">
+                <div class="mb-3"><i class="fas fa-check-circle fa-3x text-success"></i></div>
                 <h5 class="mb-3">Cartão Virtual Criado!</h5>
-                <p>Seu cartão virtual foi criado com sucesso.</p>
                 <div class="card-preview mt-3 p-3 bg-dark rounded">
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <small class="text-muted">Número</small>
-                      <p>**** **** **** ${responseData.lastFour}</p>
-                    </div>
-                    <div>
-                      <i class="fas fa-credit-card fa-2x text-primary"></i>
-                    </div>
-                  </div>
-                  <div class="mt-2">
-                    <small class="text-muted">Validade</small>
-                    <p>${responseData.expiry}</p>
-                  </div>
+                  <div><small class="text-muted">Número</small><p>${responseData.card.number}</p></div>
+                  <div><small class="text-muted">Validade</small><p>${responseData.card.expiry}</p></div>
+                  <div><small class="text-muted">CVV</small><p>${responseData.card.cvv || '***'}</p></div>
+                  <div><small class="text-muted">Nome</small><p>${responseData.card.fullName || userFullName || 'Usuário'}</p></div>
                 </div>
               </div>
             `;
           }
-          
-          if (modalConfirm) {
-            modalConfirm.disabled = false;
-            modalConfirm.textContent = 'Concluir';
-            modalConfirm.onclick = () => {
+          if (elements.modalConfirm) {
+            elements.modalConfirm.disabled = false;
+            elements.modalConfirm.textContent = 'Concluir';
+            elements.modalConfirm.onclick = () => {
               $('#actionModal').modal('hide');
-              loadCards();
+              $('#cardsAreaModal').modal('show');
+              loadVirtualCards();
             };
           }
-          
-          return;
         } catch (error) {
           console.error('Erro ao criar cartão virtual:', error.message);
-          
-          const modalBody = document.getElementById('modalBody');
-          if (modalBody) {
-            modalBody.innerHTML = `
-              <div class="p-4 bg-gray-800 rounded-md text-center">
-                <div class="mb-3">
-                  <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-                </div>
+          if (elements.modalBody) {
+            elements.modalBody.innerHTML = `
+              <div class="p-4 bg-dark rounded text-center">
+                <div class="mb-3"><i class="fas fa-exclamation-circle fa-3x text-danger"></i></div>
                 <h5 class="mb-3">Erro</h5>
                 <p>${error.message}</p>
               </div>
             `;
           }
-          
-          const modalConfirm = document.getElementById('modalConfirm');
-          if (modalConfirm) {
-            modalConfirm.disabled = false;
-            modalConfirm.textContent = 'Tentar novamente';
+          if (elements.modalConfirm) {
+            elements.modalConfirm.disabled = false;
+            elements.modalConfirm.textContent = 'Tentar novamente';
+            elements.modalConfirm.onclick = () => handleAction('createVirtualCard');
           }
-          
-          return;
         }
+        return;
       }
 
       // Ações que requerem requisição
@@ -1143,7 +1203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const responseData = await response.json();
           console.log('Resposta recebida:', responseData);
 
-          alert(`${modalTitle.textContent} realizada com sucesso!`);
+          alert(`${elements.modalTitle?.textContent || action} realizada com sucesso!`);
           $('#actionModal').modal('hide');
 
           if (['transferMoney', 'depositMoney', 'withdrawMoney', 'payBill', 'rechargePhone', 'pixTransfer', 'pixPayment', 'pixCharge', 'pixSchedule'].includes(action)) {
@@ -1179,53 +1239,80 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Carregar cotações iniciais
-  async function loadInitialQuotes() {
-    try {
-      console.log('Buscando cotações iniciais');
-      const response = await fetch('http://localhost:3000/api/quotes', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  // Manipulação de cliques
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('.icon-item, .pix-icon-item, .cards-icon-item, .investments-icon-item, .transactions-icon-item, .financing-icon-item');
+    if (!item) return;
 
-      console.log('Resposta /quotes:', response.status);
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar cotações: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Cotações recebidas:', data);
-      
-      if (!data.quotes || typeof data.quotes !== 'object') {
-        throw new Error('Formato inválido: quotes não encontrado ou inválido');
-      }
-
-      if (currencyQuotes) {
-        let html = '';
-        for (const currency of ['USD', 'EUR']) {
-          if (data.quotes[currency]) {
-            html += `<div>${currency}/BRL: R$ ${data.quotes[currency].rate}</div>`;
-          }
-        }
-        currencyQuotes.innerHTML = html || 'Cotações não disponíveis';
-      }
-
-      if (stockQuotes) {
-        let html = '';
-        for (const stock of ['IBOVESPA', 'PETR4']) {
-          if (data.quotes[stock]) {
-            html += `<div>${stock}: ${stock === 'IBOVESPA' ? '' : 'R$ '}${data.quotes[stock].rate}</div>`;
-          }
-        }
-        stockQuotes.innerHTML = html || 'Cotações não disponíveis';
-      }
-    } catch (error) {
-      console.error('Erro ao carregar cotações iniciais:', error.message);
-      if (currencyQuotes) currencyQuotes.textContent = 'Erro ao carregar';
-      if (stockQuotes) stockQuotes.textContent = 'Erro ao carregar';
+    const action = item.id || item.dataset.action || item.dataset.pixAction || item.dataset.cardsAction || item.dataset.investmentsAction || item.dataset.transactionsAction || item.dataset.financingAction;
+    if (!action) {
+      console.error('Ação não definida para o item:', item);
+      return;
     }
+    e.preventDefault();
+    console.log('Ação clicada:', action);
+
+    // Ações que redirecionam
+    const redirectActions = {
+      'create-account': '/create-account.html',
+      'login': '/login.html',
+      'products-services': '/products-services.html',
+      'recover-access': '/recover-access.html',
+      'create-card': '/create-card.html'
+    };
+
+    if (redirectActions[action]) {
+      console.log('Redirecionando para:', redirectActions[action]);
+      window.location.href = redirectActions[action];
+      return;
+    }
+
+    // Áreas de modais
+    const modalAreas = ['pixArea', 'cardsArea', 'investmentsArea', 'transactionsArea', 'financingArea'];
+    if (modalAreas.includes(action)) {
+      console.log(`Abrindo modal da ${action}`);
+      $(`#${action}Modal`).modal('show');
+      return;
+    }
+
+    // Ações gerais
+    if (elements.modalTitle && elements.modalBody && elements.modalConfirm) {
+      elements.modalTitle.textContent = item.querySelector('span')?.textContent || action;
+      elements.modalBody.innerHTML = getModalContent(action);
+
+      elements.modalConfirm.onclick = null;
+      elements.modalConfirm.onclick = async () => {
+        console.log('Clicou em Confirmar para ação:', action);
+        try {
+          await handleAction(action);
+          $('#actionModal').modal('hide');
+        } catch (error) {
+          console.error('Erro ao processar ação:', error);
+          alert('Erro ao executar a ação: ' + error.message);
+        }
+      };
+
+      $('#pixAreaModal').modal('hide');
+      $('#cardsAreaModal').modal('hide');
+      $('#investmentsAreaModal').modal('hide');
+      $('#transactionsAreaModal').modal('hide');
+      $('#financingAreaModal').modal('hide');
+      $('#actionModal').modal('show');
+    } else {
+      console.error('Elementos do modal não encontrados');
+    }
+  });
+
+  // Evento para botões de desbloqueio
+  if (elements.cardsList) {
+    elements.cardsList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('unlock-btn')) {
+        const cardId = e.target.dataset.id;
+        if (confirm('Deseja desbloquear este cartão?')) {
+          unlockCard(cardId);
+        }
+      }
+    });
   }
 
   // Inicialização

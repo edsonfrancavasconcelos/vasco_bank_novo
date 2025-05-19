@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
-const loanSchema = new mongoose.Schema({
+const investmentSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    required: true,
+  },
+  type: {
+    type: String,
+    enum: ['fixed_income', 'stocks', 'funds', 'crypto'],
     required: true,
   },
   amount: {
@@ -11,20 +16,15 @@ const loanSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
-  installments: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
-  interestRate: {
+  returnRate: {
     type: Number,
     required: true,
     min: 0,
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected', 'active', 'paid'],
-    default: 'pending',
+    enum: ['active', 'closed'],
+    default: 'active',
   },
   createdAt: {
     type: Date,
@@ -36,10 +36,10 @@ const loanSchema = new mongoose.Schema({
   },
 });
 
-// Update `updatedAt` on save
-loanSchema.pre('save', function (next) {
+// Atualiza `updatedAt` ao salvar
+investmentSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-module.exports = mongoose.model('Loan', loanSchema);
+module.exports = mongoose.model('Investment', investmentSchema);

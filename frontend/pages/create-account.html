@@ -1,66 +1,66 @@
-<!-- frontend/pages/create-account.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Criar Conta - VascoBank</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/theme.css">
-
-
 </head>
-
-<header>
-  <img src="img/vbank.png" alt="VascoBank Logo" style="width: 20rem;">
-  <nav>
-    <a href="/">Início</a>
-    <a href="/dashboard.html">Transações</a>
-    <a href="/login">Login</a>
-  </nav>
-</header>
-  <main class="container">
+<body>
+  <header>
+    <img src="img/vbank.png" alt="VascoBank Logo" class="logo">
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="dashboard.html">Transações</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </header>
+  <main class="container mt-4">
     <h2>Criar Conta</h2>
     <form id="createAccountForm">
       <div class="form-group">
         <label for="fullName">Nome Completo</label>
-        <input type="text" class="form-control" id="fullName" required>
+        <input type="text" class="form-control" id="fullName" required placeholder="Digite seu nome completo">
       </div>
       <div class="form-group">
-        <label for="email">E-mail</label>
-        <input type="email" class="form-control" id="email" required>
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" required placeholder="Digite seu email">
       </div>
       <div class="form-group">
         <label for="cpf">CPF</label>
-        <input type="text" class="form-control" id="cpf" maxlength="11" required>
+        <input type="text" class="form-control" id="cpf" inputmode="numeric" maxlength="14" required placeholder="98798798778">
       </div>
       <div class="form-group">
         <label for="rg">RG</label>
-        <input type="text" class="form-control" id="rg" required>
+        <input type="text" class="form-control" id="rg" required placeholder="Digite seu RG">
       </div>
       <div class="form-group">
         <label for="address">Endereço</label>
-        <input type="text" class="form-control" id="address" required>
+        <input type="text" class="form-control" id="address" required placeholder="Digite seu endereço completo">
+      </div>
+      <div class="form-group">
+        <label for="phone-number">Telefone</label>
+        <input type="text" class="form-control" id="phone-number" inputmode="numeric" maxlength="14" required placeholder="81998779876">
       </div>
       <div class="form-group">
         <label for="password">Senha</label>
-        <input type="password" class="form-control" id="password" required>
+        <input type="password" class="form-control" id="password" required placeholder="Crie uma senha" minlength="6" autocomplete="new-password">
       </div>
       <div class="form-group">
         <label for="confirmPassword">Confirmar Senha</label>
-        <input type="password" class="form-control" id="confirmPassword" required>
+        <input type="password" class="form-control" id="confirmPassword" required placeholder="Confirme a senha" minlength="6" autocomplete="new-password">
       </div>
       <div class="form-group">
-        <label for="initialBalance">Saldo Inicial (R$)</label>
-        <input type="number" class="form-control" id="initialBalance" step="0.01" min="0" required>
+        <label for="initialBalance">Saldo Inicial</label>
+        <input type="number" class="form-control" id="initialBalance" required placeholder="Digite o saldo inicial" min="0">
       </div>
       <button type="submit" class="btn btn-primary">Criar Conta</button>
-      <a href="/index.html" class="btn btn-secondary">Voltar</a>
+      <a href="dashboard.html" class="btn btn-secondary">Voltar</a>
     </form>
     <div id="message" class="mt-3"></div>
   </main>
-
   <footer>
     <p class="text-center">© 2025 VascoBank. Todos os direitos reservados.</p>
     <div class="social-icons text-center">
@@ -70,15 +70,7 @@
       <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
     </div>
   </footer>
-  <script src="./js/create-account.js"></script>
-
-  <script>// No sucesso da criação
-    sessionStorage.setItem("user", JSON.stringify(newUserData));
-    setTimeout(() => {
-      window.location.href = "index.html"; // Mudado de "dashboard.html"
-    }, 1500);</script>
- 
+  <script src="js/main.js"></script>
+  <script src="js/create-account.js"></script>
 </body>
-
-
 </html>

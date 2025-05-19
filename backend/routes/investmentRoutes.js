@@ -1,7 +1,9 @@
-const router = require('express').Router();
-const { invest } = require('../controllers/investmentController');
-const authMiddleware = require('../middleware/authMiddleware');
+const express = require('express');
+const router = express.Router();
+const investmentController = require('../controllers/investmentController');
 
-router.post('/invest', authMiddleware, invest);
+// Rotas
+router.get('/', investmentController.getUserInvestments);
+router.post('/', investmentController.createInvestment);
 
 module.exports = router;

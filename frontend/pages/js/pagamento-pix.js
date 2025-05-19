@@ -1,3 +1,5 @@
+import { debounce, fetchRecipient, validatePixKey } from "./pix-utils.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const pixKeyInput = document.getElementById("pix-key");
   const recipientInfo = document.getElementById("recipient-info");
@@ -6,85 +8,77 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitBtn = document.getElementById("submit-btn");
   const form = document.getElementById("payment-form");
 
-  function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-          const later = () => {
-              clearTimeout(timeout);
-              func(...args);
-          };
-          clearTimeout(timeout);
-          timeout = setTimeout(later, wait);
-      };
+  const jwt = localStorage.getItem("jwt");
+  if (!jwt) {
+    pixError.textContent = "Você precisa estar logado. Redirecionando...";
+    setTimeout(() => (window.location.href = "login.html"), 2000);
+    return;
   }
 
-  const fetchRecipient = debounce(async (pixKey) => {
-      pixError.textContent = "";
-      pixLoading.textContent = "Buscando...";
-      recipientInfo.classList.add("hidden");
-      submitBtn.disabled = true;
+  recipientInfo.dataset.action = "pagando para";
 
-      try {
-          const response = await fetch(`http://localhost:3000/api/pix/recipient/${encodeURIComponent(pixKey)}`);
-          const data = await response.json();
-
-          pixLoading.textContent = "";
-          if (data.nome) {
-              recipientInfo.textContent = `Você está pagando para ${data.nome}`;
-              recipientInfo.classList.remove("hidden");
-              submitBtn.disabled = false;
-          } else {
-              pixError.textContent = data.error || "Chave Pix não encontrada.";
-          }
-      } catch (error) {
-          pixLoading.textContent = "";
-          pixError.textContent = "Erro ao buscar destinatário.";
-      }
-  }, 500);
+  const fetchRecipientDebounced = debounce(
+    (pixKey) => fetchRecipient(pixKey, recipientInfo, pixError, pixLoading, submitBtn, jwt),
+    500
+  );
 
   pixKeyInput.addEventListener("input", () => {
-      const pixKey = pixKeyInput.value.trim();
-      if (pixKey) {
-          fetchRecipient(pixKey);
-      } else {
-          pixError.textContent = "";
-          pixLoading.textContent = "";
-          recipientInfo.classList.add("hidden");
-          submitBtn.disabled = true;
-      }
+    const pixKey = pixKeyInput.value.trim();
+    if (pixKey) {
+      fetchRecipientDebounced(pixKey);
+    } else {
+      pixError.textContent = "";
+      pixLoading.textContent = "";
+      recipientInfo.classList.add("hidden");
+      submitBtn.disabled = true;
+    }
   });
 
   form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const pixKey = pixKeyInput.value.trim();
-      const amount = parseFloat(document.getElementById("amount").value);
-      const description = document.getElementById("description").value.trim();
+    e.preventDefault();
+    const pixKey = pixKeyInput.value.trim();
+    const amount = parseFloat(document.getElementById("amount").value);
+    const description = document.getElementById("description").value.trim();
 
-      if (!pixKey || !amount) {
-          pixError.textContent = "Preencha a chave Pix e o valor.";
-          return;
-      }
+    pixError.textContent = "";
 
-      try {
-          await fetch("http://localhost:3000/api/pix/transaction", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                  tipo: "pagamento",
-                  chave: pixKey,
-                  nome: recipientInfo.textContent.replace("Você está pagando para ", ""),
-                  valor: amount,
-                  descricao: description || "Nenhuma",
-                  data: new Date().toISOString()
-              })
-          });
-          alert(`Pagamento de R$${amount.toFixed(2)} realizado com sucesso!`);
-          form.reset();
-          recipientInfo.classList.add("hidden");
-          pixLoading.textContent = "";
-          submitBtn.disabled = true;
-      } catch (error) {
-          pixError.textContent = "Erro ao realizar pagamento.";
-      }
+    if (!pixKey || !amount) {
+      pixError.textContent = "Preencha a chave Pix e o valor.";
+      return;
+    }
+
+    if (!validatePixKey(pixKey)) {
+      pixError.textContent = "Chave Pix inválida.";
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/pix/transfer", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${jwt}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          key: pixKey,
+          amount,
+          description: description || "Nenhuma",
+          date: new Date().toISOString(),
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || "Erro ao realizar pagamento");
+
+      alert(`Pagamento de R$${amount.toFixed(2)} realizado com sucesso!`);
+      form.reset();
+      recipientInfo.classList.add("hidden");
+      pixLoading.textContent = "";
+      submitBtn.disabled = true;
+    } catch (error) {
+      pixError.textContent = `Erro ao realizar pagamento: ${error.message}`;
+      pixError.className = "text-danger";
+      console.error(error);
+    }
   });
 });

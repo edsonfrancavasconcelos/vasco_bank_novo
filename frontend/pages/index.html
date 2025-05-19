@@ -5,146 +5,415 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VascoBank - Home</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/theme.css">
 </head>
-<body class="font-inter bg-[#fc580c]">
+<body>
   <div class="preload" id="preload">
     <img src="img/vbank.png" alt="VascoBank Logo" class="w-48 mb-4">
     <div class="spinner"></div>
   </div>
-
-  <header class="text-white fixed-top bg-[#fc580c]">
-    <nav class="navbar navbar-expand-lg container">
-      <a class="navbar-brand" href="/">
-        <img src="img/vbank.png" alt="VascoBank Logo" class="h-16">
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars text-white"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link text-white hover:text-[#fdca49] transition" href="/">Início</a></li>
-          <li class="nav-item"><a class="nav-link text-white hover:text-[#fdca49] transition" href="/login.html">Login</a></li>
-          <li class="nav-item"><a class="nav-link text-white hover:text-[#fdca49] transition" href="/dashboard.html">Dashboard</a></li>
-        </ul>
-      </div>
+  <header>
+    <a href="index.html" aria-label="Página inicial do VascoBank">
+      <img src="img/vbank.png" alt="VascoBank Logo" class="logo">
+    </a>
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="login.html">Login</a>
+      <a href="dashboard.html">Dashboard</a>
     </nav>
   </header>
-
-  <main class="container mx-auto mt-28 mb-12 hidden" id="content">
-    <!-- Seção Hero -->
-    <section class="text-center py-12 bg-[#121212] rounded-2xl shadow-lg mb-12">
+  <main class="container mt-4" id="content">
+    <section class="text-center py-12 bg-dark rounded-2xl shadow-lg mb-12">
       <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">VascoBank: Seu Futuro Financeiro</h1>
-      <p class="text-lg md:text-xl text-[#dcdcdc] mb-6">Gestão financeira simples, segura e inovadora para você.</p>
-      <a href="create-account.html" class="inline-block bg-[#fc580c] text-white font-semibold py-3 px-8 rounded-lg hover:bg-[#f8872e] hover:scale-105 transition transform">Comece Agora</a>
+      <p class="text-lg md:text-xl text-light mb-6">Gestão financeira simples, segura e inovadora para você.</p>
+      <a href="create-account.html" class="btn btn-primary">Comece Agora</a>
     </section>
-
-    <!-- Ações Principais -->
     <section>
       <h2 class="text-3xl font-semibold text-white text-center mb-8">O que você pode fazer?</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <a href="create-account.html" class="bg-[#121212] p-6 rounded-xl shadow-md hover:shadow-xl hover:bg-[#f8872e] transition transform flex flex-col items-center">
-          <i class="fas fa-user-plus text-4xl text-[#ffa927] mb-4"></i>
-          <h3 class="text-xl font-semibold text-white mb-2">Criar Conta</h3>
-          <p class="text-[#dcdcdc] text-center">Abra sua conta em minutos e comece a gerenciar seu dinheiro.</p>
+      <div class="row">
+        <a href="create-account.html" class="col-md-3 mb-4">
+          <div class="card bg-dark text-light">
+            <div class="card-body text-center">
+              <i class="fas fa-user-plus text-4xl text-warning mb-4"></i>
+              <h3 class="card-title">Criar Conta</h3>
+              <p class="card-text"> Conta em minutos e comece a gerenciar seu dinheiro.</p>
+            </div>
+          </div>
         </a>
-        <a href="login.html" class="bg-[#121212] p-6 rounded-xl shadow-md hover:shadow-xl hover:bg-[#f8872e] transition transform flex flex-col items-center">
-          <i class="fas fa-sign-in-alt text-4xl text-[#ffa927] mb-4"></i>
-          <h3 class="text-xl font-semibold text-white mb-2">Fazer Login</h3>
-          <p class="text-[#dcdcdc] text-center">Acesse sua conta para ver saldos, transações e mais.</p>
+        <a href="login.html" class="col-md-3 mb-4">
+          <div class="card bg-dark text-light">
+            <div class="card-body text-center">
+              <i class="fas fa-sign-in-alt text-4xl text-warning mb-4"></i>
+              <h3 class="card-title">Fazer Login</h3>
+              <p class="card-text">Acesse sua conta para ver saldos, transações e mais.</p>
+            </div>
+          </div>
         </a>
-        <a href="products-services.html" class="bg-[#121212] p-6 rounded-xl shadow-md hover:shadow-xl hover:bg-[#f8872e] transition transform flex flex-col items-center">
-          <i class="fas fa-box-open text-4xl text-[#ffa927] mb-4"></i>
-          <h3 class="text-xl font-semibold text-white mb-2">Explorar Produtos</h3>
-          <p class="text-[#dcdcdc] text-center">Descubra nossos serviços financeiros personalizados.</p>
+        <a href="products-service.html" class="col-md-3 mb-4">
+          <div class="card bg-dark text-light">
+            <div class="card-body text-center">
+              <i class="fas fa-box-open text-4xl text-warning mb-4"></i>
+              <h3 class="card-title">Produtos</h3>
+              <p class="card-text">Descubra nossos serviços financeiros personalizados.</p>
+            </div>
+          </div>
         </a>
-        <a href="dashboard.html#virtual-cards" class="bg-[#121212] p-6 rounded-xl shadow-md hover:shadow-xl hover:bg-[#f8872e] transition transform flex flex-col items-center">
-          <i class="fas fa-credit-card text-4xl text-[#ffa927] mb-4"></i>
-          <h3 class="text-xl font-semibold text-white mb-2">Cartões Virtuais</h3>
-          <p class="text-[#dcdcdc] text-center">Crie e gerencie cartões virtuais para compras seguras.</p>
+        <a href="dashboard.html" class="col-md-3 mb-4">
+          <div class="card bg-dark text-light">
+            <div class="card-body text-center">
+              <i class="fas fa-credit-card text-4xl text-warning mb-4"></i>
+              <h3 class="card-title">Cartões </h3>
+              <p class="card-text">Gerencie cartões virtuais para compras seguras.</p>
+            </div>
+          </div>
         </a>
       </div>
     </section>
   </main>
-
-  <footer class="text-white py-8 bg-[#fc580c]">
-    <div class="container mx-auto">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <h4 class="text-lg font-semibold mb-4">VascoBank</h4>
-          <p class="text-[#dcdcdc]">Soluções financeiras modernas para o seu dia a dia.</p>
-        </div>
-        <div>
-          <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
-          <ul class="space-y-2">
-            <li><a href="/create-account.html" class="text-[#dcdcdc] hover:text-[#fdca49] transition">Criar Conta</a></li>
-            <li><a href="/login.html" class="text-[#dcdcdc] hover:text-[#fdca49] transition">Login</a></li>
-            <li><a href="/products-services.html" class="text-[#dcdcdc] hover:text-[#fdca49] transition">Produtos</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-lg font-semibold mb-4">Contato</h4>
-          <p class="text-[#dcdcdc]">Email: suporte@vascobank.com</p>
-          <div class="flex space-x-4 mt-4">
-            <a href="https://facebook.com" aria-label="Facebook" class="text-[#dcdcdc] hover:text-[#fdca49] transition"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://x.com" aria-label="Twitter" class="text-[#dcdcdc] hover:text-[#fdca49] transition"><i class="fab fa-x-twitter"></i></a>
-            <a href="https://instagram.com" aria-label="Instagram" class="text-[#dcdcdc] hover:text-[#fdca49] transition"><i class="fab fa-instagram"></i></a>
-            <a href="https://linkedin.com" aria-label="LinkedIn" class="text-[#dcdcdc] hover:text-[#fdca49] transition"><i class="fab fa-linkedin-in"></i></a>
-          </div>
-        </div>
-      </div>
-      <p class="text-center text-[#dcdcdc] mt-8">© 2025 VascoBank. Todos os direitos reservados.</p>
+  <footer>
+    <p class="text-center">© 2025 VascoBank. Todos os direitos reservados.</p>
+    <div class="social-icons text-center">
+      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
     </div>
   </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/js/index.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="js/index.js"></script>
+  <script src="js/cloudflare.js"></script>
 
   <style>
-    .font-inter {
-      font-family: 'Inter', sans-serif;
-    }
+    :root {
+  --color1: #fc580c; /* Laranja principal */
+  --color2: #121212; /* Preto */
+  --color3: #f8872e; /* Laranja claro */
+  --color4: #ffa927; /* Amarelo botão */
+  --color5: #fdca49; /* Amarelo claro */
+  --primary: var(--color1);
+  --primary-light: var(--color3);
+  --primary-dark: var(--color2);
+  --text-light: #ffffff;
+  --text-dark: #dcdcdc;
+  --gray-light: #c2b9b9;
+  --gray-dark: #434040;
+  --gray-darker: #121212;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --transition: 0.3s ease;
+  --neon-glow: 0 0 10px rgba(252, 88, 12, 0.8), 0 0 20px rgba(252, 88, 12, 0.6);
+  --success: #28a745; /* Verde pro balão de sucesso */
+}
 
-    .preload {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: #434040;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      transition: opacity 0.5s ease;
-    }
+body {
+  font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background-color: var(--gray-darker);
+  color: var(--text-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
 
-    .preload .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid #c2b9b9;
-      border-top-color: #fc580c;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
+/* Preload */
+.preload {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--gray-darker);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  transition: opacity 0.5s ease;
+}
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
+.preload img {
+  width: 192px; /* w-48 */
+  margin-bottom: 1.5rem;
+  animation: pulse 1.5s infinite ease-in-out;
+}
 
-    main {
-      animation: fadeIn 1s ease-in-out;
-    }
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--gray-light);
+  border-top: 5px solid var(--color4);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, var(--color1), var(--color3));
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+header .logo {
+  height: 80px;
+  margin-left: 0;
+  transition: transform 0.3s ease;
+}
+
+header .logo:hover {
+  transform: scale(1.05);
+}
+
+nav a {
+  color: var(--text-light);
+  margin-left: 1.5rem;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+nav a:hover {
+  color: var(--color5);
+  text-shadow: var(--neon-glow);
+}
+
+/* Main */
+main {
+  flex: 1;
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1, h2, h3 {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bg-dark {
+  background: linear-gradient(135deg, #1c1c1c, #2a2a2a) !important;
+}
+
+.text-light {
+  color: var(--text-light) !important;
+}
+
+.text-warning {
+  color: var(--color5) !important;
+}
+
+/* Hero Section */
+section.bg-dark {
+  padding: 3rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease;
+}
+
+section.bg-dark:hover {
+  transform: translateY(-5px);
+}
+
+section.bg-dark h1 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+section.bg-dark p {
+  color: var(--text-dark);
+  font-size: 1.2rem;
+}
+
+/* Cards */
+.card {
+  background: #1c1c1c;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(243, 78, 2, 0.7);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  color: var(--text-dark);
+  font-size: 1rem;
+}
+
+.card i {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.card:hover i {
+  transform: scale(1.2);
+  color: var(--color4);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--color4);
+  border: none;
+  color: var(--gray-darker);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--color3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Footer */
+footer {
+  background: linear-gradient(135deg, var(--color1), var(--color3));
+  color: var(--text-light);
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.social-icons a {
+  color: var(--text-light);
+  margin: 0 0.8rem;
+  font-size: 1.8rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-icons a:hover {
+  transform: scale(1.3);
+  color: var(--color5);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  header .logo {
+    height: 60px;
+    margin-bottom: 1rem;
+  }
+
+  nav a {
+  color: var(--text-light);
+  margin-left: 1.5rem;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+ 
+
+  main {
+    padding: 1.5rem 0.5rem;
+  }
+
+  section.bg-dark {
+    padding: 2rem 1rem;
+  }
+
+  section.bg-dark h1 {
+    font-size: 2rem;
+  }
+
+  section.bg-dark p {
+    font-size: 1rem;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .card-title {
+    font-size: 1.3rem;
+  }
+
+  .card-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  h1, h2, h3 {
+    font-size: 1.5rem;
+  }
+
+  section.bg-dark h1 {
+    font-size: 1.8rem;
+  }
+
+  .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .btn-primary {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .social-icons a {
+    font-size: 1.5rem;
+    margin: 0 0.5rem;
+  }
+}
   </style>
 </body>
 </html>

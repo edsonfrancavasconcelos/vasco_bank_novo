@@ -3,17 +3,13 @@ const mongoose = require("mongoose");
 const transactionSchema = new mongoose.Schema({
   type: { type: String, required: true },
   amount: { type: Number, required: true },
-  fromAccount: { type: String, required: true },
+  fromAccount: { type: String },
   targetAccount: { type: String },
   description: { type: String },
-  installments: { type: Number }, // Parcelas (opcional)
+  installments: { type: Number },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   date: { type: Date, default: Date.now },
-  status: { type: String, default: 'pending' } // Status inicial
+  status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
 });
 
-const Transaction =
-  mongoose.models.Transaction ||
-  mongoose.model("Transaction", transactionSchema);
-
-module.exports = Transaction;
+module.exports = mongoose.model("Transaction", transactionSchema);
